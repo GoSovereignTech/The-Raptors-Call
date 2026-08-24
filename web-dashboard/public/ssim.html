@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Raptor's Call - Simulator</title>
+    <style>
+        /* RESET & BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: #0a0a12; 
+            color: #e0e0e0; 
+            height: 100vh; 
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* PHONE FRAME */
+        #phone {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 850px;
+            background: #12121e;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #2a2a3a;
+            position: relative;
+        }
+
+        /* HEADER */
+        #header {
+            padding: 20px 20px 10px 20px;
+            background: #0d0d18;
+            border-bottom: 1px solid #1f1f30;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f0b429;
+            letter-spacing: 0.5px;
+        }
+        #header h1 small {
+            font-size: 10px;
+            color: #7a7a9a;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+        #sim-badge {
+            background: #f0b429;
+            color: #0a0a12;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* MAP AREA */
+        #map-container {
+            flex: 1;
+            position: relative;
+            background: #0a0a12;
+            overflow: hidden;
+            margin: 10px;
+            border-radius: 24px;
+            border: 1px solid #1f1f30;
+            min-height: 300px;
+        }
+        #map-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        #map-container #map-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        .node-dot {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            z-index: 5;
+        }
+        .node-dot.friendly { background: #00d26a; border-color: #00d26a; box-shadow: 0 0 20px #00d26a66; }
+        .node-dot.unknown { background: #f0b429; border-color: #f0b429; box-shadow: 0 0 20px #f0b42966; }
+        .node-dot.threat { background: #ff3b4a; border-color: #ff3b4a; box-shadow: 0 0 30px #ff3b4a88; animation: pulse-threat 1s infinite; }
+        @keyframes pulse-threat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.4); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .node-label {
+            position: absolute;
+            color: rgba(255,255,255,0.4);
+            font-size: 8px;
+            transform: translate(-50%, -150%);
+            white-space: nowrap;
+            font-weight: 600;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* REWIND TRAIL */
+        .trail-segment {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 59, 74, 0.4);
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* OVERLAY STATUS */
+        #status-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 10px;
+            border: 1px solid #2a2a3a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #8a8aaa;
+        }
+        #status-overlay .dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: #00d26a; 
+            display: inline-block; 
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        #status-overlay span { color: #fff; font-weight: 600; margin-left: 4px; }
+
+        /* CONTROLS */
+        #controls {
+            padding: 12px 20px 20px 20px;
+            background: #0d0d18;
+            border-top: 1px solid #1f1f30;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .ctrl-btn {
+            background: #1a1a2e;
+            border: 1px solid #2a2a3a;
+            color: #c0c0d0;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1 0 auto;
+            justify-content: center;
+            min-width: 60px;
+        }
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn.primary { background: #f0b429; border-color: #f0b429; color: #0a0a12; }
+        .ctrl-btn.danger { background: #ff3b4a; border-color: #ff3b4a; color: #fff; }
+        .ctrl-btn.silent { background: #2a2a4a; border-color: #3a3a5a; color: #a0a0c0; }
+        .ctrl-btn .icon { font-size: 16px; }
+
+        /* CHAT POPUP */
+        #chat-box {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            right: 10px;
+            background: #0d0d18;
+            border: 1px solid #2a2a3a;
+            border-radius: 20px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 20;
+            display: none;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 18, 0.95);
+        }
+        #chat-box.active { display: block; }
+        #chat-box .msg {
+            padding: 6px 0;
+            border-bottom: 1px solid #1a1a2a;
+            font-size: 12px;
+            display: flex;
+            gap: 10px;
+        }
+        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 60px; }
+        #chat-box .msg .text { color: #d0d0e0; }
+        #chat-box .msg .time { color: #5a5a7a; font-size: 9px; margin-left: auto; }
+        #chat-input {
+            width: 100%;
+            background: #1a1a2e;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 13px;
+            margin-top: 10px;
+            outline: none;
+        }
+        #chat-input::placeholder { color: #5a5a7a; }
+
+        /* TOAST / ALERTS */
+        #alert-toast {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            z-index: 30;
+            background: #ff3b4a;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(255, 59, 74, 0.4);
+            display: none;
+            text-align: center;
+            border: 1px solid #ff6a76;
+            animation: slideDown 0.3s ease;
+        }
+        #alert-toast.silent { background: #2a2a5a; border-color: #4a4a8a; box-shadow: 0 10px 40px rgba(42, 42, 90, 0.4); }
+        @keyframes slideDown { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0a0a12; }
+        ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 10px; }
+
+        /* Responsive */
+        @media (max-width: 450px) {
+            #phone { border-radius: 0; max-height: 100vh; border: none; }
+            #header { padding: 15px 15px 5px 15px; }
+            #controls { padding: 10px 12px 15px 12px; gap: 6px; }
+            .ctrl-btn { font-size: 10px; padding: 8px 10px; min-width: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="phone">
+    <!-- HEADER -->
+    <div id="header">
+        <h1>🦅 RAPTOR'S CALL <small>Foundation • Simulator</small></h1>
+        <div id="sim-badge">⚡ SIM</div>
+    </div>
+
+    <!-- MAP -->
+    <div id="map-container">
+        <div id="map-layer"></div>
+        <canvas id="radar-canvas"></canvas>
+        
+        <!-- Status -->
+        <div id="status-overlay">
+            <span class="dot"></span> System Online 
+            <span style="margin-left: 12px;">📡 4 Nodes</span>
+            <span style="margin-left: 12px;">🔄 2.4s</span>
+        </div>
+
+        <!-- Alert Toast -->
+        <div id="alert-toast">🚨 THREAT DETECTED — Team alerted!</div>
+
+        <!-- Chat Box -->
+        <div id="chat-box">
+            <div id="chat-messages">
+                <div class="msg"><span class="sender">System</span><span class="text">Welcome to the Raptor's Call Simulator.</span><span class="time">now</span></div>
+            </div>
+            <input id="chat-input" type="text" placeholder="Type a message to your team...">
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div id="controls">
+        <button class="ctrl-btn primary" id="btnRewind">🔄 Rewind</button>
+        <button class="ctrl-btn" id="btnRadar">📡 Radar</button>
+        <button class="ctrl-btn" id="btnChat">💬 Chat</button>
+        <button class="ctrl-btn silent" id="btnSilent">🔇 Silent</button>
+        <button class="ctrl-btn danger" id="btnLoud">🔊 Alarm</button>
+    </div>
+</div>
+
+<script>
+    // ========================================================================
+    //  SIMULATION ENGINE
+    //  Generates fake Meshtastic, Radar, and Chat data.
+    //  The data structure matches exactly what the real hardware will send.
+    // ========================================================================
+
+    const mapLayer = document.getElementById('map-layer');
+    const radarCanvas = document.getElementById('radar-canvas');
+    const ctx = radarCanvas.getContext('2d');
+    const chatBox = document.getElementById('chat-box');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const alertToast = document.getElementById('alert-toast');
+
+    // --- State ---
+    let nodes = [];
+    let nodeHistory = {}; // For rewind: track positions per node ID
+    let isRewinding = false;
+    let radarActive = true;
+    let radarAngle = 0;
+    let alertTimer = null;
+    let chatOpen = false;
+
+    // --- Simulation Config ---
+    const NODE_COUNT = 6;
+    const FRIENDLY_IDS = ['You', 'Kai', 'Aisha', 'Marcus'];
+    const THREAT_NAMES = ['Unknown-1', 'Unknown-2'];
+
+    // --- Helpers ---
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+
+    // --- Payload Generator (Matches Real Hardware) ---
+    function generateNodePayload(node) {
+        // This is the EXACT JSON structure that the real Meshtastic/Radar will send.
+        return {
+            id: node.id,
+            type: node.type, // 'personal', 'radar', 'mesh'
+            position: { x: node.x, y: node.y },
+            status: node.status, // 'friendly', 'unknown', 'threat'
+            timestamp: Date.now(),
+            battery: rand(70, 99).toFixed(1),
+            signal: rand(-60, -30).toFixed(1),
+            // Specific to Meshtastic
+            isPersonalTag: node.type === 'personal',
+            personalTagId: node.type === 'personal' ? node.id : null,
+            // Radar specific
+            doppler: node.type === 'radar' ? rand(0.5, 2.5).toFixed(2) : null,
+            // User action trigger
+            isUserTriggered: node.userTriggered || false,
+        };
+    }
+
+    // --- Initialize Nodes ---
+    function initNodes() {
+        const newNodes = [];
+        const usedNames = [...FRIENDLY_IDS];
+        
+        for (let i = 0; i < NODE_COUNT; i++) {
+            let type = 'mesh';
+            let status = 'friendly';
+            let name = usedNames.pop() || `Node-${i}`;
+            
+            if (i === 0) { type = 'personal'; name = 'You'; status = 'friendly'; }
+            else if (i === NODE_COUNT - 1) { status = 'threat'; name = THREAT_NAMES[0]; }
+            else if (i === NODE_COUNT - 2) { status = 'unknown'; name = 'Unknown-1'; }
+            
+            const node = {
+                id: `node-${i}`,
+                name: name,
+                type: type,
+                status: status,
+                x: rand(15, 85),
+                y: rand(15, 85),
+                vx: rand(-0.3, 0.3),
+                vy: rand(-0.3, 0.3),
+                history: [], // For rewind
+                userTriggered: false,
+            };
+            newNodes.push(node);
+            nodeHistory[node.id] = [];
+        }
+        return newNodes;
+    }
+
+    nodes = initNodes();
+
+    // --- Update Node Positions ---
+    function updateNodes() {
+        const width = mapLayer.clientWidth || 400;
+        const height = mapLayer.clientHeight || 600;
+
+        nodes.forEach(node => {
+            // Move
+            node.x += node.vx;
+            node.y += node.vy;
+            
+            // Bounce off walls
+            if (node.x < 5 || node.x > 95) { node.vx *= -1; }
+            if (node.y < 5 || node.y > 95) { node.vy *= -1; }
+            
+            // Clamp
+            node.x = Math.max(2, Math.min(98, node.x));
+            node.y = Math.max(2, Math.min(98, node.y));
+
+            // Add to history (for rewind)
+            nodeHistory[node.id].push({ x: node.x, y: node.y, time: Date.now() });
+            if (nodeHistory[node.id].length > 40) nodeHistory[node.id].shift();
+
+            // Occasionally change direction for threat to simulate stalking
+            if (node.status === 'threat' && Math.random() < 0.02) {
+                // Move toward "You" (node 0)
+                const you = nodes[0];
+                if (you) {
+                    const dx = you.x - node.x;
+                    const dy = you.y - node.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist > 5) {
+                        node.vx = (dx / dist) * 0.4;
+                        node.vy = (dy / dist) * 0.4;
+                    }
+                }
+            }
+        });
+
+        // Radar sweep
+        radarAngle += 0.04;
+        if (radarAngle > 360) radarAngle = 0;
+    }
+
+    // --- Render Map (Nodes & Trail) ---
+    function renderMap() {
+        const container = mapLayer.parentElement;
+        const rect = container.getBoundingClientRect();
+        const width = container.clientWidth || 400;
+        const height = container.clientHeight || 600;
+
+        // Clear map layer (keep only nodes)
+        mapLayer.innerHTML = '';
+
+        // Draw trails first (behind nodes)
+        if (isRewinding) {
+            // If rewinding, show full history for threats
+            nodes.forEach(node => {
+                if (node.status === 'threat' || node.status === 'unknown') {
+                    const history = nodeHistory[node.id] || [];
+                    history.forEach((pos, idx) => {
+                        const trail = document.createElement('div');
+                        trail.className = 'trail-segment';
+                        const x = (pos.x / 100) * width;
+                        const y = (pos.y / 100) * height;
+                        trail.style.left = x + 'px';
+                        trail.style.top = y + 'px';
+                        trail.style.opacity = 0.2 + (idx / history.length) * 0.8;
+                        trail.style.width = (4 + (idx / history.length) * 6) + 'px';
+                        trail.style.height = trail.style.width;
+                        mapLayer.appendChild(trail);
+                    });
+                }
+            });
+        } else {
+            // Normal: just show recent trail for threats (last 10)
+            nodes.forEach(node => {
+                if (node.status === 'threat') {
+                    const history = nodeHistory[node.id] || [];
+                    const recent = history.slice(-15);
+                    recent.forEach((pos, idx) => {
+                        const trail = document.createElement('div');
+                        trail.className = 'trail-segment';
+                        const x = (pos.x / 100) * width;
+                        const y = (pos.y / 100) * height;
+                        trail.style.left = x + 'px';
+                        trail.style.top = y + 'px';
+                        trail.style.opacity = 0.1 + (idx / recent.length) * 0.5;
+                        mapLayer.appendChild(trail);
+                    });
+                }
+            });
+        }
+
+        // Draw nodes
+        nodes.forEach(node => {
+            const x = (node.x / 100) * width;
+            const y = (node.y / 100) * height;
+
+            const dot = document.createElement('div');
+            dot.className = `node-dot ${node.status}`;
+            dot.style.left = x + 'px';
+            dot.style.top = y + 'px';
+            dot.title = `${node.name} (${node.status})`;
+            mapLayer.appendChild(dot);
+
+            const label = document.createElement('div');
+            label.className = 'node-label';
+            label.style.left = x + 'px';
+            label.style.top = (y - 18) + 'px';
+            label.textContent = node.name;
+            mapLayer.appendChild(label);
+        });
+    }
+
+    // --- Render Radar (Canvas Overlay) ---
+    function renderRadar() {
+        const container = radarCanvas.parentElement;
+        const width = container.clientWidth || 400;
+        const height = container.clientHeight || 600;
+        
+        radarCanvas.width = width;
+        radarCanvas.height = height;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        if (!radarActive) return;
+
+        const cx = width / 2;
+        const cy = height / 2;
+        const radius = Math.min(width, height) * 0.42;
+
+        // Background glow
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+        grad.addColorStop(0, 'rgba(0, 200, 255, 0.03)');
+        grad.addColorStop(1, 'rgba(0, 200, 255, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sweep arc
+        const sweepAngle = (radarAngle * Math.PI) / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, sweepAngle - 0.6, sweepAngle + 0.1);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 200, 255, 0.08)';
+        ctx.fill();
+
+        // Sweep line
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
+        ctx.strokeStyle = 'rgba(0, 200, 255, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Radar blips (simulated from node positions)
+        nodes.forEach(node => {
+            if (node.status === 'friendly' && node.name !== 'You') return;
+            const dx = node.x - 50;
+            const dy = node.y - 50;
+            const dist = Math.sqrt(dx*dx + dy*dy) / 50; // normalize
+            if (dist > 1) return;
+            
+            const angle = Math.atan2(dy, dx);
+            const blipX = cx + Math.cos(angle) * dist * radius;
+            const blipY = cy + Math.sin(angle) * dist * radius;
+            
+            const alpha = Math.random() * 0.3 + 0.7;
+            const color = node.status === 'threat' ? `rgba(255, 59, 74, ${alpha})` : `rgba(0, 210, 106, ${alpha})`;
+            
+            ctx.beginPath();
+            ctx.arc(blipX, blipY, 4 + Math.random() * 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            // Glow
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(blipX, blipY, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+
+        // Circle rings
+        ctx.strokeStyle = 'rgba(0, 200, 255, 0.07)';
+        ctx.lineWidth = 1;
+        for (let r = 0.2; r <= 1; r += 0.2) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        // Cardinal directions
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.font = '10px monospace';
+        ctx.fillText('N', cx - 6, 20);
+        ctx.fillText('S', cx - 6, height - 10);
+        ctx.fillText('E', width - 20, cy + 4);
+        ctx.fillText('W', 10, cy + 4);
+    }
+
+    // --- Trigger Alert ---
+    function triggerAlert(message, isSilent = false) {
+        alertToast.textContent = message;
+        alertToast.className = isSilent ? 'silent' : '';
+        alertToast.style.display = 'block';
+        clearTimeout(alertTimer);
+        alertTimer = setTimeout(() => {
+            alertToast.style.display = 'none';
+        }, 4500);
+
+        // Add to chat
+        addChatMessage('🚨 ALERT', message, 'System');
+    }
+
+    // --- Rewind Logic ---
+    function toggleRewind() {
+        isRewinding = !isRewinding;
+        const btn = document.getElementById('btnRewind');
+        if (isRewinding) {
+            btn.style.background = '#f0b429';
+            btn.style.color = '#0a0a12';
+            triggerAlert('🔄 Rewind Active — Tracing threat paths...', true);
+        } else {
+            btn.style.background = '';
+            btn.style.color = '';
+        }
+        renderMap();
+    }
+
+    // --- Chat Logic ---
+    function addChatMessage(sender, text, type = 'User') {
+        const div = document.createElement('div');
+        div.className = 'msg';
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        div.innerHTML = `<span class="sender">${sender}</span><span class="text">${text}</span><span class="time">${time}</span>`;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // --- Simulate Incoming Chat (Network effect) ---
+    function simulateNetworkChat() {
+        const msgs = [
+            '📡 Node-2 detected movement 50m north.',
+            '👤 Unknown person approaching the trail.',
+            '🔄 Rewind shows they came from the parking lot.',
+            '✅ Team Aisha is 2 minutes out.',
+            '⚠️ Radar shows 2 people behind the treeline.',
+        ];
+        if (Math.random() < 0.03 && !chatOpen) {
+            const msg = msgs[randInt(0, msgs.length-1)];
+            addChatMessage('📡 Network', msg, 'System');
+        }
+    }
+
+    // --- Main Loop ---
+    function gameLoop() {
+        updateNodes();
+        renderMap();
+        renderRadar();
+        simulateNetworkChat();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- UI Event Listeners ---
+    document.getElementById('btnRewind').addEventListener('click', toggleRewind);
+
+    document.getElementById('btnRadar').addEventListener('click', function() {
+        radarActive = !radarActive;
+        this.style.borderColor = radarActive ? '#f0b429' : '#2a2a3a';
+        this.style.color = radarActive ? '#f0b429' : '#5a5a7a';
+        triggerAlert(`📡 Radar ${radarActive ? 'ON' : 'OFF'}`, true);
+    });
+
+    document.getElementById('btnChat').addEventListener('click', function() {
+        chatOpen = !chatOpen;
+        chatBox.classList.toggle('active');
+        if (chatOpen) {
+            chatInput.focus();
+            addChatMessage('🦅 Raptor', 'Hardware unlocked: Full mesh chat with encrypted LoRa.', 'System');
+            addChatMessage('💡 Tip', 'Purchase Mesh Nodes to enable off-grid team chat.', 'System');
+        }
+    });
+
+    document.getElementById('btnSilent').addEventListener('click', function() {
+        triggerAlert('🔇 SILENT ALARM — Team notified discreetly. Response en route.', true);
+        addChatMessage('🆘 SILENT', 'I need backup. Tracking enabled.', 'You');
+        // Simulate team response
+        setTimeout(() => {
+            addChatMessage('✅ Team', 'On our way. 3 minutes out.', 'System');
+        }, 1500);
+    });
+
+    document.getElementById('btnLoud').addEventListener('click', function() {
+        triggerAlert('🔊 LOUD ALARM — Siren activated! Team converging NOW.');
+        addChatMessage('🔊 ALARM', 'EMERGENCY! Sending location to all protectors.', 'You');
+        // Simulate response
+        setTimeout(() => {
+            addChatMessage('✅ Team', 'Arriving in 60 seconds. Stay safe.', 'System');
+        }, 1000);
+    });
+
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+            const text = this.value.trim();
+            addChatMessage('💬 You', text, 'User');
+            this.value = '';
+            
+            // Simulate team reply
+            setTimeout(() => {
+                const replies = ['Copy that.', 'On watch.', 'Roger.', 'Stay safe.', 'We see you.'];
+                addChatMessage('✅ Team', replies[randInt(0, replies.length-1)], 'System');
+            }, 800);
+
+            // Prompt hardware unlock
+            if (text.toLowerCase().includes('help') || text.toLowerCase().includes('backup')) {
+                setTimeout(() => {
+                    addChatMessage('💡 Raptor', 'Mesh hardware required for off-grid comms. Purchase Loadout 3.', 'System');
+                }, 2000);
+            }
+        }
+    });
+
+    // Close chat when clicking outside
+    document.addEventListener('click', function(e) {
+        if (chatOpen && !chatBox.contains(e.target) && e.target.id !== 'btnChat') {
+            chatBox.classList.remove('active');
+            chatOpen = false;
+        }
+    });
+
+    // --- Start ---
+    // Initial chat welcome
+    setTimeout(() => {
+        addChatMessage('🦅 Raptor', 'Welcome! This is the FREE Foundation Simulator.', 'System');
+        addChatMessage('💡 Tip', 'Press SILENT or ALARM to see the response. Buy hardware to unlock full features.', 'System');
+        addChatMessage('💡 Tip', 'Click REWIND to see where threats came from.', 'System');
+    }, 500);
+
+    // Resize canvas on layout change
+    window.addEventListener('resize', () => { renderRadar(); });
+
+    gameLoop();
+
+    // Override renderMap to include dynamic history
+    console.log('🦅 Raptor\'s Call Simulator Online. Ready for presentation!');
+</script>
+
+</body>
+</html>
