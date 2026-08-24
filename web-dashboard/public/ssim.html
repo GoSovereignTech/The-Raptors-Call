@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Raptor's Call - Simulator</title>
     <style>
-        /* RESET & BASE */
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: #0a0a12; 
-            color: #e0e0e0; 
-            height: 100vh; 
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a12;
+            color: #e0e0e0;
+            height: 100vh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
-        /* PHONE FRAME */
+
+        /* ===== PHONE FRAME ===== */
         #phone {
             width: 100%;
             max-width: 420px;
             height: 100vh;
             max-height: 850px;
-            background: #12121e;
+            background: #0a0e1c;
             border-radius: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             display: flex;
@@ -34,50 +34,112 @@
             position: relative;
         }
 
-        /* HEADER */
+        /* ===== HEADER ===== */
         #header {
-            padding: 20px 20px 10px 20px;
+            padding: 16px 18px 10px 18px;
             background: #0d0d18;
             border-bottom: 1px solid #1f1f30;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 50;
+            flex-shrink: 0;
         }
         #header h1 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #f0b429;
             letter-spacing: 0.5px;
         }
         #header h1 small {
-            font-size: 10px;
+            font-size: 9px;
             color: #7a7a9a;
             font-weight: 400;
             display: block;
-            margin-top: 2px;
+            margin-top: 1px;
             letter-spacing: 1px;
         }
         #sim-badge {
             background: #f0b429;
             color: #0a0a12;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 800;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* MAP AREA */
+        /* ===== SPLASH SCREEN ===== */
+        #splash-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(14, 14, 14, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        #splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #splash-screen img {
+            width: 70%;
+            max-width: 280px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            margin-bottom: 24px;
+        }
+        #splash-screen .splash-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #f0b429;
+            letter-spacing: 4px;
+        }
+        #splash-screen .splash-sub {
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 6px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        #splash-screen .splash-loader {
+            margin-top: 24px;
+            display: flex;
+            gap: 8px;
+        }
+        #splash-screen .splash-loader span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f0b429;
+            animation: pulse-dot 1.2s ease-in-out infinite;
+        }
+        #splash-screen .splash-loader span:nth-child(2) { animation-delay: 0.2s; }
+        #splash-screen .splash-loader span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ===== MAP AREA ===== */
         #map-container {
             flex: 1;
             position: relative;
-            background: #0a0a12;
+            background: #0a0e1c;
             overflow: hidden;
-            margin: 10px;
-            border-radius: 24px;
+            margin: 10px 10px 6px 10px;
+            border-radius: 20px;
             border: 1px solid #1f1f30;
-            min-height: 300px;
+            min-height: 200px;
+            transition: opacity 0.4s ease;
+        }
+        #map-container.rewind-mode {
+            opacity: 0.35;
         }
         #map-container canvas {
             position: absolute;
@@ -111,7 +173,7 @@
         .node-dot.threat { background: #ff3b4a; border-color: #ff3b4a; box-shadow: 0 0 30px #ff3b4a88; animation: pulse-threat 1s infinite; }
         @keyframes pulse-threat {
             0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.4); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
         .node-label {
@@ -125,132 +187,89 @@
             pointer-events: none;
         }
 
-        /* REWIND TRAIL */
+        /* ===== REWIND TRAIL ===== */
         .trail-segment {
             position: absolute;
-            width: 6px;
-            height: 6px;
             border-radius: 50%;
-            background: rgba(255, 59, 74, 0.4);
             transform: translate(-50%, -50%);
             z-index: 3;
             pointer-events: none;
+            transition: opacity 0.3s;
         }
 
-        /* OVERLAY STATUS */
+        /* ===== STATUS OVERLAY ===== */
         #status-overlay {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 12px;
+            left: 12px;
             z-index: 10;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.65);
             backdrop-filter: blur(10px);
-            padding: 8px 14px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 10px;
+            font-size: 9px;
             border: 1px solid #2a2a3a;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             color: #8a8aaa;
+            flex-wrap: wrap;
         }
-        #status-overlay .dot { 
-            width: 8px; 
-            height: 8px; 
-            border-radius: 50%; 
-            background: #00d26a; 
-            display: inline-block; 
+        #status-overlay .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00d26a;
+            display: inline-block;
             animation: blink 1.5s infinite;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-        #status-overlay span { color: #fff; font-weight: 600; margin-left: 4px; }
+        #status-overlay span { color: #fff; font-weight: 600; margin-left: 3px; }
 
-        /* CONTROLS */
-        #controls {
-            padding: 12px 20px 20px 20px;
-            background: #0d0d18;
-            border-top: 1px solid #1f1f30;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .ctrl-btn {
-            background: #1a1a2e;
-            border: 1px solid #2a2a3a;
-            color: #c0c0d0;
-            padding: 10px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
+        /* Speed control in status */
+        #speed-control {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            background: rgba(0,0,0,0.4);
+            padding: 2px 8px;
+            border-radius: 30px;
+            margin-left: 4px;
+        }
+        #speed-control button {
+            background: transparent;
+            border: none;
+            color: #7a7a9a;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            flex: 1 0 auto;
-            justify-content: center;
-            min-width: 60px;
         }
-        .ctrl-btn:active { transform: scale(0.95); }
-        .ctrl-btn.primary { background: #f0b429; border-color: #f0b429; color: #0a0a12; }
-        .ctrl-btn.danger { background: #ff3b4a; border-color: #ff3b4a; color: #fff; }
-        .ctrl-btn.silent { background: #2a2a4a; border-color: #3a3a5a; color: #a0a0c0; }
-        .ctrl-btn .icon { font-size: 16px; }
+        #speed-control button.active {
+            color: #f0b429;
+            background: rgba(240, 180, 41, 0.15);
+        }
+        #speed-control button:hover { color: #c0c0d0; }
+        #speed-control .label {
+            color: #5a5a7a;
+            font-size: 8px;
+            margin-right: 2px;
+        }
 
-        /* CHAT POPUP */
-        #chat-box {
-            position: absolute;
-            bottom: 80px;
-            left: 10px;
-            right: 10px;
-            background: #0d0d18;
-            border: 1px solid #2a2a3a;
-            border-radius: 20px;
-            padding: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 20;
-            display: none;
-            backdrop-filter: blur(20px);
-            background: rgba(10, 10, 18, 0.95);
-        }
-        #chat-box.active { display: block; }
-        #chat-box .msg {
-            padding: 6px 0;
-            border-bottom: 1px solid #1a1a2a;
-            font-size: 12px;
-            display: flex;
-            gap: 10px;
-        }
-        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 60px; }
-        #chat-box .msg .text { color: #d0d0e0; }
-        #chat-box .msg .time { color: #5a5a7a; font-size: 9px; margin-left: auto; }
-        #chat-input {
-            width: 100%;
-            background: #1a1a2e;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 16px;
-            color: #fff;
-            font-size: 13px;
-            margin-top: 10px;
-            outline: none;
-        }
-        #chat-input::placeholder { color: #5a5a7a; }
-
-        /* TOAST / ALERTS */
+        /* ===== ALERT TOAST ===== */
         #alert-toast {
             position: absolute;
-            top: 70px;
-            left: 20px;
-            right: 20px;
+            top: 65px;
+            left: 16px;
+            right: 16px;
             z-index: 30;
             background: #ff3b4a;
-            padding: 12px 18px;
-            border-radius: 16px;
+            padding: 10px 16px;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             color: #fff;
             box-shadow: 0 10px 40px rgba(255, 59, 74, 0.4);
             display: none;
@@ -259,72 +278,303 @@
             animation: slideDown 0.3s ease;
         }
         #alert-toast.silent { background: #2a2a5a; border-color: #4a4a8a; box-shadow: 0 10px 40px rgba(42, 42, 90, 0.4); }
+        #alert-toast .pin-prompt {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+        #alert-toast .pin-prompt input {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 4px 12px;
+            width: 80px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+        }
+        #alert-toast .pin-prompt input::placeholder { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 1px; }
+        #alert-toast .pin-prompt button {
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 14px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #0a0a12;
+            cursor: pointer;
+        }
         @keyframes slideDown { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
-        /* SCROLLBAR */
+        /* Alarm active indicator (flashing icon) */
+        #alarm-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 15;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 59, 74, 0.2);
+            padding: 4px 12px 4px 8px;
+            border-radius: 30px;
+            border: 1px solid #ff3b4a;
+            font-size: 10px;
+            font-weight: 700;
+            color: #ff3b4a;
+            animation: flash-alarm 0.8s infinite;
+        }
+        #alarm-indicator.silent-mode {
+            border-color: #f0b429;
+            color: #f0b429;
+            background: rgba(240, 180, 41, 0.15);
+        }
+        @keyframes flash-alarm {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        #alarm-indicator .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff3b4a;
+            animation: pulse-threat 0.8s infinite;
+        }
+        #alarm-indicator.silent-mode .pulse-dot { background: #f0b429; }
+
+        /* ===== CHAT BOX ===== */
+        #chat-box {
+            position: absolute;
+            bottom: 140px;
+            left: 10px;
+            right: 10px;
+            background: rgba(10, 10, 18, 0.96);
+            border: 1px solid #2a2a3a;
+            border-radius: 16px;
+            padding: 12px;
+            max-height: 160px;
+            overflow-y: auto;
+            z-index: 20;
+            display: none;
+            backdrop-filter: blur(20px);
+        }
+        #chat-box.active { display: block; }
+        #chat-box .msg {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a2a;
+            font-size: 11px;
+            display: flex;
+            gap: 8px;
+        }
+        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 50px; font-size: 10px; }
+        #chat-box .msg .text { color: #d0d0e0; }
+        #chat-box .msg .time { color: #5a5a7a; font-size: 8px; margin-left: auto; }
+        #chat-input {
+            width: 100%;
+            background: #1a1a2e;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 14px;
+            color: #fff;
+            font-size: 12px;
+            margin-top: 8px;
+            outline: none;
+        }
+        #chat-input::placeholder { color: #5a5a7a; }
+
+        /* ===== CONTROLS (FOOTER) ===== */
+        #controls {
+            padding: 8px 12px 14px 12px;
+            background: #0d0d18;
+            border-top: 1px solid #1f1f30;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .ctrl-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .ctrl-btn {
+            background: #1a1a2e;
+            border: 1px solid #2a2a3a;
+            color: #c0c0d0;
+            padding: 8px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 44px;
+            max-width: 120px;
+            white-space: nowrap;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .ctrl-btn:active { transform: scale(0.94); }
+        .ctrl-btn.primary { background: #f0b429; border-color: #f0b429; color: #0a0a12; }
+        .ctrl-btn.danger { background: #ff3b4a; border-color: #ff3b4a; color: #fff; }
+        .ctrl-btn.silent { background: #2a2a4a; border-color: #3a3a5a; color: #a0a0c0; }
+        .ctrl-btn.overlay-btn {
+            background: transparent;
+            border-color: transparent;
+            color: #6a6a8a;
+            font-size: 10px;
+            padding: 6px 8px;
+            flex: 1;
+            max-width: 100px;
+        }
+        .ctrl-btn.overlay-btn.active {
+            color: #f0b429;
+            background: rgba(240, 180, 41, 0.12);
+            border-color: rgba(240, 180, 41, 0.3);
+        }
+        .ctrl-btn.overlay-btn.mesh-active { color: #00d26a; border-color: rgba(0, 210, 106, 0.3); background: rgba(0, 210, 106, 0.08); }
+        .ctrl-btn.overlay-btn.radar-active { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background: rgba(34, 211, 238, 0.08); }
+        .ctrl-btn.overlay-btn.chat-active { color: #a78bfa; border-color: rgba(167, 139, 250, 0.3); background: rgba(167, 139, 250, 0.08); }
+        .ctrl-btn .icon { font-size: 14px; }
+        .ctrl-btn .badge {
+            font-size: 8px;
+            background: #ff3b4a;
+            color: #fff;
+            border-radius: 10px;
+            padding: 1px 6px;
+            margin-left: 2px;
+        }
+        /* Stop alarm button (appears when alarm active) */
+        #btnStopAlarm {
+            display: none;
+            background: #ff3b4a;
+            border-color: #ff3b4a;
+            color: #fff;
+            animation: pulse-threat 0.8s infinite;
+            flex: 1.5;
+        }
+        #btnStopAlarm.visible { display: flex; }
+
+        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: #0a0a12; }
         ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 10px; }
 
-        /* Responsive */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 450px) {
             #phone { border-radius: 0; max-height: 100vh; border: none; }
-            #header { padding: 15px 15px 5px 15px; }
-            #controls { padding: 10px 12px 15px 12px; gap: 6px; }
-            .ctrl-btn { font-size: 10px; padding: 8px 10px; min-width: 50px; }
+            #header { padding: 12px 14px 6px 14px; }
+            #header h1 { font-size: 15px; }
+            #controls { padding: 6px 8px 12px 8px; gap: 6px; }
+            .ctrl-btn { font-size: 9px; padding: 6px 6px; min-width: 36px; max-width: 100px; }
+            .ctrl-btn.overlay-btn { font-size: 9px; padding: 4px 6px; max-width: 80px; }
+            #status-overlay { font-size: 8px; padding: 4px 10px; gap: 6px; top: 8px; left: 8px; }
+            #map-container { margin: 6px 6px 4px 6px; border-radius: 14px; }
+            #chat-box { bottom: 120px; max-height: 120px; }
+            #splash-screen img { width: 60%; }
+        }
+        @media (max-width: 380px) {
+            .ctrl-btn { font-size: 8px; padding: 4px 4px; min-width: 30px; }
+            .ctrl-btn.overlay-btn { font-size: 8px; padding: 3px 4px; }
         }
     </style>
 </head>
 <body>
 
 <div id="phone">
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <div id="header">
         <h1>🦅 RAPTOR'S CALL <small>Foundation • Simulator</small></h1>
         <div id="sim-badge">⚡ SIM</div>
     </div>
 
-    <!-- MAP -->
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div id="splash-screen">
+        <!-- Replace src with your actual image URL or local file -->
+        <img src="https://i.imgur.com/WKyKrQD.jpg" alt="Raptor's Call" onerror="this.style.display='none'">
+        <div class="splash-title">RAPTOR'S CALL</div>
+        <div class="splash-sub">Protecting Our Community</div>
+        <div class="splash-loader">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <!-- ===== MAP AREA ===== -->
     <div id="map-container">
         <div id="map-layer"></div>
         <canvas id="radar-canvas"></canvas>
-        
+
         <!-- Status -->
         <div id="status-overlay">
-            <span class="dot"></span> System Online 
-            <span style="margin-left: 12px;">📡 4 Nodes</span>
-            <span style="margin-left: 12px;">🔄 2.4s</span>
+            <span class="dot"></span> <span id="status-text">Online</span>
+            <span id="node-count">📡 0 Nodes</span>
+            <span id="speed-display">⏱ 1.0x</span>
+            <div id="speed-control">
+                <span class="label">Speed</span>
+                <button data-speed="0.5">0.5x</button>
+                <button data-speed="1" class="active">1x</button>
+                <button data-speed="2">2x</button>
+                <button data-speed="5">5x</button>
+            </div>
+        </div>
+
+        <!-- Alarm Indicator -->
+        <div id="alarm-indicator">
+            <span class="pulse-dot"></span>
+            <span id="alarm-label">ALARM ACTIVE</span>
         </div>
 
         <!-- Alert Toast -->
-        <div id="alert-toast">🚨 THREAT DETECTED — Team alerted!</div>
+        <div id="alert-toast">
+            <span id="toast-message">🚨 THREAT DETECTED</span>
+            <div class="pin-prompt" id="pin-prompt" style="display:none;">
+                <input type="password" id="pin-input" maxlength="4" placeholder="PIN" inputmode="numeric">
+                <button id="pin-submit">✓</button>
+            </div>
+        </div>
 
         <!-- Chat Box -->
         <div id="chat-box">
             <div id="chat-messages">
-                <div class="msg"><span class="sender">System</span><span class="text">Welcome to the Raptor's Call Simulator.</span><span class="time">now</span></div>
+                <div class="msg"><span class="sender">🦅 System</span><span class="text">Welcome to the Raptor's Call Simulator.</span><span class="time">now</span></div>
             </div>
             <input id="chat-input" type="text" placeholder="Type a message to your team...">
         </div>
     </div>
 
-    <!-- CONTROLS -->
+    <!-- ===== CONTROLS ===== -->
     <div id="controls">
-        <button class="ctrl-btn primary" id="btnRewind">🔄 Rewind</button>
-        <button class="ctrl-btn" id="btnRadar">📡 Radar</button>
-        <button class="ctrl-btn" id="btnChat">💬 Chat</button>
-        <button class="ctrl-btn silent" id="btnSilent">🔇 Silent</button>
-        <button class="ctrl-btn danger" id="btnLoud">🔊 Alarm</button>
+        <!-- Row 1: Overlay Toggles (persistent, always visible) -->
+        <div class="ctrl-row">
+            <button class="ctrl-btn overlay-btn" id="btnMesh">📡 Meshtastic</button>
+            <button class="ctrl-btn overlay-btn" id="btnRadarToggle">📡 Radar</button>
+            <button class="ctrl-btn overlay-btn" id="btnChatToggle">💬 Chat</button>
+        </div>
+        <!-- Row 2: Action Buttons (always visible) -->
+        <div class="ctrl-row">
+            <button class="ctrl-btn primary" id="btnRewind">🔄 Rewind</button>
+            <button class="ctrl-btn silent" id="btnSilent">🔇 Silent</button>
+            <button class="ctrl-btn danger" id="btnLoud">🔊 Alarm</button>
+            <button class="ctrl-btn danger" id="btnStopAlarm">⏹ Stop Alarm</button>
+        </div>
     </div>
 </div>
 
 <script>
     // ========================================================================
-    //  SIMULATION ENGINE
-    //  Generates fake Meshtastic, Radar, and Chat data.
-    //  The data structure matches exactly what the real hardware will send.
+    //  SIMULATION ENGINE — Updated with all requested features
     // ========================================================================
 
+    // --- DOM refs ---
+    const mapContainer = document.getElementById('map-container');
     const mapLayer = document.getElementById('map-layer');
     const radarCanvas = document.getElementById('radar-canvas');
     const ctx = radarCanvas.getContext('2d');
@@ -332,17 +582,39 @@
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const alertToast = document.getElementById('alert-toast');
+    const toastMessage = document.getElementById('toast-message');
+    const pinPrompt = document.getElementById('pin-prompt');
+    const pinInput = document.getElementById('pin-input');
+    const pinSubmit = document.getElementById('pin-submit');
+    const alarmIndicator = document.getElementById('alarm-indicator');
+    const alarmLabel = document.getElementById('alarm-label');
+    const statusText = document.getElementById('status-text');
+    const nodeCountDisplay = document.getElementById('node-count');
+    const speedDisplay = document.getElementById('speed-display');
+    const splashScreen = document.getElementById('splash-screen');
 
     // --- State ---
     let nodes = [];
-    let nodeHistory = {}; // For rewind: track positions per node ID
+    let nodeHistory = {};
     let isRewinding = false;
-    let radarActive = true;
+    let radarActive = false; // starts off, user enables via toggle
     let radarAngle = 0;
-    let alertTimer = null;
     let chatOpen = false;
+    let alertTimer = null;
+    let alarmActive = false;
+    let alarmType = ''; // 'loud' or 'silent'
+    let speedMultiplier = 1.0;
+    let showMesh = false;
+    let showRadarOverlay = false;
+    let showChatOverlay = false;
+    let audioCtx = null;
+    let sirenOsc1 = null;
+    let sirenOsc2 = null;
+    let sirenGain = null;
+    let sirenInterval = null;
+    let isAlarmSounding = false;
 
-    // --- Simulation Config ---
+    // --- Config ---
     const NODE_COUNT = 6;
     const FRIENDLY_IDS = ['You', 'Kai', 'Aisha', 'Marcus'];
     const THREAT_NAMES = ['Unknown-1', 'Unknown-2'];
@@ -351,41 +623,17 @@
     function rand(min, max) { return Math.random() * (max - min) + min; }
     function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
 
-    // --- Payload Generator (Matches Real Hardware) ---
-    function generateNodePayload(node) {
-        // This is the EXACT JSON structure that the real Meshtastic/Radar will send.
-        return {
-            id: node.id,
-            type: node.type, // 'personal', 'radar', 'mesh'
-            position: { x: node.x, y: node.y },
-            status: node.status, // 'friendly', 'unknown', 'threat'
-            timestamp: Date.now(),
-            battery: rand(70, 99).toFixed(1),
-            signal: rand(-60, -30).toFixed(1),
-            // Specific to Meshtastic
-            isPersonalTag: node.type === 'personal',
-            personalTagId: node.type === 'personal' ? node.id : null,
-            // Radar specific
-            doppler: node.type === 'radar' ? rand(0.5, 2.5).toFixed(2) : null,
-            // User action trigger
-            isUserTriggered: node.userTriggered || false,
-        };
-    }
-
     // --- Initialize Nodes ---
     function initNodes() {
         const newNodes = [];
         const usedNames = [...FRIENDLY_IDS];
-        
         for (let i = 0; i < NODE_COUNT; i++) {
             let type = 'mesh';
             let status = 'friendly';
             let name = usedNames.pop() || `Node-${i}`;
-            
             if (i === 0) { type = 'personal'; name = 'You'; status = 'friendly'; }
             else if (i === NODE_COUNT - 1) { status = 'threat'; name = THREAT_NAMES[0]; }
             else if (i === NODE_COUNT - 2) { status = 'unknown'; name = 'Unknown-1'; }
-            
             const node = {
                 id: `node-${i}`,
                 name: name,
@@ -395,7 +643,7 @@
                 y: rand(15, 85),
                 vx: rand(-0.3, 0.3),
                 vy: rand(-0.3, 0.3),
-                history: [], // For rewind
+                history: [],
                 userTriggered: false,
             };
             newNodes.push(node);
@@ -403,65 +651,298 @@
         }
         return newNodes;
     }
-
     nodes = initNodes();
 
-    // --- Update Node Positions ---
+    // --- Splash Screen ---
+    setTimeout(() => {
+        splashScreen.classList.add('hidden');
+        setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
+    }, 2200);
+
+    // --- Audio: Siren Generator (Web Audio) ---
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSiren() {
+        if (isAlarmSounding) return;
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        isAlarmSounding = true;
+        sirenGain = audioCtx.createGain();
+        sirenGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+        sirenGain.connect(audioCtx.destination);
+
+        let freq = 400;
+        let dir = 1;
+        sirenInterval = setInterval(() => {
+            if (!isAlarmSounding) return;
+            freq += dir * 20;
+            if (freq > 800) { dir = -1; }
+            if (freq < 400) { dir = 1; }
+            if (sirenOsc1) {
+                try { sirenOsc1.frequency.setValueAtTime(freq, audioCtx.currentTime); } catch(e) {}
+            }
+        }, 80);
+
+        sirenOsc1 = audioCtx.createOscillator();
+        sirenOsc1.type = 'sawtooth';
+        sirenOsc1.frequency.setValueAtTime(400, audioCtx.currentTime);
+        sirenOsc1.connect(sirenGain);
+        sirenOsc1.start();
+
+        // Second oscillator for richness
+        sirenOsc2 = audioCtx.createOscillator();
+        sirenOsc2.type = 'square';
+        sirenOsc2.frequency.setValueAtTime(200, audioCtx.currentTime);
+        const g2 = audioCtx.createGain();
+        g2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        sirenOsc2.connect(g2);
+        g2.connect(sirenGain);
+        sirenOsc2.start();
+    }
+
+    function stopSiren() {
+        isAlarmSounding = false;
+        if (sirenInterval) { clearInterval(sirenInterval); sirenInterval = null; }
+        try {
+            if (sirenOsc1) { sirenOsc1.stop(); sirenOsc1.disconnect(); sirenOsc1 = null; }
+            if (sirenOsc2) { sirenOsc2.stop(); sirenOsc2.disconnect(); sirenOsc2 = null; }
+            if (sirenGain) { sirenGain.disconnect(); sirenGain = null; }
+        } catch(e) {}
+        if (audioCtx && audioCtx.state === 'running') {
+            // optionally suspend to save battery
+        }
+    }
+
+    // --- Toast / Alert ---
+    function showToast(message, isSilent = false, showPin = false) {
+        toastMessage.textContent = message;
+        alertToast.className = isSilent ? 'silent' : '';
+        alertToast.style.display = 'block';
+        pinPrompt.style.display = showPin ? 'flex' : 'none';
+        if (showPin) {
+            pinInput.value = '';
+            pinInput.focus();
+        }
+        clearTimeout(alertTimer);
+        if (!showPin) {
+            alertTimer = setTimeout(() => {
+                alertToast.style.display = 'none';
+            }, 5000);
+        }
+        // Add to chat
+        addChatMessage('🚨 ALERT', message, 'System');
+    }
+
+    function hideToast() {
+        alertToast.style.display = 'none';
+        pinPrompt.style.display = 'none';
+        clearTimeout(alertTimer);
+    }
+
+    // --- Alarm Logic ---
+    function triggerAlarm(type) {
+        if (alarmActive && type === alarmType) return;
+        initAudio();
+
+        // Hardware nudge: remind them to buy hardware
+        if (type === 'loud') {
+            showToast('🔊 LOUD ALARM — Siren activated! (Hardware: Personal Alarm Loadout 1)', false, false);
+        } else {
+            showToast('🔇 SILENT ALARM — Team notified discreetly. (Hardware: Mesh Nodes Loadout 3)', true, false);
+        }
+
+        alarmActive = true;
+        alarmType = type;
+        document.getElementById('btnStopAlarm').classList.add('visible');
+
+        // Show indicator
+        alarmIndicator.style.display = 'flex';
+        if (type === 'silent') {
+            alarmIndicator.className = 'silent-mode';
+            alarmLabel.textContent = 'SILENT ALARM';
+        } else {
+            alarmIndicator.className = '';
+            alarmLabel.textContent = 'LOUD ALARM';
+        }
+
+        // Play sound for loud alarm
+        if (type === 'loud') {
+            playSiren();
+        }
+
+        // Add to chat
+        addChatMessage('🆘 ' + (type === 'loud' ? '🔊' : '🔇'), 
+            type === 'loud' ? 'EMERGENCY! Sending location to all protectors.' : 'I need backup. Tracking enabled.', 'You');
+
+        // Simulate team response
+        setTimeout(() => {
+            addChatMessage('✅ Team', type === 'loud' ? 'Arriving in 60 seconds. Stay safe.' : 'On our way. 3 minutes out.', 'System');
+        }, type === 'loud' ? 1000 : 1500);
+
+        // Chat nudge
+        setTimeout(() => {
+            addChatMessage('💡 Raptor', 'Hardware required: ' + (type === 'loud' ? 'Personal Alarm (Loadout 1)' : 'Mesh Nodes (Loadout 3)'), 'System');
+        }, 3000);
+    }
+
+    function stopAlarmWithPin() {
+        if (!alarmActive) return;
+        // Show PIN prompt directly in the toast
+        showToast(alarmType === 'loud' ? '🔊 Enter PIN to stop alarm' : '🔇 Enter PIN to stop alarm', alarmType === 'silent', true);
+    }
+
+    function verifyPinAndStop() {
+        const pin = pinInput.value.trim();
+        if (pin === '1111') {
+            stopAlarm();
+            hideToast();
+            showToast('✅ Alarm cancelled. PIN verified.', false, false);
+        } else {
+            pinInput.value = '';
+            pinInput.placeholder = '❌ Try again';
+            setTimeout(() => { pinInput.placeholder = 'PIN'; }, 1500);
+        }
+    }
+
+    function stopAlarm() {
+        alarmActive = false;
+        alarmType = '';
+        document.getElementById('btnStopAlarm').classList.remove('visible');
+        alarmIndicator.style.display = 'none';
+        stopSiren();
+        hideToast();
+        // Reset status
+        statusText.textContent = 'Online';
+        // Show a chat message
+        addChatMessage('✅ System', 'Alarm cleared. All clear.', 'System');
+    }
+
+    // --- Rewind Logic ---
+    function toggleRewind() {
+        isRewinding = !isRewinding;
+        const btn = document.getElementById('btnRewind');
+        if (isRewinding) {
+            btn.style.background = '#f0b429';
+            btn.style.color = '#0a0a12';
+            mapContainer.classList.add('rewind-mode');
+            showToast('🔄 Rewind Active — Tracing threat paths...', true, false);
+            addChatMessage('🔄 Rewind', 'Showing trails of all unknown/threat entities.', 'System');
+            // Nudge
+            setTimeout(() => {
+                addChatMessage('💡 Raptor', 'Rewind works best with Mesh Nodes (Loadout 3) for full historical data.', 'System');
+            }, 2500);
+        } else {
+            btn.style.background = '';
+            btn.style.color = '';
+            mapContainer.classList.remove('rewind-mode');
+        }
+        renderMap();
+    }
+
+    // --- Speed Control ---
+    function setSpeed(speed) {
+        speedMultiplier = speed;
+        speedDisplay.textContent = '⏱ ' + speed + 'x';
+        document.querySelectorAll('#speed-control button').forEach(b => b.classList.remove('active'));
+        document.querySelector(`#speed-control button[data-speed="${speed}"]`)?.classList.add('active');
+        addChatMessage('⚡ Speed', 'Simulation speed set to ' + speed + 'x', 'System');
+    }
+
+    // --- Chat ---
+    function addChatMessage(sender, text, type = 'User') {
+        const div = document.createElement('div');
+        div.className = 'msg';
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        div.innerHTML = `<span class="sender">${sender}</span><span class="text">${text}</span><span class="time">${time}</span>`;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (chatMessages.children.length > 50) {
+            chatMessages.removeChild(chatMessages.children[0]);
+        }
+    }
+
+    function toggleChat() {
+        chatOpen = !chatOpen;
+        chatBox.classList.toggle('active');
+        if (chatOpen) {
+            chatInput.focus();
+            addChatMessage('🦅 Raptor', '💬 Chat active. (Hardware: Mesh Nodes Loadout 3 for off-grid)', 'System');
+        }
+    }
+
+    // --- Simulate incoming network messages ---
+    function simulateNetworkChat() {
+        if (chatOpen) return;
+        if (Math.random() < 0.025) {
+            const msgs = [
+                '📡 Node-2 detected movement 50m north.',
+                '👤 Unknown person approaching the trail.',
+                '🔄 Rewind shows they came from the parking lot.',
+                '✅ Team Aisha is 2 minutes out.',
+                '⚠️ Radar shows 2 people behind the treeline.',
+                '🔊 Loud alarm triggered at Sector 4.',
+                '🔇 Silent beacon activated at your location.',
+            ];
+            const msg = msgs[randInt(0, msgs.length-1)];
+            addChatMessage('📡 Network', msg, 'System');
+        }
+    }
+
+    // --- Update Nodes ---
     function updateNodes() {
-        const width = mapLayer.clientWidth || 400;
-        const height = mapLayer.clientHeight || 600;
-
+        const speed = speedMultiplier;
         nodes.forEach(node => {
-            // Move
-            node.x += node.vx;
-            node.y += node.vy;
-            
-            // Bounce off walls
-            if (node.x < 5 || node.x > 95) { node.vx *= -1; }
-            if (node.y < 5 || node.y > 95) { node.vy *= -1; }
-            
-            // Clamp
-            node.x = Math.max(2, Math.min(98, node.x));
-            node.y = Math.max(2, Math.min(98, node.y));
+            const effectiveVx = node.vx * speed;
+            const effectiveVy = node.vy * speed;
+            node.x += effectiveVx;
+            node.y += effectiveVy;
 
-            // Add to history (for rewind)
+            if (node.x < 2 || node.x > 98) { node.vx *= -1; }
+            if (node.y < 2 || node.y > 98) { node.vy *= -1; }
+            node.x = Math.max(1, Math.min(99, node.x));
+            node.y = Math.max(1, Math.min(99, node.y));
+
             nodeHistory[node.id].push({ x: node.x, y: node.y, time: Date.now() });
-            if (nodeHistory[node.id].length > 40) nodeHistory[node.id].shift();
+            if (nodeHistory[node.id].length > 60) nodeHistory[node.id].shift();
 
-            // Occasionally change direction for threat to simulate stalking
-            if (node.status === 'threat' && Math.random() < 0.02) {
-                // Move toward "You" (node 0)
+            // Threat stalks "You" if not in alarm mode
+            if (node.status === 'threat' && !alarmActive && Math.random() < 0.015) {
                 const you = nodes[0];
                 if (you) {
                     const dx = you.x - node.x;
                     const dy = you.y - node.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist > 5) {
-                        node.vx = (dx / dist) * 0.4;
-                        node.vy = (dy / dist) * 0.4;
+                    if (dist > 4) {
+                        node.vx = (dx / dist) * 0.35;
+                        node.vy = (dy / dist) * 0.35;
                     }
                 }
             }
         });
 
         // Radar sweep
-        radarAngle += 0.04;
+        radarAngle += 0.06 * speed;
         if (radarAngle > 360) radarAngle = 0;
+
+        // Update node count
+        nodeCountDisplay.textContent = '📡 ' + nodes.length + ' Nodes';
     }
 
-    // --- Render Map (Nodes & Trail) ---
+    // --- Render Map ---
     function renderMap() {
         const container = mapLayer.parentElement;
-        const rect = container.getBoundingClientRect();
         const width = container.clientWidth || 400;
         const height = container.clientHeight || 600;
 
-        // Clear map layer (keep only nodes)
         mapLayer.innerHTML = '';
 
-        // Draw trails first (behind nodes)
+        // Trails
         if (isRewinding) {
-            // If rewinding, show full history for threats
             nodes.forEach(node => {
                 if (node.status === 'threat' || node.status === 'unknown') {
                     const history = nodeHistory[node.id] || [];
@@ -472,19 +953,21 @@
                         const y = (pos.y / 100) * height;
                         trail.style.left = x + 'px';
                         trail.style.top = y + 'px';
-                        trail.style.opacity = 0.2 + (idx / history.length) * 0.8;
-                        trail.style.width = (4 + (idx / history.length) * 6) + 'px';
-                        trail.style.height = trail.style.width;
+                        trail.style.opacity = 0.15 + (idx / history.length) * 0.7;
+                        const size = 3 + (idx / history.length) * 6;
+                        trail.style.width = size + 'px';
+                        trail.style.height = size + 'px';
+                        const color = node.status === 'threat' ? 'rgba(255, 59, 74, ' : 'rgba(240, 180, 41, ';
+                        trail.style.background = color + (0.2 + (idx/history.length)*0.6) + ')';
                         mapLayer.appendChild(trail);
                     });
                 }
             });
         } else {
-            // Normal: just show recent trail for threats (last 10)
             nodes.forEach(node => {
                 if (node.status === 'threat') {
                     const history = nodeHistory[node.id] || [];
-                    const recent = history.slice(-15);
+                    const recent = history.slice(-20);
                     recent.forEach((pos, idx) => {
                         const trail = document.createElement('div');
                         trail.className = 'trail-segment';
@@ -492,15 +975,19 @@
                         const y = (pos.y / 100) * height;
                         trail.style.left = x + 'px';
                         trail.style.top = y + 'px';
-                        trail.style.opacity = 0.1 + (idx / recent.length) * 0.5;
+                        trail.style.opacity = 0.05 + (idx / recent.length) * 0.3;
+                        trail.style.width = '4px';
+                        trail.style.height = '4px';
+                        trail.style.background = 'rgba(255, 59, 74, 0.4)';
                         mapLayer.appendChild(trail);
                     });
                 }
             });
         }
 
-        // Draw nodes
+        // Nodes — only show if mesh overlay is on, or always show personal
         nodes.forEach(node => {
+            if (!showMesh && node.type !== 'personal') return;
             const x = (node.x / 100) * width;
             const y = (node.y / 100) * height;
 
@@ -520,27 +1007,25 @@
         });
     }
 
-    // --- Render Radar (Canvas Overlay) ---
+    // --- Render Radar ---
     function renderRadar() {
         const container = radarCanvas.parentElement;
         const width = container.clientWidth || 400;
         const height = container.clientHeight || 600;
-        
         radarCanvas.width = width;
         radarCanvas.height = height;
-        
         ctx.clearRect(0, 0, width, height);
-        
-        if (!radarActive) return;
+
+        if (!showRadarOverlay || !radarActive) return;
 
         const cx = width / 2;
         const cy = height / 2;
-        const radius = Math.min(width, height) * 0.42;
+        const radius = Math.min(width, height) * 0.38;
 
-        // Background glow
+        // Glow
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        grad.addColorStop(0, 'rgba(0, 200, 255, 0.03)');
-        grad.addColorStop(1, 'rgba(0, 200, 255, 0)');
+        grad.addColorStop(0, 'rgba(34, 211, 238, 0.03)');
+        grad.addColorStop(1, 'rgba(34, 211, 238, 0)');
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -550,119 +1035,175 @@
         const sweepAngle = (radarAngle * Math.PI) / 180;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, sweepAngle - 0.6, sweepAngle + 0.1);
+        ctx.arc(cx, cy, radius, sweepAngle - 0.5, sweepAngle + 0.1);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(0, 200, 255, 0.08)';
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.07)';
         ctx.fill();
 
         // Sweep line
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
-        ctx.strokeStyle = 'rgba(0, 200, 255, 0.5)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Radar blips (simulated from node positions)
+        // Blips
         nodes.forEach(node => {
-            if (node.status === 'friendly' && node.name !== 'You') return;
+            if (node.type === 'personal' && node.name !== 'You') return;
             const dx = node.x - 50;
             const dy = node.y - 50;
-            const dist = Math.sqrt(dx*dx + dy*dy) / 50; // normalize
+            const dist = Math.sqrt(dx*dx + dy*dy) / 50;
             if (dist > 1) return;
-            
             const angle = Math.atan2(dy, dx);
             const blipX = cx + Math.cos(angle) * dist * radius;
             const blipY = cy + Math.sin(angle) * dist * radius;
-            
             const alpha = Math.random() * 0.3 + 0.7;
-            const color = node.status === 'threat' ? `rgba(255, 59, 74, ${alpha})` : `rgba(0, 210, 106, ${alpha})`;
-            
+            const color = node.status === 'threat' ? `rgba(255, 59, 74, ${alpha})` : `rgba(34, 211, 238, ${alpha})`;
             ctx.beginPath();
-            ctx.arc(blipX, blipY, 4 + Math.random() * 4, 0, Math.PI * 2);
+            ctx.arc(blipX, blipY, 3 + Math.random() * 3, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
-            
-            // Glow
             ctx.shadowColor = color;
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 15;
             ctx.beginPath();
             ctx.arc(blipX, blipY, 2, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
         });
 
-        // Circle rings
-        ctx.strokeStyle = 'rgba(0, 200, 255, 0.07)';
-        ctx.lineWidth = 1;
+        // Rings
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.06)';
+        ctx.lineWidth = 0.5;
         for (let r = 0.2; r <= 1; r += 0.2) {
             ctx.beginPath();
             ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
             ctx.stroke();
         }
-        
-        // Cardinal directions
-        ctx.fillStyle = 'rgba(255,255,255,0.08)';
-        ctx.font = '10px monospace';
-        ctx.fillText('N', cx - 6, 20);
-        ctx.fillText('S', cx - 6, height - 10);
-        ctx.fillText('E', width - 20, cy + 4);
-        ctx.fillText('W', 10, cy + 4);
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        ctx.font = '8px monospace';
+        ctx.fillText('N', cx - 4, 14);
+        ctx.fillText('S', cx - 4, height - 6);
+        ctx.fillText('E', width - 16, cy + 3);
+        ctx.fillText('W', 6, cy + 3);
     }
 
-    // --- Trigger Alert ---
-    function triggerAlert(message, isSilent = false) {
-        alertToast.textContent = message;
-        alertToast.className = isSilent ? 'silent' : '';
-        alertToast.style.display = 'block';
-        clearTimeout(alertTimer);
-        alertTimer = setTimeout(() => {
-            alertToast.style.display = 'none';
-        }, 4500);
-
-        // Add to chat
-        addChatMessage('🚨 ALERT', message, 'System');
+    // --- Hardware Nudge System ---
+    function showHardwareNudge(feature, loadout) {
+        const msgs = {
+            'radar': '💡 Radar Dongle (Loadout 2) required for real wall-penetrating detection.',
+            'mesh': '💡 Mesh Nodes (Loadout 3) needed for full trilateration and team tracking.',
+            'chat': '💡 Mesh Nodes (Loadout 3) enable encrypted off-grid team chat.',
+            'rewind': '💡 Mesh Nodes (Loadout 3) + Backhaul (Loadout 4) for extended rewind history.',
+            'alarm': '💡 Personal Alarm (Loadout 1) for physical siren + mesh alert.',
+            'camera': '💡 Camera Balls (Loadout 5) for 360° video evidence capture.'
+        };
+        const msg = msgs[feature] || '💡 Purchase the appropriate loadout for this feature.';
+        addChatMessage('🛒 Upgrade', msg, 'System');
+        // Also show toast briefly
+        showToast('🛒 ' + msg, true, false);
+        setTimeout(hideToast, 4000);
     }
 
-    // --- Rewind Logic ---
-    function toggleRewind() {
-        isRewinding = !isRewinding;
-        const btn = document.getElementById('btnRewind');
-        if (isRewinding) {
-            btn.style.background = '#f0b429';
-            btn.style.color = '#0a0a12';
-            triggerAlert('🔄 Rewind Active — Tracing threat paths...', true);
+    // --- UI Event Listeners ---
+
+    // 1. Overlay Toggles
+    document.getElementById('btnMesh').addEventListener('click', function() {
+        showMesh = !showMesh;
+        this.classList.toggle('mesh-active');
+        if (showMesh) {
+            this.textContent = '📡 Meshtastic ON';
+            showHardwareNudge('mesh');
         } else {
-            btn.style.background = '';
-            btn.style.color = '';
+            this.textContent = '📡 Meshtastic';
         }
         renderMap();
-    }
+    });
 
-    // --- Chat Logic ---
-    function addChatMessage(sender, text, type = 'User') {
-        const div = document.createElement('div');
-        div.className = 'msg';
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        div.innerHTML = `<span class="sender">${sender}</span><span class="text">${text}</span><span class="time">${time}</span>`;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // --- Simulate Incoming Chat (Network effect) ---
-    function simulateNetworkChat() {
-        const msgs = [
-            '📡 Node-2 detected movement 50m north.',
-            '👤 Unknown person approaching the trail.',
-            '🔄 Rewind shows they came from the parking lot.',
-            '✅ Team Aisha is 2 minutes out.',
-            '⚠️ Radar shows 2 people behind the treeline.',
-        ];
-        if (Math.random() < 0.03 && !chatOpen) {
-            const msg = msgs[randInt(0, msgs.length-1)];
-            addChatMessage('📡 Network', msg, 'System');
+    document.getElementById('btnRadarToggle').addEventListener('click', function() {
+        radarActive = !radarActive;
+        this.classList.toggle('radar-active');
+        if (radarActive) {
+            this.textContent = '📡 Radar ON';
+            showHardwareNudge('radar');
+        } else {
+            this.textContent = '📡 Radar';
         }
-    }
+        renderRadar();
+    });
+
+    document.getElementById('btnChatToggle').addEventListener('click', function() {
+        showChatOverlay = !showChatOverlay;
+        this.classList.toggle('chat-active');
+        if (showChatOverlay) {
+            this.textContent = '💬 Chat ON';
+            toggleChat();
+            showHardwareNudge('chat');
+        } else {
+            this.textContent = '💬 Chat';
+            if (chatOpen) toggleChat();
+        }
+    });
+
+    // 2. Rewind
+    document.getElementById('btnRewind').addEventListener('click', toggleRewind);
+
+    // 3. Silent Alarm
+    document.getElementById('btnSilent').addEventListener('click', function() {
+        if (alarmActive) { stopAlarmWithPin(); return; }
+        triggerAlarm('silent');
+    });
+
+    // 4. Loud Alarm
+    document.getElementById('btnLoud').addEventListener('click', function() {
+        if (alarmActive) { stopAlarmWithPin(); return; }
+        triggerAlarm('loud');
+    });
+
+    // 5. Stop Alarm Button
+    document.getElementById('btnStopAlarm').addEventListener('click', stopAlarmWithPin);
+
+    // 6. PIN Submit
+    pinSubmit.addEventListener('click', verifyPinAndStop);
+    pinInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') verifyPinAndStop();
+    });
+
+    // 7. Speed Control
+    document.querySelectorAll('#speed-control button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const speed = parseFloat(this.dataset.speed);
+            setSpeed(speed);
+        });
+    });
+
+    // 8. Chat Input
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+            const text = this.value.trim();
+            addChatMessage('💬 You', text, 'User');
+            this.value = '';
+            setTimeout(() => {
+                const replies = ['Copy that.', 'On watch.', 'Roger.', 'Stay safe.', 'We see you.'];
+                addChatMessage('✅ Team', replies[randInt(0, replies.length-1)], 'System');
+            }, 600);
+            if (text.toLowerCase().includes('help') || text.toLowerCase().includes('backup')) {
+                setTimeout(() => {
+                    addChatMessage('💡 Raptor', 'Mesh hardware required for off-grid comms. Purchase Loadout 3.', 'System');
+                }, 1500);
+            }
+        }
+    });
+
+    // Close chat on outside click
+    document.addEventListener('click', function(e) {
+        if (chatOpen && !chatBox.contains(e.target) && e.target.id !== 'btnChatToggle') {
+            chatBox.classList.remove('active');
+            chatOpen = false;
+            document.getElementById('btnChatToggle').classList.remove('chat-active');
+            document.getElementById('btnChatToggle').textContent = '💬 Chat';
+        }
+    });
 
     // --- Main Loop ---
     function gameLoop() {
@@ -673,88 +1214,20 @@
         requestAnimationFrame(gameLoop);
     }
 
-    // --- UI Event Listeners ---
-    document.getElementById('btnRewind').addEventListener('click', toggleRewind);
-
-    document.getElementById('btnRadar').addEventListener('click', function() {
-        radarActive = !radarActive;
-        this.style.borderColor = radarActive ? '#f0b429' : '#2a2a3a';
-        this.style.color = radarActive ? '#f0b429' : '#5a5a7a';
-        triggerAlert(`📡 Radar ${radarActive ? 'ON' : 'OFF'}`, true);
-    });
-
-    document.getElementById('btnChat').addEventListener('click', function() {
-        chatOpen = !chatOpen;
-        chatBox.classList.toggle('active');
-        if (chatOpen) {
-            chatInput.focus();
-            addChatMessage('🦅 Raptor', 'Hardware unlocked: Full mesh chat with encrypted LoRa.', 'System');
-            addChatMessage('💡 Tip', 'Purchase Mesh Nodes to enable off-grid team chat.', 'System');
-        }
-    });
-
-    document.getElementById('btnSilent').addEventListener('click', function() {
-        triggerAlert('🔇 SILENT ALARM — Team notified discreetly. Response en route.', true);
-        addChatMessage('🆘 SILENT', 'I need backup. Tracking enabled.', 'You');
-        // Simulate team response
-        setTimeout(() => {
-            addChatMessage('✅ Team', 'On our way. 3 minutes out.', 'System');
-        }, 1500);
-    });
-
-    document.getElementById('btnLoud').addEventListener('click', function() {
-        triggerAlert('🔊 LOUD ALARM — Siren activated! Team converging NOW.');
-        addChatMessage('🔊 ALARM', 'EMERGENCY! Sending location to all protectors.', 'You');
-        // Simulate response
-        setTimeout(() => {
-            addChatMessage('✅ Team', 'Arriving in 60 seconds. Stay safe.', 'System');
-        }, 1000);
-    });
-
-    chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && this.value.trim()) {
-            const text = this.value.trim();
-            addChatMessage('💬 You', text, 'User');
-            this.value = '';
-            
-            // Simulate team reply
-            setTimeout(() => {
-                const replies = ['Copy that.', 'On watch.', 'Roger.', 'Stay safe.', 'We see you.'];
-                addChatMessage('✅ Team', replies[randInt(0, replies.length-1)], 'System');
-            }, 800);
-
-            // Prompt hardware unlock
-            if (text.toLowerCase().includes('help') || text.toLowerCase().includes('backup')) {
-                setTimeout(() => {
-                    addChatMessage('💡 Raptor', 'Mesh hardware required for off-grid comms. Purchase Loadout 3.', 'System');
-                }, 2000);
-            }
-        }
-    });
-
-    // Close chat when clicking outside
-    document.addEventListener('click', function(e) {
-        if (chatOpen && !chatBox.contains(e.target) && e.target.id !== 'btnChat') {
-            chatBox.classList.remove('active');
-            chatOpen = false;
-        }
-    });
-
-    // --- Start ---
-    // Initial chat welcome
+    // --- Init ---
     setTimeout(() => {
-        addChatMessage('🦅 Raptor', 'Welcome! This is the FREE Foundation Simulator.', 'System');
-        addChatMessage('💡 Tip', 'Press SILENT or ALARM to see the response. Buy hardware to unlock full features.', 'System');
-        addChatMessage('💡 Tip', 'Click REWIND to see where threats came from.', 'System');
-    }, 500);
+        addChatMessage('🦅 Raptor', '🆓 FREE Foundation Simulator ready.', 'System');
+        addChatMessage('💡 Tip', 'Press SILENT or ALARM to test response. PIN 1111 to stop.', 'System');
+        addChatMessage('💡 Tip', 'Toggle Meshtastic, Radar, Chat overlays above.', 'System');
+        addChatMessage('💡 Tip', 'Use Speed control to speed up/slow down simulation.', 'System');
+    }, 2500);
 
-    // Resize canvas on layout change
     window.addEventListener('resize', () => { renderRadar(); });
 
     gameLoop();
 
-    // Override renderMap to include dynamic history
-    console.log('🦅 Raptor\'s Call Simulator Online. Ready for presentation!');
+    console.log('🦅 Raptor\'s Call Simulator V2.1 — Ready for presentation!');
+    console.log('📌 Features: Splash, Persistent Overlays, Alarm with Sound, PIN Stop, Speed Control, Rewind Fade.');
 </script>
 
 </body>
