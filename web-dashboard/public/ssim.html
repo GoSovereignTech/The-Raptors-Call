@@ -1,1370 +1,910 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raptor's Call - Tactical Simulator</title>
-    <style>
-        /* ===== RESET ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #0a0a12;
-            color: #e0e0e0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#040611">
+<title>The Raptor's Call — Tactical Simulator</title>
+<style>
+  :root{
+    --void:#040611; --bg:#0a0e1c; --bg2:#111834; --line:#1c2540;
+    --cyan:#22d3ee; --blue:#3b82f6; --amber:#f59e0b; --threat:#f43f5e;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;background:var(--void);color:#e2e8f0;font-family:var(--font);overflow:hidden;}
+  button{font-family:inherit;}
+  ::selection{background:rgba(34,211,238,.3);}
 
-        /* ===== PHONE FRAME ===== */
-        #phone {
-            width: 100%;
-            max-width: 420px;
-            height: 100vh;
-            max-height: 850px;
-            background: #0a0e1c;
-            border-radius: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #2a2a3a;
-            position: relative;
-        }
+  /* ---------- splash ---------- */
+  #splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--void);transition:opacity .6s ease;}
+  #splash::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%, rgba(34,211,238,.16), transparent 60%);}
+  #splash.hide{opacity:0;pointer-events:none;}
+  #splash .wordmark{position:relative;margin-top:18px;font-size:19px;font-weight:700;letter-spacing:.28em;color:#f8fafc;text-align:center;}
+  #splash .tagline{position:relative;margin-top:7px;font-size:11px;font-weight:600;letter-spacing:.35em;color:var(--cyan);text-transform:uppercase;}
+  #splash .dots{position:relative;margin-top:28px;display:flex;gap:6px;}
+  #splash .dots span{width:8px;height:8px;border-radius:999px;background:var(--cyan);animation:bounce 1s infinite ease-in-out;}
+  #splash .dots span:nth-child(2){animation-delay:.15s}
+  #splash .dots span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-8px);opacity:1}}
 
-        /* ===== HEADER ===== */
-        #header {
-            padding: 12px 16px 6px 16px;
-            background: #0d0d18;
-            border-bottom: 1px solid #1f1f30;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            z-index: 60;
-        }
-        #header h1 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #f0b429;
-            letter-spacing: 0.5px;
-        }
-        #header h1 small {
-            font-size: 8px;
-            color: #7a7a9a;
-            font-weight: 400;
-            display: block;
-            margin-top: 0px;
-            letter-spacing: 1px;
-        }
-        #sim-badge {
-            background: #f0b429;
-            color: #0a0a12;
-            font-size: 8px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 20px;
-            text-transform: uppercase;
-        }
+  /* ---------- app shell ---------- */
+  #app{position:fixed;inset:0;opacity:0;transition:opacity .5s ease;}
+  #app.show{opacity:1;}
+  #mapCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:var(--bg);touch-action:none;}
+  .vignette{position:absolute;left:0;right:0;pointer-events:none;z-index:5;height:140px;}
+  .vignette-top{top:0;background:linear-gradient(to bottom, rgba(4,6,17,.8), transparent);}
+  .vignette-bottom{bottom:0;height:220px;background:linear-gradient(to top, rgba(4,6,17,.85), transparent);}
 
-        /* ===== SPLASH ===== */
-        #splash-screen {
-            position: absolute;
-            inset: 0;
-            z-index: 1000;
-            background: rgba(14, 14, 14, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease;
-            pointer-events: none;
-        }
-        #splash-screen.hidden { opacity: 0; pointer-events: none; }
-        #splash-screen img {
-            width: 65%;
-            max-width: 240px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            margin-bottom: 20px;
-        }
-        #splash-screen .splash-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: #f0b429;
-            letter-spacing: 4px;
-        }
-        #splash-screen .splash-sub {
-            font-size: 10px;
-            color: #64748b;
-            letter-spacing: 5px;
-            margin-top: 6px;
-            text-transform: uppercase;
-        }
-        #splash-screen .splash-loader {
-            margin-top: 20px;
-            display: flex;
-            gap: 6px;
-        }
-        #splash-screen .splash-loader span {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #f0b429;
-            animation: pulse-dot 1.2s ease-in-out infinite;
-        }
-        #splash-screen .splash-loader span:nth-child(2) { animation-delay: 0.2s; }
-        #splash-screen .splash-loader span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 0.2; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
+  #emergencyBorder{position:fixed;inset:0;z-index:15;pointer-events:none;border:0 solid transparent;opacity:0;}
+  #emergencyBorder.loud{opacity:1;border-width:6px;border-color:var(--threat);animation:pulseBorder 1s infinite;}
+  #emergencyBorder.silent{opacity:1;border-width:6px;border-color:var(--amber);animation:pulseBorder 1.6s infinite;}
+  @keyframes pulseBorder{0%,100%{opacity:.25}50%{opacity:.85}}
 
-        /* ===== MAP AREA ===== */
-        #map-container {
-            flex: 1;
-            position: relative;
-            background: #0a0e1c;
-            overflow: hidden;
-            margin: 8px 10px 4px 10px;
-            border-radius: 18px;
-            border: 1px solid #1a1a2a;
-            min-height: 200px;
-        }
-        #map-container canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-        /* Rewind overlay sticker */
-        #rewind-sticker {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            z-index: 20;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border-left: 3px solid #f0b429;
-            font-size: 10px;
-            font-weight: 600;
-            color: #f0b429;
-            display: none;
-            pointer-events: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-        #rewind-sticker .time {
-            color: #8a8aaa;
-            font-weight: 400;
-            font-size: 9px;
-            margin-left: 8px;
-        }
+  /* ---------- top bar ---------- */
+  .topbar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:12px;gap:8px;}
+  .pill{display:flex;align-items:center;gap:7px;background:rgba(10,14,28,.85);border:1px solid var(--line);border-radius:999px;padding:7px 12px;backdrop-filter:blur(8px);font-size:11.5px;white-space:nowrap;}
+  .pill.sim{color:var(--amber);border-color:rgba(245,158,11,.35);}
+  .dotlive{width:6px;height:6px;border-radius:999px;background:var(--amber);box-shadow:0 0 6px var(--amber);flex:0 0 auto;}
+  .scenario-tabs{display:flex;gap:4px;background:rgba(10,14,28,.85);border:1px solid var(--line);border-radius:999px;padding:4px;backdrop-filter:blur(8px);}
+  .scenario-tab{border:none;background:transparent;color:#94a3b8;font-size:10.5px;font-weight:600;padding:6px 9px;border-radius:999px;cursor:pointer;letter-spacing:.01em;line-height:1.25;text-align:center;}
+  .scenario-tab .t1{display:block;}
+  .scenario-tab .t2{display:block;font-weight:500;opacity:.75;font-size:9.5px;}
+  .scenario-tab.active{background:linear-gradient(135deg,var(--cyan),var(--blue));color:var(--void);}
+  .scenario-tab.active .t2{color:var(--void);opacity:.75;}
 
-        /* ===== STATUS ===== */
-        #status-overlay {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 15;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(8px);
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 9px;
-            border: 1px solid #2a2a3a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #8a8aaa;
-            flex-wrap: wrap;
-        }
-        #status-overlay .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #00d26a;
-            display: inline-block;
-            animation: blink 1.5s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-        #status-overlay span { color: #fff; font-weight: 600; margin-left: 2px; }
+  .rewind-badge{position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:25;background:rgba(10,14,28,.9);border:1px solid rgba(34,211,238,.4);color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;padding:6px 12px;border-radius:999px;display:none;align-items:center;gap:6px;letter-spacing:.02em;}
+  .rewind-badge.show{display:flex;}
 
-        /* ===== SCENARIO BUTTONS ===== */
-        #scenario-bar {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 15;
-            display: flex;
-            gap: 4px;
-        }
-        #scenario-bar button {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid #2a2a3a;
-            color: #8a8aaa;
-            font-size: 8px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
-        }
-        #scenario-bar button.active {
-            background: rgba(240, 180, 41, 0.2);
-            border-color: #f0b429;
-            color: #f0b429;
-        }
-        #scenario-bar button:active { transform: scale(0.95); }
+  /* ---------- toasts ---------- */
+  #toasts{position:absolute;top:106px;left:12px;right:12px;z-index:60;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center;}
+  .toast{pointer-events:auto;max-width:380px;width:100%;display:flex;gap:8px;align-items:flex-start;background:rgba(10,14,28,.96);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.4;color:#e2e8f0;backdrop-filter:blur(8px);animation:toastin .25s ease;box-shadow:0 10px 30px rgba(0,0,0,.45);}
+  .toast.warn{border-color:rgba(245,158,11,.4);}
+  .toast.threat{border-color:rgba(244,63,94,.4);}
+  .toast svg{flex:0 0 auto;width:16px;height:16px;color:var(--cyan);margin-top:1px;}
+  .toast.warn svg{color:var(--amber);}
+  .toast.threat svg{color:#fda4af;}
+  @keyframes toastin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastout{to{opacity:0;transform:translateY(-8px)}}
 
-        /* ===== ALARM INDICATOR ===== */
-        #alarm-indicator {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            z-index: 15;
-            display: none;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 59, 74, 0.2);
-            padding: 4px 10px 4px 6px;
-            border-radius: 30px;
-            border: 1px solid #ff3b4a;
-            font-size: 9px;
-            font-weight: 700;
-            color: #ff3b4a;
-            animation: flash-alarm 0.8s infinite;
-        }
-        #alarm-indicator.silent-mode {
-            border-color: #f0b429;
-            color: #f0b429;
-            background: rgba(240, 180, 41, 0.15);
-        }
-        @keyframes flash-alarm {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        #alarm-indicator .pulse-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #ff3b4a;
-            animation: pulse-threat 0.8s infinite;
-        }
-        #alarm-indicator.silent-mode .pulse-dot { background: #f0b429; }
-        @keyframes pulse-threat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.8); }
-            100% { transform: scale(1); }
-        }
+  /* ---------- bottom sheet ---------- */
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:20;background:rgba(10,14,28,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));}
+  .chiprow{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+  .chiprow::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--line);color:#cbd5e1;font-size:12px;font-weight:500;padding:8px 12px;border-radius:10px;cursor:pointer;}
+  .chip svg{width:14px;height:14px;flex:0 0 auto;}
+  .chip.active{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.12);color:var(--cyan);}
 
-        /* ===== TOAST ===== */
-        #alert-toast {
-            position: absolute;
-            top: 60px;
-            left: 12px;
-            right: 12px;
-            z-index: 30;
-            background: #ff3b4a;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 11px;
-            color: #fff;
-            box-shadow: 0 10px 40px rgba(255, 59, 74, 0.4);
-            display: none;
-            text-align: center;
-            border: 1px solid #ff6a76;
-            animation: slideDown 0.3s ease;
-        }
-        #alert-toast.silent { background: #2a2a5a; border-color: #4a4a8a; box-shadow: 0 10px 40px rgba(42, 42, 90, 0.4); }
-        #alert-toast .pin-prompt {
-            margin-top: 6px;
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            align-items: center;
-        }
-        #alert-toast .pin-prompt input {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 6px;
-            padding: 3px 10px;
-            width: 70px;
-            color: #fff;
-            font-size: 14px;
-            text-align: center;
-            letter-spacing: 4px;
-            outline: none;
-        }
-        #alert-toast .pin-prompt button {
-            background: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 3px 12px;
-            font-weight: 700;
-            font-size: 11px;
-            color: #0a0a12;
-            cursor: pointer;
-        }
-        @keyframes slideDown { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+  .midrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;}
+  .speed-group{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;}
+  .speed-btn{border:none;background:transparent;color:#94a3b8;font-size:11px;font-weight:600;padding:6px 9px;border-radius:8px;cursor:pointer;font-variant-numeric:tabular-nums;}
+  .speed-btn.active{background:var(--cyan);color:var(--void);}
+  .coords{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:#64748b;white-space:nowrap;}
 
-        /* ===== CHAT ===== */
-        #chat-box {
-            position: absolute;
-            bottom: 120px;
-            left: 8px;
-            right: 8px;
-            background: rgba(10, 10, 18, 0.96);
-            border: 1px solid #2a2a3a;
-            border-radius: 14px;
-            padding: 10px;
-            max-height: 140px;
-            overflow-y: auto;
-            z-index: 20;
-            display: none;
-            backdrop-filter: blur(20px);
-        }
-        #chat-box.active { display: block; }
-        #chat-box .msg {
-            padding: 3px 0;
-            border-bottom: 1px solid #1a1a2a;
-            font-size: 10px;
-            display: flex;
-            gap: 6px;
-        }
-        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 45px; font-size: 9px; }
-        #chat-box .msg .text { color: #d0d0e0; }
-        #chat-box .msg .time { color: #5a5a7a; font-size: 7px; margin-left: auto; }
-        #chat-input {
-            width: 100%;
-            background: #1a1a2e;
-            border: none;
-            border-radius: 30px;
-            padding: 6px 12px;
-            color: #fff;
-            font-size: 11px;
-            margin-top: 6px;
-            outline: none;
-        }
-        #chat-input::placeholder { color: #5a5a7a; }
+  .alarmrow{display:flex;gap:8px;}
+  .btn-alarm{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;border-radius:12px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;}
+  .btn-alarm svg{width:16px;height:16px;}
+  .btn-loud{background:linear-gradient(135deg,#fb923c,var(--threat));color:#fff;box-shadow:0 0 22px -4px rgba(244,63,94,.55);}
+  .btn-silent{background:transparent;border:1px solid rgba(245,158,11,.4);color:var(--amber);}
+  .btn-stop{width:100%;background:rgba(244,63,94,.15);border:1px solid rgba(244,63,94,.45);color:#fda4af;padding:13px;border-radius:12px;font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+  .btn-stop svg{width:16px;height:16px;}
 
-        /* ===== CONTROLS ===== */
-        #controls {
-            padding: 6px 10px 12px 10px;
-            background: #0d0d18;
-            border-top: 1px solid #1f1f30;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .ctrl-row {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-        }
-        .ctrl-btn {
-            background: #1a1a2e;
-            border: 1px solid #2a2a3a;
-            color: #c0c0d0;
-            padding: 6px 8px;
-            border-radius: 30px;
-            font-size: 10px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            cursor: pointer;
-            transition: all 0.15s;
-            flex: 1;
-            min-width: 36px;
-            max-width: 100px;
-            white-space: nowrap;
-            user-select: none;
-        }
-        .ctrl-btn:active { transform: scale(0.94); }
-        .ctrl-btn.primary { background: #f0b429; border-color: #f0b429; color: #0a0a12; }
-        .ctrl-btn.danger { background: #ff3b4a; border-color: #ff3b4a; color: #fff; }
-        .ctrl-btn.silent { background: #2a2a4a; border-color: #3a3a5a; color: #a0a0c0; }
-        .ctrl-btn.overlay-btn {
-            background: transparent;
-            border-color: transparent;
-            color: #6a6a8a;
-            font-size: 9px;
-            padding: 4px 6px;
-            flex: 1;
-            max-width: 80px;
-        }
-        .ctrl-btn.overlay-btn.active { color: #f0b429; background: rgba(240, 180, 41, 0.1); border-color: rgba(240, 180, 41, 0.2); }
-        .ctrl-btn.overlay-btn.mesh-active { color: #00d26a; border-color: rgba(0, 210, 106, 0.3); background: rgba(0, 210, 106, 0.08); }
-        .ctrl-btn.overlay-btn.radar-active { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background: rgba(34, 211, 238, 0.08); }
-        .ctrl-btn.overlay-btn.chat-active { color: #a78bfa; border-color: rgba(167, 139, 250, 0.3); background: rgba(167, 139, 250, 0.08); }
-        .ctrl-btn .icon { font-size: 13px; }
-        .ctrl-btn .badge { font-size: 7px; background: #ff3b4a; color: #fff; border-radius: 10px; padding: 1px 5px; margin-left: 2px; }
-        #btnStopAlarm { display: none; background: #ff3b4a; border-color: #ff3b4a; color: #fff; animation: pulse-threat 0.8s infinite; flex: 1.5; }
-        #btnStopAlarm.visible { display: flex; }
-        /* Speed buttons inside controls */
-        .speed-group {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            background: rgba(0,0,0,0.3);
-            padding: 2px 6px;
-            border-radius: 30px;
-            flex: 1.5;
-            max-width: 160px;
-        }
-        .speed-group .label { font-size: 7px; color: #5a5a7a; font-weight: 700; text-transform: uppercase; margin-right: 2px; }
-        .speed-group button {
-            background: transparent;
-            border: none;
-            color: #7a7a9a;
-            font-size: 8px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .speed-group button.active { color: #f0b429; background: rgba(240, 180, 41, 0.15); }
-        .speed-group button:active { transform: scale(0.9); }
+  /* ---------- chat drawer ---------- */
+  #chatDrawer{position:absolute;right:0;top:0;bottom:0;width:min(340px,88vw);z-index:40;background:rgba(10,14,28,.98);border-left:1px solid var(--line);backdrop-filter:blur(10px);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease;}
+  #chatDrawer.open{transform:translateX(0);}
+  .chat-head{padding:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  .chat-head b{font-size:13px;font-weight:700;}
+  .chat-head button{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;}
+  .chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.4;word-wrap:break-word;}
+  .msg.system{align-self:center;max-width:96%;background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25);text-align:center;font-size:11px;}
+  .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--cyan),var(--blue));color:var(--void);font-weight:500;}
+  .msg.team{align-self:flex-start;background:var(--bg2);border:1px solid var(--line);color:#e2e8f0;}
+  .msg .who{display:block;font-size:10px;opacity:.65;margin-bottom:2px;font-weight:600;}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);}
+  .chat-input-row input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;color:#f1f5f9;font-size:13px;outline:none;min-width:0;}
+  .chat-input-row input:focus{border-color:var(--cyan);}
+  .chat-send{background:var(--cyan);color:var(--void);border:none;border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer;flex:0 0 auto;}
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 450px) {
-            #phone { border-radius: 0; max-height: 100vh; border: none; }
-            #header { padding: 10px 12px 4px 12px; }
-            #header h1 { font-size: 14px; }
-            #controls { padding: 4px 6px 10px 6px; gap: 4px; }
-            .ctrl-btn { font-size: 8px; padding: 4px 5px; min-width: 30px; max-width: 80px; }
-            .ctrl-btn.overlay-btn { font-size: 8px; padding: 3px 4px; max-width: 60px; }
-            #status-overlay { font-size: 7px; padding: 3px 8px; top: 6px; left: 6px; }
-            #scenario-bar { top: 6px; right: 6px; }
-            #scenario-bar button { font-size: 7px; padding: 2px 6px; }
-            #map-container { margin: 4px 6px 2px 6px; border-radius: 12px; }
-            #chat-box { bottom: 100px; max-height: 100px; }
-            .speed-group { max-width: 120px; }
-            .speed-group button { font-size: 7px; padding: 1px 4px; }
-        }
-    </style>
+  /* ---------- pin modal ---------- */
+  #pinModal{position:fixed;inset:0;z-index:80;background:rgba(4,6,17,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;}
+  #pinModal.open{display:flex;}
+  .pinbox{width:280px;max-width:100%;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .pinbox h3{margin:0 0 4px;font-size:15px;}
+  .pinbox p{margin:0;font-size:12px;color:#94a3b8;}
+  .pin-dots{display:flex;justify-content:center;gap:12px;margin:18px 0 20px;}
+  .pin-dot{width:13px;height:13px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);transition:background .15s,border-color .15s;}
+  .pin-dot.filled{background:var(--cyan);border-color:var(--cyan);}
+  .pin-dot.error{background:var(--threat);border-color:var(--threat);}
+  .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .pin-key{aspect-ratio:1;border-radius:12px;background:var(--bg2);border:1px solid var(--line);color:#e2e8f0;font-size:17px;font-weight:600;cursor:pointer;}
+  .pin-key:active{background:var(--line);}
+  .pin-close{margin-top:14px;background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;}
+
+  @media (max-width:420px){
+    .scenario-tab .t2{display:none;}
+  }
+</style>
 </head>
 <body>
 
-<div id="phone">
-    <!-- HEADER -->
-    <div id="header">
-        <h1>🦅 RAPTOR'S CALL <small>Tactical Simulator</small></h1>
-        <div id="sim-badge">⚡ SIM</div>
+  <div id="splash">
+    <svg width="56" height="56" viewBox="0 0 64 64" role="img" aria-label="The Raptor's Call">
+      <defs>
+        <linearGradient id="grad-splash" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#22d3ee"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M32 6 L36 22 L58 10 L40 28 L60 32 L40 36 L58 54 L36 42 L32 58 L28 42 L6 54 L24 36 L4 32 L24 28 L6 10 L28 22 Z" fill="url(#grad-splash)" stroke="#040611" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="32" cy="32" r="5" fill="#040611"/><circle cx="32" cy="32" r="2.2" fill="url(#grad-splash)"/>
+    </svg>
+    <div class="wordmark">THE RAPTOR'S CALL</div>
+    <div class="tagline">Tactical Simulator</div>
+    <div class="dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <div id="app">
+    <canvas id="mapCanvas"></canvas>
+    <div class="vignette vignette-top"></div>
+    <div class="vignette vignette-bottom"></div>
+    <div id="emergencyBorder"></div>
+
+    <div class="topbar">
+      <div class="pill sim"><span class="dotlive"></span><span class="pillfull">SIMULATION</span></div>
+      <div class="scenario-tabs" id="scenarioTabs"></div>
     </div>
 
-    <!-- SPLASH -->
-    <div id="splash-screen">
-        <img src="https://i.imgur.com/WKyKrQD.jpg" alt="Raptor's Call" onerror="this.style.display='none'">
-        <div class="splash-title">RAPTOR'S CALL</div>
-        <div class="splash-sub">Tactical Defense Network</div>
-        <div class="splash-loader"><span></span><span></span><span></span></div>
+    <div class="rewind-badge" id="rewindBadge"><span>◀◀</span><span id="rewindTime">T–00:00</span></div>
+    <div id="toasts"></div>
+
+    <div id="chatDrawer">
+      <div class="chat-head">
+        <b>Mesh Chat</b>
+        <button id="chatCloseBtn" aria-label="Close chat">✕</button>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="Message the mesh…" maxlength="140">
+        <button class="chat-send" id="chatSendBtn">Send</button>
+      </div>
     </div>
 
-    <!-- MAP -->
-    <div id="map-container">
-        <canvas id="sim-canvas"></canvas>
-
-        <!-- Rewind Sticker -->
-        <div id="rewind-sticker">
-            ⏪ REWIND <span class="time" id="rewind-time">2026-08-24 14:32:15</span>
-        </div>
-
-        <!-- Status -->
-        <div id="status-overlay">
-            <span class="dot"></span> <span id="status-text">Online</span>
-            <span id="node-count">📡 4 Nodes</span>
-            <span id="scenario-label">📍 MO</span>
-        </div>
-
-        <!-- Scenario Selector -->
-        <div id="scenario-bar">
-            <button data-scenario="mo" class="active">📍 MO</button>
-            <button data-scenario="ms">📍 MS</button>
-            <button data-scenario="md">📍 MD</button>
-        </div>
-
-        <!-- Alarm Indicator -->
-        <div id="alarm-indicator">
-            <span class="pulse-dot"></span>
-            <span id="alarm-label">ALARM</span>
-        </div>
-
-        <!-- Toast -->
-        <div id="alert-toast">
-            <span id="toast-message">🚨 THREAT DETECTED</span>
-            <div class="pin-prompt" id="pin-prompt" style="display:none;">
-                <input type="password" id="pin-input" maxlength="4" placeholder="PIN" inputmode="numeric">
-                <button id="pin-submit">✓</button>
-            </div>
-        </div>
-
-        <!-- Chat -->
-        <div id="chat-box">
-            <div id="chat-messages">
-                <div class="msg"><span class="sender">🦅 System</span><span class="text">Tactical Simulator ready.</span><span class="time">now</span></div>
-            </div>
-            <input id="chat-input" type="text" placeholder="Type a message...">
-        </div>
+    <div class="sheet">
+      <div class="chiprow" id="chipRow"></div>
+      <div class="midrow">
+        <div class="speed-group" id="speedGroup"></div>
+        <span class="coords" id="coordsLabel">0.0, 0.0</span>
+      </div>
+      <div class="alarmrow" id="alarmRow"></div>
     </div>
+  </div>
 
-    <!-- CONTROLS -->
-    <div id="controls">
-        <!-- Row 1: Overlays -->
-        <div class="ctrl-row">
-            <button class="ctrl-btn overlay-btn" id="btnMesh">📡 Mesh</button>
-            <button class="ctrl-btn overlay-btn" id="btnRadarToggle">📡 Radar</button>
-            <button class="ctrl-btn overlay-btn" id="btnChatToggle">💬 Chat</button>
-            <button class="ctrl-btn primary" id="btnRewind">🔄 Rewind</button>
-        </div>
-        <!-- Row 2: Speed + Alarms -->
-        <div class="ctrl-row">
-            <div class="speed-group">
-                <span class="label">Speed</span>
-                <button data-speed="0.5">0.5x</button>
-                <button data-speed="1" class="active">1x</button>
-                <button data-speed="2">2x</button>
-                <button data-speed="5">5x</button>
-            </div>
-            <button class="ctrl-btn silent" id="btnSilent">🔇 Silent</button>
-            <button class="ctrl-btn danger" id="btnLoud">🔊 Alarm</button>
-            <button class="ctrl-btn danger" id="btnStopAlarm">⏹ Stop</button>
-        </div>
+  <div id="pinModal">
+    <div class="pinbox">
+      <h3>Enter PIN to stop alarm</h3>
+      <p>4-digit code required to deactivate.</p>
+      <div class="pin-dots" id="pinDots"></div>
+      <div class="pin-grid" id="pinGrid"></div>
+      <button class="pin-close" id="pinCancelBtn">Cancel</button>
     </div>
-</div>
+  </div>
 
 <script>
-    // ========================================================================
-    //  RAPTOR'S CALL — TACTICAL SIMULATOR V3
-    //  Features: Canvas Map, Waypoint Pathing, 3 Scenarios, Rewind Sticker,
-    //  Speed Control, Heading Triangle, Hardware Nudges.
-    // ========================================================================
+(function(){
+  "use strict";
 
-    // --- DOM REFS ---
-    const canvas = document.getElementById('sim-canvas');
-    const ctx = canvas.getContext('2d');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const alertToast = document.getElementById('alert-toast');
-    const toastMessage = document.getElementById('toast-message');
-    const pinPrompt = document.getElementById('pin-prompt');
-    const pinInput = document.getElementById('pin-input');
-    const pinSubmit = document.getElementById('pin-submit');
-    const alarmIndicator = document.getElementById('alarm-indicator');
-    const alarmLabel = document.getElementById('alarm-label');
-    const rewindSticker = document.getElementById('rewind-sticker');
-    const rewindTime = document.getElementById('rewind-time');
-    const statusText = document.getElementById('status-text');
-    const nodeCountDisplay = document.getElementById('node-count');
-    const scenarioLabel = document.getElementById('scenario-label');
-    const splashScreen = document.getElementById('splash-screen');
+  /* ============================================================
+     ICONS (inline, no external icon library — zero dependency)
+  ============================================================ */
+  const ICON = {
+    rewind:'<path d="M11 5 3 12l8 7V5z"/><path d="M21 5l-8 7 8 7V5z"/>',
+    radar:'<circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="10.5" opacity=".5"/>',
+    mesh:'<path d="M4 11.5a11.5 11.5 0 0 1 16 0"/><path d="M7.3 15a7 7 0 0 1 9.4 0"/><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none"/>',
+    chat:'<path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.8a8.3 8.3 0 0 1-.9-3.8A8.4 8.4 0 0 1 12.5 3h.1a8.4 8.4 0 0 1 8.4 8.4z"/>',
+    bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    bellOff:'<path d="M8.7 3.7A6 6 0 0 1 18 8c0 3.5.9 5.8 1.6 7.1"/><path d="M6.3 6.3C6 6.9 6 7.9 6 8c0 7-3 9-3 9h13"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><line x1="2" y1="2" x2="22" y2="22"/>',
+    x:'<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>',
+    info:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/>',
+    warn:'<path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/>'
+  };
+  function svg(name, size){ size=size||18; return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ICON[name]+'</svg>'; }
 
-    // --- STATE ---
-    let nodes = [];
-    let nodeHistory = {};
-    let isRewinding = false;
-    let radarActive = false;
-    let radarAngle = 0;
-    let chatOpen = false;
-    let alarmActive = false;
-    let alarmType = '';
-    let speedMultiplier = 1.0;
-    let showMesh = true; // default on
-    let showRadarOverlay = false;
-    let showChatOverlay = false;
-    let alertTimer = null;
-    let audioCtx = null;
-    let sirenInterval = null;
-    let isAlarmSounding = false;
-    let currentScenario = 'mo';
-    let simTime = Date.now();
-    let rewindActive = false;
-    let frameCount = 0;
+  /* ============================================================
+     COLORS (mirrors the raptor.* tokens used in the React app)
+  ============================================================ */
+  const COLORS = { void:'#040611', bg:'#0a0e1c', bg2:'#111834', line:'#1c2540', cyan:'#22d3ee', blue:'#3b82f6', amber:'#f59e0b', flare:'#fb923c', threat:'#f43f5e' };
 
-    // --- SCENARIO DEFINITIONS (Waypoints for real locations) ---
-    // Coordinates are in percentage of canvas (0-100).
-    // MO: Danye Jones (St. Louis County, suburban)
-    // MS: Tasia Fortune (Jackson, grid street)
-    // MD: Catherine Lee (Annapolis, wooded suburban)
-    const SCENARIOS = {
-        mo: {
-            label: '📍 MO (Danye Jones)',
-            mapStyle: 'suburban',
-            victimPath: [{x: 15, y: 75}, {x: 25, y: 65}, {x: 35, y: 55}, {x: 45, y: 50}, {x: 55, y: 45}],
-            threatPath: [{x: 80, y: 20}, {x: 70, y: 30}, {x: 60, y: 40}, {x: 50, y: 45}, {x: 55, y: 45}],
-            protectors: [[70, 80], [20, 20], [85, 70]],
-            treePos: {x: 55, y: 45}
-        },
-        ms: {
-            label: '📍 MS (Tasia Fortune)',
-            mapStyle: 'grid',
-            victimPath: [{x: 20, y: 80}, {x: 30, y: 70}, {x: 40, y: 60}, {x: 50, y: 50}, {x: 60, y: 40}],
-            threatPath: [{x: 85, y: 15}, {x: 75, y: 25}, {x: 65, y: 35}, {x: 55, y: 40}, {x: 60, y: 40}],
-            protectors: [[80, 80], [15, 15], [85, 85]],
-            treePos: {x: 60, y: 40}
-        },
-        md: {
-            label: '📍 MD (Catherine Lee)',
-            mapStyle: 'wooded',
-            victimPath: [{x: 10, y: 85}, {x: 20, y: 75}, {x: 30, y: 65}, {x: 40, y: 55}, {x: 50, y: 50}],
-            threatPath: [{x: 90, y: 10}, {x: 80, y: 20}, {x: 70, y: 30}, {x: 60, y: 40}, {x: 50, y: 50}],
-            protectors: [[75, 85], [10, 15], [90, 75]],
-            treePos: {x: 50, y: 50}
+  /* ============================================================
+     SCENARIOS
+     Internal codes (mo/ms/md) match the technical spec's
+     currentScenario enum. On-screen labels are intentionally
+     generic — not tied to any real named individual or case.
+  ============================================================ */
+  const SCENARIOS = {
+    mo: { code:'mo', label:'Scenario A', sub:'Suburban Walk', mapStyle:'suburban',
+      victimPath:[{x:15,y:82},{x:34,y:62},{x:52,y:47},{x:70,y:30}],
+      threatPath:[{x:82,y:74},{x:62,y:56},{x:46,y:43},{x:37,y:33}],
+      protectors:[[9,14],[88,18],[50,90]],
+      treePos:{x:70,y:30} },
+    ms: { code:'ms', label:'Scenario B', sub:'Trailhead', mapStyle:'wooded',
+      victimPath:[{x:18,y:18},{x:34,y:38},{x:50,y:54},{x:68,y:73}],
+      threatPath:[{x:78,y:14},{x:60,y:34},{x:47,y:50},{x:39,y:66}],
+      protectors:[[7,82],[91,9],[92,86]],
+      treePos:{x:68,y:73} },
+    md: { code:'md', label:'Scenario C', sub:'Downtown Grid', mapStyle:'grid',
+      victimPath:[{x:10,y:50},{x:36,y:50},{x:36,y:24},{x:66,y:24},{x:66,y:62}],
+      threatPath:[{x:18,y:86},{x:18,y:50},{x:56,y:50},{x:56,y:30},{x:70,y:30}],
+      protectors:[[5,9],[95,14],[50,92]],
+      treePos:{x:66,y:62} }
+  };
+  const SCENARIO_ORDER = ['mo','ms','md'];
+
+  const NUDGES = {
+    radar: "Loadout 3 — Radar/Camera Dongle needed to power this overlay in the real world.",
+    mesh: "Loadout 1 & 2 — Meshtastic Tag + Smartphone Node needed to see teammates on the mesh.",
+    chat: "Loadout 2 — Smartphone Node + Command Interface required for live chat.",
+    alarm: "Loadout 1 — Personal Caller Alarm (Meshtastic Tag) triggers this instantly in the real world."
+  };
+  const AUTO_REPLIES = ["Copy that.","Team is 2 minutes out.","Converging now — stay visible.","Standing by, all clear here.","Received, tracking your position."];
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  const state = {
+    scenario:'mo', mapStyle:'suburban', treePos:{x:70,y:30}, nodes:[],
+    isRewinding:false, rewindStart:null,
+    radarActive:false, showMesh:true,
+    alarmActive:false, alarmType:null,
+    speedMultiplier:1, chatOpen:false,
+    cssW:0, cssH:0, lastTick:performance.now()
+  };
+
+  let lastSystemMsg = '';
+
+  /* ============================================================
+     NODE HELPERS
+  ============================================================ */
+  function makeNode(id,name,type,status,x,y,path){
+    return { id:id, name:name, type:type, status:status, x:x, y:y, path:path||null,
+      pathIndex:0, dir:1, heading:0, history:[], lastHistPush:0, converging:false,
+      size:(type==='threat'?7:6) };
+  }
+
+  function nodeColor(n){
+    if(n.type==='threat') return COLORS.threat;
+    if(n.id==='you') return COLORS.cyan;
+    return COLORS.blue;
+  }
+
+  function initScenario(code){
+    const cfg = SCENARIOS[code];
+    state.scenario = code;
+    state.mapStyle = cfg.mapStyle;
+    state.treePos = cfg.treePos;
+    state.nodes = [
+      makeNode('you','You','personal','friendly',cfg.victimPath[0].x,cfg.victimPath[0].y,cfg.victimPath),
+      makeNode('threat','Unknown','threat','threat',cfg.threatPath[0].x,cfg.threatPath[0].y,cfg.threatPath),
+      makeNode('team-a','Team A','mesh','friendly',cfg.protectors[0][0],cfg.protectors[0][1],null),
+      makeNode('team-b','Team B','mesh','friendly',cfg.protectors[1][0],cfg.protectors[1][1],null),
+      makeNode('team-c','Team C','mesh','friendly',cfg.protectors[2][0],cfg.protectors[2][1],null)
+    ];
+    state.isRewinding = false; state.rewindStart = null;
+    state.alarmActive = false; state.alarmType = null;
+    stopSiren();
+    setEmergencyBorder(null);
+    buildBackground();
+    updateScenarioTabsUI();
+    updateChipsUI();
+    updateAlarmRowUI();
+    lastSystemMsg = '';
+  }
+
+  /* ============================================================
+     MOVEMENT
+  ============================================================ */
+  function dist(a,b){ return Math.hypot(b.x-a.x, b.y-a.y); }
+
+  function moveToward(n, target, step){
+    const dx = target.x - n.x, dy = target.y - n.y;
+    const d = Math.hypot(dx,dy);
+    if(d < 0.0005) return;
+    n.heading = (Math.atan2(dy,dx) * 180/Math.PI + 360) % 360;
+    const s = Math.min(step, d);
+    n.x += dx/d*s;
+    n.y += dy/d*s;
+  }
+
+  function updateNodes(dtSec){
+    const step = 0.6 * state.speedMultiplier * 10 * dtSec;
+    state.nodes.forEach(function(n){
+      if(n.converging){
+        moveToward(n, state.treePos, step*1.4);
+        return;
+      }
+      if(!n.path) return;
+      const target = n.path[n.pathIndex];
+      moveToward(n, target, step);
+      if(dist(n,target) < 0.8){
+        n.pathIndex += n.dir;
+        if(n.pathIndex >= n.path.length){ n.pathIndex = n.path.length-2; n.dir = -1; }
+        else if(n.pathIndex < 0){ n.pathIndex = 1; n.dir = 1; }
+      }
+    });
+  }
+
+  function pushHistory(now){
+    state.nodes.forEach(function(n){
+      if(now - n.lastHistPush < 150) return;
+      n.lastHistPush = now;
+      n.history.push({x:n.x, y:n.y, t:now});
+      if(n.history.length > 80) n.history.shift();
+    });
+  }
+
+  /* ============================================================
+     CANVAS SETUP + BACKGROUND (procedural "tactical HUD" map —
+     no external tiles, keeps this file zero-dependency/offline)
+  ============================================================ */
+  const canvas = document.getElementById('mapCanvas');
+  const ctx = canvas.getContext('2d');
+  const bgCanvas = document.createElement('canvas');
+  const bctx = bgCanvas.getContext('2d');
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    state.cssW = rect.width; state.cssH = rect.height;
+    canvas.width = Math.max(1, Math.round(rect.width*dpr));
+    canvas.height = Math.max(1, Math.round(rect.height*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    bgCanvas.width = Math.max(1, Math.round(rect.width*dpr));
+    bgCanvas.height = Math.max(1, Math.round(rect.height*dpr));
+    bctx.setTransform(dpr,0,0,dpr,0,0);
+    buildBackground();
+  }
+
+  function rnd(seed){ // tiny deterministic PRNG so the background doesn't jitter on redraw
+    let s = seed % 2147483647; if(s<=0) s+=2147483646;
+    return function(){ s = (s*16807) % 2147483647; return (s-1)/2147483646; };
+  }
+
+  function buildBackground(){
+    const W = state.cssW, H = state.cssH;
+    if(!W || !H) return;
+    bctx.clearRect(0,0,W,H);
+    bctx.fillStyle = COLORS.bg;
+    bctx.fillRect(0,0,W,H);
+
+    // faint dot grid, matches the app's ambient backdrop texture
+    bctx.fillStyle = 'rgba(148,163,184,0.10)';
+    for(let gx=18; gx<W; gx+=32){
+      for(let gy=18; gy<H; gy+=32){ bctx.fillRect(gx,gy,1,1); }
+    }
+
+    const rand = rnd(state.mapStyle==='suburban'?11:state.mapStyle==='wooded'?22:33);
+
+    if(state.mapStyle==='suburban'){
+      bctx.strokeStyle='rgba(59,130,246,0.28)'; bctx.lineWidth=Math.max(6,W*0.02);
+      bctx.beginPath(); bctx.moveTo(W*0.05,H*0.9); bctx.bezierCurveTo(W*0.3,H*0.6,W*0.5,H*0.55,W*0.95,H*0.15); bctx.stroke();
+      for(let i=0;i<10;i++){
+        const x=rand()*W, y=rand()*H, w=18+rand()*22, h=14+rand()*16;
+        bctx.fillStyle='rgba(148,163,184,0.10)';
+        roundRect(bctx,x,y,w,h,4); bctx.fill();
+        bctx.fillStyle='rgba(34,197,94,0.06)';
+        bctx.beginPath(); bctx.arc(x+w/2, y+h+8, 14, 0, Math.PI*2); bctx.fill();
+      }
+    } else if(state.mapStyle==='wooded'){
+      bctx.strokeStyle='rgba(217,180,120,0.30)'; bctx.lineWidth=Math.max(5,W*0.016);
+      bctx.beginPath(); bctx.moveTo(W*0.12,H*0.08); bctx.bezierCurveTo(W*0.3,H*0.35,W*0.45,H*0.5,W*0.7,H*0.75); bctx.lineTo(W*0.85,H*0.9); bctx.stroke();
+      bctx.strokeStyle='rgba(59,130,246,0.18)'; bctx.lineWidth=Math.max(8,W*0.03);
+      bctx.beginPath(); bctx.moveTo(0,H*0.92); bctx.bezierCurveTo(W*0.3,H*0.98,W*0.6,H*0.85,W,H*0.95); bctx.stroke();
+      for(let i=0;i<26;i++){
+        const x=rand()*W, y=rand()*H, r=8+rand()*16;
+        bctx.fillStyle='rgba(34,197,94,'+(0.05+rand()*0.06).toFixed(3)+')';
+        bctx.beginPath(); bctx.arc(x,y,r,0,Math.PI*2); bctx.fill();
+      }
+    } else { // grid
+      bctx.strokeStyle='rgba(59,130,246,0.22)'; bctx.lineWidth=Math.max(3,W*0.006);
+      const cols=6, rows=6;
+      for(let i=1;i<cols;i++){ const x=W*i/cols; bctx.beginPath(); bctx.moveTo(x,0); bctx.lineTo(x,H); bctx.stroke(); }
+      for(let j=1;j<rows;j++){ const y=H*j/rows; bctx.beginPath(); bctx.moveTo(0,y); bctx.lineTo(W,y); bctx.stroke(); }
+      for(let i=0;i<cols;i++){
+        for(let j=0;j<rows;j++){
+          if(rand()>0.45){
+            const pad=6, x=W*i/cols+pad, y=H*j/rows+pad, w=W/cols-pad*2, h=H/rows-pad*2;
+            bctx.fillStyle='rgba(148,163,184,0.08)';
+            roundRect(bctx,x,y,w,h,3); bctx.fill();
+          }
         }
-    };
+      }
+    }
+  }
 
-    // --- HELPERS ---
-    function rand(min, max) { return Math.random() * (max - min) + min; }
+  function roundRect(c,x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y);
+    c.arcTo(x+w,y,x+w,y+h,r);
+    c.arcTo(x+w,y+h,x,y+h,r);
+    c.arcTo(x,y+h,x,y,r);
+    c.arcTo(x,y,x+w,y,r);
+    c.closePath();
+  }
 
-    // --- NODE FACTORY ---
-    function createNode(id, name, type, status, path, color) {
-        const start = path[0] || {x: rand(10,90), y: rand(10,90)};
-        return {
-            id, name, type, status,
-            x: start.x, y: start.y,
-            path: path.slice(1), // remaining waypoints
-            pathIndex: 0,
-            targetX: path[1] ? path[1].x : start.x,
-            targetY: path[1] ? path[1].y : start.y,
-            color: color,
-            history: [],
-            heading: rand(0, 360),
-            size: type === 'personal' ? 12 : 8,
-        };
+  function toPix(pt){ return { x: pt.x/100*state.cssW, y: pt.y/100*state.cssH }; }
+
+  /* ============================================================
+     RENDER
+  ============================================================ */
+  let radarPhase = 0;
+
+  function render(){
+    const W=state.cssW, H=state.cssH;
+    if(!W||!H) return;
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(bgCanvas,0,0,W,H);
+
+    if(state.isRewinding){
+      ctx.fillStyle='rgba(4,6,17,0.58)';
+      ctx.fillRect(0,0,W,H);
+      drawTrail(byId('you'), 'rgba(34,211,238,ALPHA)');
+      drawTrail(byId('threat'), 'rgba(244,63,94,ALPHA)');
     }
 
-    function initScenario(scenarioKey) {
-        const scenario = SCENARIOS[scenarioKey];
-        if (!scenario) return;
+    drawIncidentMarker();
+    if(state.radarActive) drawRadar();
+    drawNodes();
+  }
 
-        // Reset nodes
-        const newNodes = [];
-        const vPath = scenario.victimPath;
-        const tPath = scenario.threatPath;
+  function byId(id){ return state.nodes.find(function(n){ return n.id===id; }); }
 
-        // 1. You (Victim) - Green
-        const you = createNode('you', 'You', 'personal', 'friendly', vPath, '#00d26a');
-        you.heading = 90;
-        newNodes.push(you);
-
-        // 2. Threat - Red
-        const threat = createNode('threat', 'Unknown', 'threat', 'threat', tPath, '#ff3b4a');
-        newNodes.push(threat);
-
-        // 3. Protectors (Green friends) coming from sides
-        scenario.protectors.forEach((pos, i) => {
-            const p = createNode(`protector-${i}`, `Team-${String.fromCharCode(65+i)}`, 'mesh', 'friendly', 
-                [{x: pos[0], y: pos[1]}, {x: pos[0]-5, y: pos[1]-5}], '#00d26a');
-            p.x = pos[0];
-            p.y = pos[1];
-            p.targetX = pos[0];
-            p.targetY = pos[1];
-            p.path = [];
-            newNodes.push(p);
-        });
-
-        nodes = newNodes;
-        nodeHistory = {};
-        nodes.forEach(n => { nodeHistory[n.id] = []; });
-
-        // Update UI
-        scenarioLabel.textContent = scenario.label;
-        document.querySelectorAll('#scenario-bar button').forEach(b => {
-            b.classList.toggle('active', b.dataset.scenario === scenarioKey);
-        });
-        addChatMessage('🔄 Scenario', `Loaded ${scenario.label}`, 'System');
-        addChatMessage('📍 Route', 'Victim walking toward the tree. Threat approaching.', 'System');
+  function drawTrail(node, colorTpl){
+    if(!node) return;
+    const h = node.history;
+    const len = h.length;
+    for(let i=0;i<len;i++){
+      const p = h[i];
+      const alpha = 0.06 + 0.55*(i/Math.max(1,len-1));
+      const pix = toPix(p);
+      ctx.fillStyle = colorTpl.replace('ALPHA', alpha.toFixed(3));
+      ctx.beginPath(); ctx.arc(pix.x,pix.y,3,0,Math.PI*2); ctx.fill();
     }
+  }
 
-    // --- UPDATE NODES (Waypoint Pathing) ---
-    function updateNodes() {
-        const speed = speedMultiplier * 0.6; // base speed
-        const now = Date.now();
+  function drawIncidentMarker(){
+    const pix = toPix(state.treePos);
+    ctx.strokeStyle='rgba(245,158,11,0.4)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(pix.x,pix.y,11,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(245,158,11,0.18)';
+    ctx.beginPath(); ctx.arc(pix.x,pix.y,4,0,Math.PI*2); ctx.fill();
+  }
 
-        nodes.forEach(node => {
-            // If node has a path, follow it
-            if (node.path && node.path.length > 0) {
-                const target = node.path[node.pathIndex] || node.path[node.path.length - 1];
-                const dx = target.x - node.x;
-                const dy = target.y - node.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
+  function drawRadar(){
+    const you = byId('you');
+    if(!you) return;
+    const c = toPix(you);
+    const maxR = Math.min(state.cssW,state.cssH)*0.42;
+    ctx.save();
+    ctx.strokeStyle='rgba(34,211,238,0.28)'; ctx.lineWidth=1;
+    [0.34,0.67,1].forEach(function(f){ ctx.beginPath(); ctx.arc(c.x,c.y,maxR*f,0,Math.PI*2); ctx.stroke(); });
 
-                if (dist < 0.8) {
-                    // Move to next waypoint
-                    if (node.pathIndex < node.path.length - 1) {
-                        node.pathIndex++;
-                        const nextTarget = node.path[node.pathIndex];
-                        // Update heading based on direction
-                        const hdx = nextTarget.x - node.x;
-                        const hdy = nextTarget.y - node.y;
-                        if (Math.abs(hdx) > 0.1 || Math.abs(hdy) > 0.1) {
-                            node.heading = Math.atan2(hdy, hdx) * (180 / Math.PI);
-                        }
-                    }
-                } else {
-                    // Move toward target
-                    const moveX = (dx / dist) * speed * 0.5;
-                    const moveY = (dy / dist) * speed * 0.5;
-                    node.x += moveX;
-                    node.y += moveY;
-                    // Update heading smoothly
-                    if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
-                        node.heading = Math.atan2(dy, dx) * (180 / Math.PI);
-                    }
-                }
-            }
-
-            // Clamp
-            node.x = Math.max(1, Math.min(99, node.x));
-            node.y = Math.max(1, Math.min(99, node.y));
-
-            // Store history (for rewind)
-            nodeHistory[node.id].push({ x: node.x, y: node.y, time: now });
-            if (nodeHistory[node.id].length > 80) nodeHistory[node.id].shift();
-
-            // Threat logic: if alarm not active, stalk. If alarm active, flee or stand still.
-            if (node.status === 'threat' && !alarmActive) {
-                // Threat moves toward the "You" node if not on path
-                // But since we have waypoints, we let waypoints handle it.
-                // Just ensure it follows its path.
-            }
-        });
-
-        // Radar sweep
-        radarAngle += 0.05 * speedMultiplier;
-        if (radarAngle > 360) radarAngle = 0;
-
-        // Update node count
-        nodeCountDisplay.textContent = '📡 ' + nodes.length + ' Nodes';
+    radarPhase += 0.03;
+    const grad = ctx.createConicGradient ? ctx.createConicGradient(radarPhase, c.x, c.y) : null;
+    if(grad){
+      grad.addColorStop(0, 'rgba(34,211,238,0.32)');
+      grad.addColorStop(0.12, 'rgba(34,211,238,0)');
+      grad.addColorStop(1, 'rgba(34,211,238,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.arc(c.x,c.y,maxR,0,Math.PI*2); ctx.fill();
     }
+    ctx.strokeStyle='rgba(34,211,238,0.7)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(c.x,c.y);
+    ctx.lineTo(c.x+Math.cos(radarPhase)*maxR, c.y+Math.sin(radarPhase)*maxR);
+    ctx.stroke();
+    ctx.restore();
 
-    // --- DRAW MAP (Static suburban tactical map) ---
-    function drawMap(scale = 1.0) {
-        const w = canvas.width;
-        const h = canvas.height;
-        const scenario = SCENARIOS[currentScenario];
+    state.nodes.forEach(function(n){
+      if(n.id==='you') return;
+      if(n.type==='mesh' && !state.showMesh) return;
+      const p = toPix(n);
+      ctx.strokeStyle = n.type==='threat' ? 'rgba(244,63,94,0.7)' : 'rgba(34,211,238,0.6)';
+      ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(p.x,p.y,9,0,Math.PI*2); ctx.stroke();
+    });
+  }
 
-        // Background
-        ctx.fillStyle = '#0a0e1c';
-        ctx.fillRect(0, 0, w, h);
+  function drawArrow(p, headingDeg, color, size){
+    const rad = headingDeg*Math.PI/180;
+    ctx.save();
+    ctx.translate(p.x,p.y); ctx.rotate(rad);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(size,0); ctx.lineTo(-size*0.7,size*0.6); ctx.lineTo(-size*0.7,-size*0.6);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
 
-        // Draw grid / roads depending on scenario
-        const isGrid = scenario.mapStyle === 'grid';
-        const isWooded = scenario.mapStyle === 'wooded';
+  function drawNodes(){
+    state.nodes.forEach(function(n){
+      if(n.type==='mesh' && !state.showMesh) return;
+      const p = toPix(n);
+      const color = nodeColor(n);
 
-        // Draw roads (dark gray)
-        ctx.strokeStyle = '#1a1f2e';
-        ctx.lineWidth = 3;
+      if(n.id==='you' && state.alarmActive){
+        const pulse = 14 + Math.sin(performance.now()/220)*4;
+        ctx.strokeStyle = state.alarmType==='loud' ? 'rgba(244,63,94,0.65)' : 'rgba(245,158,11,0.65)';
+        ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(p.x,p.y,pulse,0,Math.PI*2); ctx.stroke();
+      }
 
-        if (isGrid) {
-            // Grid streets
-            for (let i = 0; i <= 10; i++) {
-                const pos = (i / 10) * w;
-                ctx.beginPath();
-                ctx.moveTo(pos, 0);
-                ctx.lineTo(pos, h);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, pos);
-                ctx.lineTo(w, pos);
-                ctx.stroke();
-            }
-        } else if (isWooded) {
-            // Winding paths
-            ctx.beginPath();
-            ctx.moveTo(0, h * 0.8);
-            ctx.quadraticCurveTo(w * 0.3, h * 0.6, w * 0.5, h * 0.5);
-            ctx.quadraticCurveTo(w * 0.7, h * 0.4, w, h * 0.2);
-            ctx.stroke();
-            // Side path
-            ctx.beginPath();
-            ctx.moveTo(w * 0.4, h);
-            ctx.quadraticCurveTo(w * 0.5, h * 0.7, w * 0.5, h * 0.5);
-            ctx.stroke();
-        } else {
-            // Suburban (MO) - rectangle blocks with roads
-            ctx.strokeStyle = '#1a1f2e';
-            ctx.lineWidth = 2.5;
-            // Main horizontal road
-            ctx.beginPath();
-            ctx.moveTo(0, h * 0.5);
-            ctx.lineTo(w, h * 0.5);
-            ctx.stroke();
-            // Vertical road
-            ctx.beginPath();
-            ctx.moveTo(w * 0.5, 0);
-            ctx.lineTo(w * 0.5, h);
-            ctx.stroke();
-            // Side streets
-            ctx.beginPath();
-            ctx.moveTo(0, h * 0.25);
-            ctx.lineTo(w * 0.5, h * 0.25);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(w * 0.5, h * 0.75);
-            ctx.lineTo(w, h * 0.75);
-            ctx.stroke();
-            // Block fill (lawns)
-            ctx.fillStyle = '#0d1f12';
-            ctx.fillRect(5, 5, w*0.48-10, h*0.23-10);
-            ctx.fillRect(w*0.52+5, 5, w*0.48-10, h*0.23-10);
-            ctx.fillRect(5, h*0.27+5, w*0.48-10, h*0.21-10);
-            ctx.fillRect(w*0.52+5, h*0.27+5, w*0.48-10, h*0.21-10);
-            ctx.fillRect(5, h*0.52+5, w*0.48-10, h*0.21-10);
-            ctx.fillRect(w*0.52+5, h*0.52+5, w*0.48-10, h*0.21-10);
-            // Houses (small brown rectangles)
-            ctx.fillStyle = '#2a1f14';
-            const housePositions = [
-                [15, 15], [30, 15], [70, 15], [85, 15],
-                [15, 35], [30, 35], [70, 35], [85, 35],
-                [15, 60], [30, 60], [70, 60], [85, 60],
-                [15, 80], [30, 80], [70, 80], [85, 80]
-            ];
-            housePositions.forEach(([px, py]) => {
-                const x = (px / 100) * w;
-                const y = (py / 100) * h;
-                ctx.fillRect(x - 6, y - 4, 12, 8);
-                ctx.fillStyle = '#3a2f24';
-                ctx.fillRect(x - 2, y - 6, 4, 3);
-                ctx.fillStyle = '#2a1f14';
-            });
-        }
+      ctx.shadowColor = color; ctx.shadowBlur = 8;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,n.size,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur = 0;
 
-        // Draw the "Hanging Tree" (Red marker with trunk)
-        const tree = scenario.treePos;
-        const tx = (tree.x / 100) * w;
-        const ty = (tree.y / 100) * h;
+      ctx.fillStyle = COLORS.void;
+      ctx.beginPath(); ctx.arc(p.x,p.y,n.size*0.4,0,Math.PI*2); ctx.fill();
 
-        // Trunk
-        ctx.fillStyle = '#3a2a1a';
-        ctx.fillRect(tx - 2, ty, 4, 12);
+      if(n.path || n.converging){ drawArrow({x:p.x+Math.cos(n.heading*Math.PI/180)*(n.size+7), y:p.y+Math.sin(n.heading*Math.PI/180)*(n.size+7)}, n.heading, color, 5); }
 
-        // Canopy (red circle for danger)
-        ctx.shadowColor = '#ff3b4a';
-        ctx.shadowBlur = 30;
-        ctx.beginPath();
-        ctx.arc(tx, ty - 4, 16, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 59, 74, 0.25)';
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.arc(tx, ty - 4, 12, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 59, 74, 0.5)';
-        ctx.fill();
-        ctx.font = '10px sans-serif';
-        ctx.fillStyle = '#ff6a76';
-        ctx.textAlign = 'center';
-        ctx.fillText('⚠️ TREE', tx, ty - 22);
-
-        // Draw street labels
-        ctx.font = '7px monospace';
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        ctx.textAlign = 'left';
-        if (isGrid) {
-            ctx.fillText('JACKSON AVE', 10, 12);
-            ctx.fillText('STATE ST', w*0.52+10, h*0.52-5);
-        } else if (!isWooded) {
-            ctx.fillText('PARK RIDGE RD', 10, h*0.52 - 5);
-            ctx.fillText('ELM ST', w*0.52 + 10, 20);
-        }
-    }
-
-    // --- DRAW NODES ---
-    function drawNodes() {
-        const w = canvas.width;
-        const h = canvas.height;
-
-        // If Rewind is active, draw trails FIRST (so they are behind nodes)
-        if (isRewinding) {
-            const now = Date.now();
-            nodes.forEach(node => {
-                if (node.status === 'threat' || node.status === 'unknown') {
-                    const history = nodeHistory[node.id] || [];
-                    history.forEach((pos, idx) => {
-                        const alpha = 0.1 + (idx / history.length) * 0.6;
-                        const size = 2 + (idx / history.length) * 5;
-                        const x = (pos.x / 100) * w;
-                        const y = (pos.y / 100) * h;
-                        ctx.beginPath();
-                        ctx.arc(x, y, size, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(255, 59, 74, ${alpha * 0.6})`;
-                        ctx.fill();
-                    });
-                }
-            });
-        } else {
-            // Normal: show recent trail for threats only
-            nodes.forEach(node => {
-                if (node.status === 'threat') {
-                    const history = nodeHistory[node.id] || [];
-                    const recent = history.slice(-30);
-                    recent.forEach((pos, idx) => {
-                        const alpha = 0.05 + (idx / recent.length) * 0.2;
-                        const x = (pos.x / 100) * w;
-                        const y = (pos.y / 100) * h;
-                        ctx.beginPath();
-                        ctx.arc(x, y, 3, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(255, 59, 74, ${alpha})`;
-                        ctx.fill();
-                    });
-                }
-            });
-        }
-
-        // Draw nodes
-        nodes.forEach(node => {
-            // Skip if mesh is off and node is not personal
-            if (!showMesh && node.type !== 'personal' && node.status !== 'threat') return;
-
-            const x = (node.x / 100) * w;
-            const y = (node.y / 100) * h;
-            const size = node.size || 8;
-
-            // Glow
-            const color = node.status === 'threat' ? '#ff3b4a' : (node.status === 'unknown' ? '#f0b429' : '#00d26a');
-            const shadow = ctx.shadowColor;
-            const blur = ctx.shadowBlur;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 20;
-
-            // Dot
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Border
-            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Label
-            ctx.font = '7px monospace';
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.textAlign = 'center';
-            ctx.fillText(node.name, x, y - size - 6);
-
-            // Heading Triangle (for "You")
-            if (node.type === 'personal') {
-                const angle = (node.heading || 0) * (Math.PI / 180);
-                const triSize = 10;
-                ctx.beginPath();
-                ctx.moveTo(x + Math.cos(angle) * triSize, y + Math.sin(angle) * triSize);
-                ctx.lineTo(x + Math.cos(angle + 2.5) * triSize * 0.5, y + Math.sin(angle + 2.5) * triSize * 0.5);
-                ctx.lineTo(x + Math.cos(angle - 2.5) * triSize * 0.5, y + Math.sin(angle - 2.5) * triSize * 0.5);
-                ctx.closePath();
-                ctx.fillStyle = '#f0b429';
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-        });
-    }
-
-    // --- DRAW RADAR ---
-    function drawRadar() {
-        if (!showRadarOverlay || !radarActive) return;
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w/2, cy = h/2;
-        const radius = Math.min(w, h) * 0.32;
-
-        // Semi-transparent radar rings
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
-        ctx.lineWidth = 0.5;
-        for (let r = 0.2; r <= 1; r += 0.2) {
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-
-        // Sweep
-        const sweepAngle = (radarAngle * Math.PI) / 180;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, sweepAngle - 0.4, sweepAngle + 0.1);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.05)';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Blips
-        nodes.forEach(node => {
-            const dx = node.x - 50;
-            const dy = node.y - 50;
-            const dist = Math.sqrt(dx*dx + dy*dy) / 50;
-            if (dist > 1) return;
-            const angle = Math.atan2(dy, dx);
-            const bx = cx + Math.cos(angle) * dist * radius;
-            const by = cy + Math.sin(angle) * dist * radius;
-            ctx.beginPath();
-            ctx.arc(bx, by, 3 + Math.random()*2, 0, Math.PI*2);
-            const col = node.status === 'threat' ? 'rgba(255,59,74,0.7)' : 'rgba(34,211,238,0.6)';
-            ctx.fillStyle = col;
-            ctx.shadowColor = col;
-            ctx.shadowBlur = 15;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        });
-    }
-
-    // --- REWIND STICKER UPDATE ---
-    function updateRewindSticker() {
-        if (isRewinding) {
-            rewindSticker.style.display = 'block';
-            const now = new Date();
-            const timeStr = now.toISOString().replace('T', ' ').slice(0, 19);
-            rewindTime.textContent = timeStr;
-        } else {
-            rewindSticker.style.display = 'none';
-        }
-    }
-
-    // --- MAIN RENDER LOOP ---
-    function render() {
-        const container = canvas.parentElement;
-        const w = container.clientWidth || 400;
-        const h = container.clientHeight || 600;
-        canvas.width = w;
-        canvas.height = h;
-
-        // 1. Draw Map
-        drawMap();
-
-        // 2. Draw Nodes (with trails)
-        drawNodes();
-
-        // 3. Draw Radar overlay
-        drawRadar();
-
-        // 4. Update sticker
-        updateRewindSticker();
-
-        // 5. Frame counter
-        frameCount++;
-    }
-
-    // --- GAME LOOP ---
-    function gameLoop() {
-        updateNodes();
-        render();
-        requestAnimationFrame(gameLoop);
-    }
-
-    // --- ALARM / AUDIO ---
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    function playSiren() {
-        if (isAlarmSounding) return;
-        initAudio();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        // Try loading a wave file first
-        const audioEl = new Audio('/siren.wav');
-        audioEl.volume = 1.0;
-        audioEl.play().then(() => {
-            isAlarmSounding = true;
-            // Loop it
-            audioEl.loop = true;
-            sirenInterval = setInterval(() => {
-                if (!isAlarmSounding) {
-                    audioEl.pause();
-                    audioEl.currentTime = 0;
-                    clearInterval(sirenInterval);
-                }
-            }, 1000);
-        }).catch(() => {
-            // Fallback: Web Audio Synth
-            isAlarmSounding = true;
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-            gain.connect(audioCtx.destination);
-
-            let freq = 400;
-            let dir = 1;
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.connect(gain);
-            osc.start();
-
-            sirenInterval = setInterval(() => {
-                if (!isAlarmSounding) { 
-                    clearInterval(sirenInterval); 
-                    try { osc.stop(); } catch(e) {}
-                    return; 
-                }
-                freq += dir * 25;
-                if (freq > 850) dir = -1;
-                if (freq < 350) dir = 1;
-                try { osc.frequency.setValueAtTime(freq, audioCtx.currentTime); } catch(e) {}
-            }, 70);
-        });
-    }
-
-    function stopSiren() {
-        isAlarmSounding = false;
-        if (sirenInterval) { clearInterval(sirenInterval); sirenInterval = null; }
-        // Stop all audio elements
-        document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
-    }
-
-    // --- TRIGGER ALARM ---
-    function triggerAlarm(type) {
-        if (alarmActive && type === alarmType) return;
-        initAudio();
-
-        const msg = type === 'loud' ? 
-            '🔊 LOUD ALARM — Siren activated! (Hardware: Personal Alarm Loadout 1)' :
-            '🔇 SILENT ALARM — Team notified discreetly. (Hardware: Mesh Nodes Loadout 3)';
-        showToast(msg, type === 'silent', false);
-
-        alarmActive = true;
-        alarmType = type;
-        document.getElementById('btnStopAlarm').classList.add('visible');
-        alarmIndicator.style.display = 'flex';
-        if (type === 'silent') {
-            alarmIndicator.className = 'silent-mode';
-            alarmLabel.textContent = 'SILENT';
-        } else {
-            alarmIndicator.className = '';
-            alarmLabel.textContent = 'LOUD';
-        }
-
-        if (type === 'loud') playSiren();
-
-        // Move protectors toward the tree
-        const scenario = SCENARIOS[currentScenario];
-        const tree = scenario.treePos;
-        nodes.forEach(node => {
-            if (node.status === 'friendly' && node.type !== 'personal') {
-                node.path = [{x: tree.x + rand(-5,5), y: tree.y + rand(-5,5)}];
-                node.pathIndex = 0;
-                node.targetX = tree.x;
-                node.targetY = tree.y;
-            }
-        });
-
-        addChatMessage('🆘 ' + (type === 'loud' ? '🔊' : '🔇'), 
-            type === 'loud' ? 'EMERGENCY! Converging on location.' : 'I need backup. Discreet tracking.', 'You');
-
-        setTimeout(() => {
-            addChatMessage('✅ Team', 'Responding. ETA 60 seconds.', 'System');
-        }, 1000);
-        setTimeout(() => {
-            addChatMessage('💡 Raptor', 'Hardware: ' + (type === 'loud' ? 'Personal Alarm (L1)' : 'Mesh Nodes (L3)'), 'System');
-        }, 2500);
-    }
-
-    function stopAlarmWithPin() {
-        if (!alarmActive) return;
-        showToast('Enter PIN (1111) to stop', alarmType === 'silent', true);
-    }
-
-    function verifyPinAndStop() {
-        const pin = pinInput.value.trim();
-        if (pin === '1111') {
-            stopAlarm();
-            hideToast();
-            showToast('✅ Alarm cancelled. PIN verified.', false, false);
-        } else {
-            pinInput.value = '';
-            pinInput.placeholder = '❌';
-            setTimeout(() => { pinInput.placeholder = 'PIN'; }, 1500);
-        }
-    }
-
-    function stopAlarm() {
-        alarmActive = false;
-        alarmType = '';
-        document.getElementById('btnStopAlarm').classList.remove('visible');
-        alarmIndicator.style.display = 'none';
-        stopSiren();
-        hideToast();
-        statusText.textContent = 'Online';
-        addChatMessage('✅ System', 'All clear. Alarm stopped.', 'System');
-    }
-
-    // --- TOAST ---
-    function showToast(message, isSilent = false, showPin = false) {
-        toastMessage.textContent = message;
-        alertToast.className = isSilent ? 'silent' : '';
-        alertToast.style.display = 'block';
-        pinPrompt.style.display = showPin ? 'flex' : 'none';
-        if (showPin) { pinInput.value = ''; pinInput.focus(); }
-        clearTimeout(alertTimer);
-        if (!showPin) {
-            alertTimer = setTimeout(() => { alertToast.style.display = 'none'; }, 5000);
-        }
-        addChatMessage('🚨 ALERT', message, 'System');
-    }
-    function hideToast() { alertToast.style.display = 'none'; pinPrompt.style.display = 'none'; clearTimeout(alertTimer); }
-
-    // --- CHAT ---
-    function addChatMessage(sender, text, type = 'User') {
-        const div = document.createElement('div');
-        div.className = 'msg';
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        div.innerHTML = `<span class="sender">${sender}</span><span class="text">${text}</span><span class="time">${time}</span>`;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        if (chatMessages.children.length > 50) chatMessages.removeChild(chatMessages.children[0]);
-    }
-
-    function toggleChat() {
-        chatOpen = !chatOpen;
-        chatBox.classList.toggle('active');
-        if (chatOpen) { chatInput.focus(); addChatMessage('🦅 Raptor', '💬 Chat active. (Mesh Nodes L3 for off-grid)', 'System'); }
-    }
-
-    // --- UI EVENTS ---
-    document.getElementById('btnMesh').addEventListener('click', function() {
-        showMesh = !showMesh;
-        this.classList.toggle('mesh-active');
-        this.textContent = showMesh ? '📡 Mesh ON' : '📡 Mesh';
-        if (showMesh) addChatMessage('💡 Raptor', 'Mesh Nodes (L3) required for trilateration.', 'System');
+      ctx.font='600 10px '+getComputedStyle(document.body).fontFamily;
+      ctx.textAlign='center';
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(4,6,17,0.85)';
+      ctx.strokeText(n.name, p.x, p.y-n.size-6);
+      ctx.fillStyle='#e2e8f0';
+      ctx.fillText(n.name, p.x, p.y-n.size-6);
     });
 
-    document.getElementById('btnRadarToggle').addEventListener('click', function() {
-        radarActive = !radarActive;
-        this.classList.toggle('radar-active');
-        this.textContent = radarActive ? '📡 Radar ON' : '📡 Radar';
-        if (radarActive) addChatMessage('💡 Raptor', 'Radar Dongle (L2) required.', 'System');
+    const you = byId('you');
+    if(you) document.getElementById('coordsLabel').textContent = you.x.toFixed(1)+', '+you.y.toFixed(1);
+  }
+
+  /* ============================================================
+     MAIN LOOP
+  ============================================================ */
+  function tick(now){
+    let dt = (now - state.lastTick)/1000;
+    if(dt > 0.1) dt = 0.1;
+    state.lastTick = now;
+    if(!state.isRewinding) updateNodes(dt);
+    pushHistory(now);
+    if(state.isRewinding){
+      const secs = Math.floor((now - state.rewindStart)/1000);
+      document.getElementById('rewindTime').textContent = 'T–' + String(Math.floor(secs/60)).padStart(2,'0') + ':' + String(secs%60).padStart(2,'0');
+    }
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  /* ============================================================
+     TOASTS
+  ============================================================ */
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function showToast(msg, type){
+    const el = document.createElement('div');
+    el.className = 'toast' + (type==='warn'?' warn':type==='threat'?' threat':'');
+    const icon = type==='threat' ? 'warn' : type==='warn' ? 'warn' : 'info';
+    el.innerHTML = svg(icon,16) + '<div>'+escapeHtml(msg)+'</div>';
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(function(){
+      el.style.animation = 'toastout .25s ease forwards';
+      setTimeout(function(){ el.remove(); }, 250);
+    }, 4200);
+  }
+
+  /* ============================================================
+     CHAT
+  ============================================================ */
+  const chatLogEl = document.getElementById('chatLog');
+
+  function pushChatSystem(text){
+    if(text === lastSystemMsg) return;
+    lastSystemMsg = text;
+    const div = document.createElement('div');
+    div.className = 'msg system';
+    div.textContent = text;
+    chatLogEl.appendChild(div);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+  }
+  function pushChatUser(text){
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = text;
+    chatLogEl.appendChild(div);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+    setTimeout(function(){
+      const who = ['Team A','Team B','Team C'][Math.floor(Math.random()*3)];
+      pushChatTeam(who, AUTO_REPLIES[Math.floor(Math.random()*AUTO_REPLIES.length)]);
+    }, 1100 + Math.random()*1200);
+  }
+  function pushChatTeam(who, text){
+    const div = document.createElement('div');
+    div.className = 'msg team';
+    div.innerHTML = '<span class="who">'+escapeHtml(who)+'</span>'+escapeHtml(text);
+    chatLogEl.appendChild(div);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+  }
+
+  /* ============================================================
+     AUDIO (file attempt, Web Audio oscillator fallback per spec)
+  ============================================================ */
+  let sirenAudioEl = null, audioCtx = null, oscNodes = null, usingFallback = false, sweepTimer = null;
+
+  function startFallbackSiren(){
+    if(usingFallback) return;
+    usingFallback = true;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = 'sawtooth'; gain.gain.value = 0.05;
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+      oscNodes = {osc:osc,gain:gain};
+      let t = 0;
+      const sweep = function(){
+        if(!usingFallback) return;
+        t += 0.05;
+        const f = 350 + (Math.sin(t)+1)/2*(850-350);
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+        sweepTimer = requestAnimationFrame(sweep);
+      };
+      sweep();
+    }catch(e){ /* audio unavailable in this environment — visual alarm still fires */ }
+  }
+
+  function playSiren(){
+    try{
+      sirenAudioEl = new Audio('siren.wav');
+      sirenAudioEl.loop = true; sirenAudioEl.volume = 0.5;
+      sirenAudioEl.addEventListener('error', function(){ sirenAudioEl = null; startFallbackSiren(); });
+      const p = sirenAudioEl.play();
+      if(p && p.catch) p.catch(function(){ sirenAudioEl = null; startFallbackSiren(); });
+    }catch(e){ startFallbackSiren(); }
+  }
+
+  function stopSiren(){
+    if(sirenAudioEl){ try{ sirenAudioEl.pause(); }catch(e){} sirenAudioEl = null; }
+    if(usingFallback){
+      usingFallback = false;
+      if(oscNodes){ try{ oscNodes.osc.stop(); }catch(e){} oscNodes = null; }
+      if(sweepTimer) cancelAnimationFrame(sweepTimer);
+    }
+  }
+
+  /* ============================================================
+     ALARM
+  ============================================================ */
+  function setEmergencyBorder(type){
+    const el = document.getElementById('emergencyBorder');
+    el.className = type ? type : '';
+  }
+
+  function triggerAlarm(type){
+    state.alarmActive = true; state.alarmType = type;
+    state.showMesh = true;
+    state.nodes.forEach(function(n){ if(n.type==='mesh') n.converging = true; });
+    if(type === 'loud') playSiren(); else stopSiren();
+    setEmergencyBorder(type);
+    showToast(type==='loud' ? 'Loud alarm triggered — protectors converging.' : 'Silent alarm triggered — protectors converging discreetly.', type==='loud'?'threat':'warn');
+    pushChatSystem(type==='loud' ? 'EMERGENCY — loud alarm triggered. Team converging.' : 'Silent alarm triggered. Team converging discreetly.');
+    pushChatSystem(NUDGES.alarm);
+    updateChipsUI();
+    updateAlarmRowUI();
+  }
+
+  function stopAlarm(){
+    state.alarmActive = false; state.alarmType = null;
+    stopSiren();
+    setEmergencyBorder(null);
+    const cfg = SCENARIOS[state.scenario];
+    const order = ['team-a','team-b','team-c'];
+    state.nodes.forEach(function(n){
+      if(n.converging){
+        n.converging = false;
+        const idx = order.indexOf(n.id);
+        if(idx>-1){ n.x = cfg.protectors[idx][0]; n.y = cfg.protectors[idx][1]; }
+      }
     });
+    showToast('Alarm cleared.', 'info');
+    pushChatSystem('Alarm cleared. Team resuming patrol.');
+    updateAlarmRowUI();
+  }
 
-    document.getElementById('btnChatToggle').addEventListener('click', function() {
-        showChatOverlay = !showChatOverlay;
-        this.classList.toggle('chat-active');
-        if (showChatOverlay) { this.textContent = '💬 Chat ON'; toggleChat(); addChatMessage('💡 Raptor', 'Chat requires Mesh Nodes (L3).', 'System'); }
-        else { this.textContent = '💬 Chat'; if (chatOpen) toggleChat(); }
+  /* ============================================================
+     UI: scenario tabs
+  ============================================================ */
+  function updateScenarioTabsUI(){
+    const wrap = document.getElementById('scenarioTabs');
+    wrap.innerHTML = '';
+    SCENARIO_ORDER.forEach(function(code){
+      const cfg = SCENARIOS[code];
+      const btn = document.createElement('button');
+      btn.className = 'scenario-tab' + (state.scenario===code ? ' active' : '');
+      btn.innerHTML = '<span class="t1">'+cfg.sub+'</span><span class="t2">'+cfg.label+'</span>';
+      btn.addEventListener('click', function(){
+        if(state.scenario === code) return;
+        initScenario(code);
+        showToast(cfg.label + ' · ' + cfg.sub + ' loaded.', 'info');
+      });
+      wrap.appendChild(btn);
     });
+  }
 
-    document.getElementById('btnRewind').addEventListener('click', function() {
-        isRewinding = !isRewinding;
-        this.style.background = isRewinding ? '#f0b429' : '';
-        this.style.color = isRewinding ? '#0a0a12' : '';
-        if (isRewinding) {
-            showToast('🔄 Rewind Active — Tracing threat paths...', true, false);
-            addChatMessage('🔄 Rewind', 'Showing historical trails. (Hardware: Mesh L3 + Backhaul L4)', 'System');
-        }
+  /* ============================================================
+     UI: chip row (Rewind / Radar / Mesh / Chat)
+  ============================================================ */
+  const CHIPS = [
+    { key:'rewind', label:'Rewind', icon:'rewind' },
+    { key:'radar', label:'Radar', icon:'radar' },
+    { key:'mesh', label:'Mesh', icon:'mesh' },
+    { key:'chat', label:'Chat', icon:'chat' }
+  ];
+  function chipActive(key){
+    if(key==='rewind') return state.isRewinding;
+    if(key==='radar') return state.radarActive;
+    if(key==='mesh') return state.showMesh;
+    if(key==='chat') return state.chatOpen;
+    return false;
+  }
+  function updateChipsUI(){
+    document.querySelectorAll('.chip').forEach(function(el){
+      const key = el.getAttribute('data-key');
+      el.classList.toggle('active', chipActive(key));
     });
-
-    document.getElementById('btnSilent').addEventListener('click', function() {
-        if (alarmActive) { stopAlarmWithPin(); return; }
-        triggerAlarm('silent');
+  }
+  function buildChips(){
+    const wrap = document.getElementById('chipRow');
+    wrap.innerHTML = '';
+    CHIPS.forEach(function(c){
+      const btn = document.createElement('button');
+      btn.className = 'chip'; btn.setAttribute('data-key', c.key);
+      btn.innerHTML = svg(c.icon,14) + '<span>'+c.label+'</span>';
+      btn.addEventListener('click', function(){ toggleChip(c.key); });
+      wrap.appendChild(btn);
     });
+  }
+  function toggleChip(key){
+    if(key==='rewind'){
+      state.isRewinding = !state.isRewinding;
+      state.rewindStart = state.isRewinding ? performance.now() : null;
+      document.getElementById('rewindBadge').classList.toggle('show', state.isRewinding);
+      if(state.isRewinding) showToast('Reviewing recorded history.', 'info');
+    } else if(key==='radar'){
+      state.radarActive = !state.radarActive;
+      if(state.radarActive) pushChatSystem(NUDGES.radar);
+    } else if(key==='mesh'){
+      state.showMesh = !state.showMesh;
+      if(state.showMesh) pushChatSystem(NUDGES.mesh);
+    } else if(key==='chat'){
+      state.chatOpen = !state.chatOpen;
+      document.getElementById('chatDrawer').classList.toggle('open', state.chatOpen);
+      if(state.chatOpen) pushChatSystem(NUDGES.chat);
+    }
+    updateChipsUI();
+  }
 
-    document.getElementById('btnLoud').addEventListener('click', function() {
-        if (alarmActive) { stopAlarmWithPin(); return; }
-        triggerAlarm('loud');
+  /* ============================================================
+     UI: speed group
+  ============================================================ */
+  const SPEEDS = [0.5,1,2,5];
+  function buildSpeedGroup(){
+    const wrap = document.getElementById('speedGroup');
+    wrap.innerHTML = '';
+    SPEEDS.forEach(function(s){
+      const btn = document.createElement('button');
+      btn.className = 'speed-btn' + (state.speedMultiplier===s ? ' active' : '');
+      btn.textContent = s+'x';
+      btn.addEventListener('click', function(){
+        state.speedMultiplier = s;
+        document.querySelectorAll('.speed-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+      wrap.appendChild(btn);
     });
+  }
 
-    document.getElementById('btnStopAlarm').addEventListener('click', stopAlarmWithPin);
+  /* ============================================================
+     UI: alarm row / stop bar
+  ============================================================ */
+  function updateAlarmRowUI(){
+    const wrap = document.getElementById('alarmRow');
+    wrap.innerHTML = '';
+    if(state.alarmActive){
+      const btn = document.createElement('button');
+      btn.className = 'btn-stop';
+      btn.innerHTML = svg('x',16) + '<span>Enter PIN to stop alarm</span>';
+      btn.addEventListener('click', openPinModal);
+      wrap.appendChild(btn);
+    } else {
+      const loud = document.createElement('button');
+      loud.className = 'btn-alarm btn-loud';
+      loud.innerHTML = svg('bell',16) + '<span>Loud Alarm</span>';
+      loud.addEventListener('click', function(){ triggerAlarm('loud'); });
+      const silent = document.createElement('button');
+      silent.className = 'btn-alarm btn-silent';
+      silent.innerHTML = svg('bellOff',16) + '<span>Silent</span>';
+      silent.addEventListener('click', function(){ triggerAlarm('silent'); });
+      wrap.appendChild(loud); wrap.appendChild(silent);
+    }
+  }
 
-    pinSubmit.addEventListener('click', verifyPinAndStop);
-    pinInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyPinAndStop(); });
+  /* ============================================================
+     PIN MODAL
+  ============================================================ */
+  let pinBuffer = '';
+  const PIN_CODE = '1111';
 
-    document.querySelectorAll('#scenario-bar button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const key = this.dataset.scenario;
-            if (key === currentScenario) return;
-            currentScenario = key;
-            initScenario(key);
-            // Reset alarm state if active
-            if (alarmActive) stopAlarm();
-            // Reset rewind
-            isRewinding = false;
-            document.getElementById('btnRewind').style.background = '';
-            document.getElementById('btnRewind').style.color = '';
-        });
+  function buildPinPad(){
+    const grid = document.getElementById('pinGrid');
+    grid.innerHTML = '';
+    ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(function(k){
+      const btn = document.createElement('button');
+      btn.className = 'pin-key';
+      btn.textContent = k;
+      btn.style.visibility = k==='' ? 'hidden' : 'visible';
+      btn.addEventListener('click', function(){ handlePinKey(k); });
+      grid.appendChild(btn);
     });
+  }
+  function renderPinDots(errorFlash){
+    const wrap = document.getElementById('pinDots');
+    wrap.innerHTML = '';
+    for(let i=0;i<4;i++){
+      const d = document.createElement('div');
+      d.className = 'pin-dot' + (i<pinBuffer.length ? ' filled' : '') + (errorFlash ? ' error' : '');
+      wrap.appendChild(d);
+    }
+  }
+  function handlePinKey(k){
+    if(k==='⌫'){ pinBuffer = pinBuffer.slice(0,-1); renderPinDots(false); return; }
+    if(k==='' || pinBuffer.length>=4) return;
+    pinBuffer += k;
+    renderPinDots(false);
+    if(pinBuffer.length===4){
+      if(pinBuffer===PIN_CODE){
+        closePinModal();
+        stopAlarm();
+      } else {
+        renderPinDots(true);
+        showToast('Incorrect PIN.', 'warn');
+        setTimeout(function(){ pinBuffer=''; renderPinDots(false); }, 500);
+      }
+    }
+  }
+  function openPinModal(){ pinBuffer=''; renderPinDots(false); document.getElementById('pinModal').classList.add('open'); }
+  function closePinModal(){ document.getElementById('pinModal').classList.remove('open'); }
 
-    document.querySelectorAll('.speed-group button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const speed = parseFloat(this.dataset.speed);
-            speedMultiplier = speed;
-            document.querySelectorAll('.speed-group button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            addChatMessage('⚡ Speed', 'Set to ' + speed + 'x', 'System');
-        });
-    });
+  /* ============================================================
+     WIRE-UP
+  ============================================================ */
+  document.getElementById('chatCloseBtn').addEventListener('click', function(){ toggleChip('chat'); });
+  document.getElementById('chatSendBtn').addEventListener('click', sendChat);
+  document.getElementById('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter') sendChat(); });
+  document.getElementById('pinCancelBtn').addEventListener('click', closePinModal);
+  function sendChat(){
+    const input = document.getElementById('chatInput');
+    const val = input.value.trim();
+    if(!val) return;
+    pushChatUser(val);
+    input.value = '';
+  }
 
-    chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && this.value.trim()) {
-            const text = this.value.trim();
-            addChatMessage('💬 You', text, 'User');
-            this.value = '';
-            setTimeout(() => {
-                const replies = ['Copy.', 'Watching.', 'Roger.', 'Stay safe.'];
-                addChatMessage('✅ Team', replies[randInt(0, replies.length-1)], 'System');
-            }, 600);
-            if (text.toLowerCase().includes('help') || text.toLowerCase().includes('backup')) {
-                setTimeout(() => addChatMessage('💡 Raptor', 'Hardware required. See Loadout 3.', 'System'), 1200);
-            }
-        }
-    });
+  window.addEventListener('resize', resize);
 
-    document.addEventListener('click', function(e) {
-        if (chatOpen && !chatBox.contains(e.target) && e.target.id !== 'btnChatToggle') {
-            chatBox.classList.remove('active');
-            chatOpen = false;
-            document.getElementById('btnChatToggle').classList.remove('chat-active');
-            document.getElementById('btnChatToggle').textContent = '💬 Chat';
-        }
-    });
+  buildChips();
+  buildSpeedGroup();
+  buildPinPad();
+  initScenario('mo');
+  resize();
+  requestAnimationFrame(tick);
 
-    // --- START ---
-    function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+  setTimeout(function(){
+    document.getElementById('splash').classList.add('hide');
+    document.getElementById('app').classList.add('show');
+    setTimeout(function(){ document.getElementById('splash').style.display='none'; }, 650);
+  }, 1900);
 
-    // Splash screen
-    setTimeout(() => {
-        splashScreen.classList.add('hidden');
-        setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
-    }, 2200);
-
-    // Init default scenario
-    initScenario('mo');
-
-    // Welcome messages
-    setTimeout(() => {
-        addChatMessage('🦅 Raptor', '🆓 Tactical Simulator loaded.', 'System');
-        addChatMessage('💡 Tip', 'Select MO, MS, or MD for real crime scenes.', 'System');
-        addChatMessage('💡 Tip', 'Press ALARM to see protectors swarm in.', 'System');
-        addChatMessage('💡 Tip', 'PIN 1111 to stop alarms. Use Rewind for trails.', 'System');
-    }, 2500);
-
-    // Resize handler
-    window.addEventListener('resize', () => { render(); });
-
-    // Start the loop
-    gameLoop();
-
-    console.log('🦅 Raptor\'s Call Tactical Simulator V3 loaded.');
-    console.log('📍 Scenarios: MO (Danye), MS (Tasia), MD (Catherine)');
-    console.log('🔊 Place siren.wav in /public for custom sound.');
+})();
 </script>
 </body>
 </html>
