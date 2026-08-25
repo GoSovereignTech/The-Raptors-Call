@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raptor's Call - Simulator</title>
+    <title>Raptor's Call - Tactical Simulator</title>
     <style>
-        /* ===== RESET & BASE ===== */
+        /* ===== RESET ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: #0a0a12;
             color: #e0e0e0;
             height: 100vh;
@@ -36,41 +36,40 @@
 
         /* ===== HEADER ===== */
         #header {
-            padding: 16px 18px 10px 18px;
+            padding: 12px 16px 6px 16px;
             background: #0d0d18;
             border-bottom: 1px solid #1f1f30;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 50;
             flex-shrink: 0;
+            z-index: 60;
         }
         #header h1 {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             color: #f0b429;
             letter-spacing: 0.5px;
         }
         #header h1 small {
-            font-size: 9px;
+            font-size: 8px;
             color: #7a7a9a;
             font-weight: 400;
             display: block;
-            margin-top: 1px;
+            margin-top: 0px;
             letter-spacing: 1px;
         }
         #sim-badge {
             background: #f0b429;
             color: #0a0a12;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 800;
-            padding: 3px 10px;
+            padding: 2px 8px;
             border-radius: 20px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        /* ===== SPLASH SCREEN ===== */
+        /* ===== SPLASH ===== */
         #splash-screen {
             position: absolute;
             inset: 0;
@@ -83,38 +82,35 @@
             transition: opacity 0.8s ease;
             pointer-events: none;
         }
-        #splash-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+        #splash-screen.hidden { opacity: 0; pointer-events: none; }
         #splash-screen img {
-            width: 70%;
-            max-width: 280px;
-            border-radius: 20px;
+            width: 65%;
+            max-width: 240px;
+            border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         #splash-screen .splash-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #f0b429;
             letter-spacing: 4px;
         }
         #splash-screen .splash-sub {
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
-            letter-spacing: 6px;
-            margin-top: 8px;
+            letter-spacing: 5px;
+            margin-top: 6px;
             text-transform: uppercase;
         }
         #splash-screen .splash-loader {
-            margin-top: 24px;
+            margin-top: 20px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         #splash-screen .splash-loader span {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #f0b429;
             animation: pulse-dot 1.2s ease-in-out infinite;
@@ -132,14 +128,10 @@
             position: relative;
             background: #0a0e1c;
             overflow: hidden;
-            margin: 10px 10px 6px 10px;
-            border-radius: 20px;
-            border: 1px solid #1f1f30;
+            margin: 8px 10px 4px 10px;
+            border-radius: 18px;
+            border: 1px solid #1a1a2a;
             min-height: 200px;
-            transition: opacity 0.4s ease;
-        }
-        #map-container.rewind-mode {
-            opacity: 0.35;
         }
         #map-container canvas {
             position: absolute;
@@ -147,183 +139,104 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            display: block;
         }
-        #map-container #map-layer {
+        /* Rewind overlay sticker */
+        #rewind-sticker {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-        }
-        .node-dot {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-            z-index: 5;
-        }
-        .node-dot.friendly { background: #00d26a; border-color: #00d26a; box-shadow: 0 0 20px #00d26a66; }
-        .node-dot.unknown { background: #f0b429; border-color: #f0b429; box-shadow: 0 0 20px #f0b42966; }
-        .node-dot.threat { background: #ff3b4a; border-color: #ff3b4a; box-shadow: 0 0 30px #ff3b4a88; animation: pulse-threat 1s infinite; }
-        @keyframes pulse-threat {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.5); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-        .node-label {
-            position: absolute;
-            color: rgba(255,255,255,0.4);
-            font-size: 8px;
-            transform: translate(-50%, -150%);
-            white-space: nowrap;
+            bottom: 12px;
+            left: 12px;
+            z-index: 20;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #f0b429;
+            font-size: 10px;
             font-weight: 600;
-            z-index: 4;
+            color: #f0b429;
+            display: none;
             pointer-events: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+        #rewind-sticker .time {
+            color: #8a8aaa;
+            font-weight: 400;
+            font-size: 9px;
+            margin-left: 8px;
         }
 
-        /* ===== REWIND TRAIL ===== */
-        .trail-segment {
-            position: absolute;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        /* ===== STATUS OVERLAY ===== */
+        /* ===== STATUS ===== */
         #status-overlay {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            z-index: 10;
+            top: 10px;
+            left: 10px;
+            z-index: 15;
             background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(10px);
-            padding: 6px 14px;
+            backdrop-filter: blur(8px);
+            padding: 4px 12px;
             border-radius: 30px;
             font-size: 9px;
             border: 1px solid #2a2a3a;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: #8a8aaa;
             flex-wrap: wrap;
         }
         #status-overlay .dot {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #00d26a;
             display: inline-block;
             animation: blink 1.5s infinite;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-        #status-overlay span { color: #fff; font-weight: 600; margin-left: 3px; }
+        #status-overlay span { color: #fff; font-weight: 600; margin-left: 2px; }
 
-        /* Speed control in status */
-        #speed-control {
+        /* ===== SCENARIO BUTTONS ===== */
+        #scenario-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 15;
             display: flex;
-            align-items: center;
             gap: 4px;
-            background: rgba(0,0,0,0.4);
-            padding: 2px 8px;
-            border-radius: 30px;
-            margin-left: 4px;
         }
-        #speed-control button {
-            background: transparent;
-            border: none;
-            color: #7a7a9a;
-            font-size: 9px;
+        #scenario-bar button {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #2a2a3a;
+            color: #8a8aaa;
+            font-size: 8px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 12px;
+            padding: 3px 8px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s;
+            letter-spacing: 0.5px;
         }
-        #speed-control button.active {
+        #scenario-bar button.active {
+            background: rgba(240, 180, 41, 0.2);
+            border-color: #f0b429;
             color: #f0b429;
-            background: rgba(240, 180, 41, 0.15);
         }
-        #speed-control button:hover { color: #c0c0d0; }
-        #speed-control .label {
-            color: #5a5a7a;
-            font-size: 8px;
-            margin-right: 2px;
-        }
+        #scenario-bar button:active { transform: scale(0.95); }
 
-        /* ===== ALERT TOAST ===== */
-        #alert-toast {
-            position: absolute;
-            top: 65px;
-            left: 16px;
-            right: 16px;
-            z-index: 30;
-            background: #ff3b4a;
-            padding: 10px 16px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 12px;
-            color: #fff;
-            box-shadow: 0 10px 40px rgba(255, 59, 74, 0.4);
-            display: none;
-            text-align: center;
-            border: 1px solid #ff6a76;
-            animation: slideDown 0.3s ease;
-        }
-        #alert-toast.silent { background: #2a2a5a; border-color: #4a4a8a; box-shadow: 0 10px 40px rgba(42, 42, 90, 0.4); }
-        #alert-toast .pin-prompt {
-            margin-top: 8px;
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-        }
-        #alert-toast .pin-prompt input {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            padding: 4px 12px;
-            width: 80px;
-            color: #fff;
-            font-size: 16px;
-            text-align: center;
-            letter-spacing: 4px;
-            outline: none;
-        }
-        #alert-toast .pin-prompt input::placeholder { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 1px; }
-        #alert-toast .pin-prompt button {
-            background: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 4px 14px;
-            font-weight: 700;
-            font-size: 12px;
-            color: #0a0a12;
-            cursor: pointer;
-        }
-        @keyframes slideDown { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-
-        /* Alarm active indicator (flashing icon) */
+        /* ===== ALARM INDICATOR ===== */
         #alarm-indicator {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 50px;
+            right: 10px;
             z-index: 15;
             display: none;
             align-items: center;
             gap: 6px;
             background: rgba(255, 59, 74, 0.2);
-            padding: 4px 12px 4px 8px;
+            padding: 4px 10px 4px 6px;
             border-radius: 30px;
             border: 1px solid #ff3b4a;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: #ff3b4a;
             animation: flash-alarm 0.8s infinite;
@@ -338,25 +251,81 @@
             50% { opacity: 0.3; }
         }
         #alarm-indicator .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #ff3b4a;
             animation: pulse-threat 0.8s infinite;
         }
         #alarm-indicator.silent-mode .pulse-dot { background: #f0b429; }
+        @keyframes pulse-threat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.8); }
+            100% { transform: scale(1); }
+        }
 
-        /* ===== CHAT BOX ===== */
+        /* ===== TOAST ===== */
+        #alert-toast {
+            position: absolute;
+            top: 60px;
+            left: 12px;
+            right: 12px;
+            z-index: 30;
+            background: #ff3b4a;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 11px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(255, 59, 74, 0.4);
+            display: none;
+            text-align: center;
+            border: 1px solid #ff6a76;
+            animation: slideDown 0.3s ease;
+        }
+        #alert-toast.silent { background: #2a2a5a; border-color: #4a4a8a; box-shadow: 0 10px 40px rgba(42, 42, 90, 0.4); }
+        #alert-toast .pin-prompt {
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+        }
+        #alert-toast .pin-prompt input {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 3px 10px;
+            width: 70px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+        }
+        #alert-toast .pin-prompt button {
+            background: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 11px;
+            color: #0a0a12;
+            cursor: pointer;
+        }
+        @keyframes slideDown { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+        /* ===== CHAT ===== */
         #chat-box {
             position: absolute;
-            bottom: 140px;
-            left: 10px;
-            right: 10px;
+            bottom: 120px;
+            left: 8px;
+            right: 8px;
             background: rgba(10, 10, 18, 0.96);
             border: 1px solid #2a2a3a;
-            border-radius: 16px;
-            padding: 12px;
-            max-height: 160px;
+            border-radius: 14px;
+            padding: 10px;
+            max-height: 140px;
             overflow-y: auto;
             z-index: 20;
             display: none;
@@ -364,63 +333,62 @@
         }
         #chat-box.active { display: block; }
         #chat-box .msg {
-            padding: 4px 0;
+            padding: 3px 0;
             border-bottom: 1px solid #1a1a2a;
-            font-size: 11px;
+            font-size: 10px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
-        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 50px; font-size: 10px; }
+        #chat-box .msg .sender { color: #f0b429; font-weight: 700; min-width: 45px; font-size: 9px; }
         #chat-box .msg .text { color: #d0d0e0; }
-        #chat-box .msg .time { color: #5a5a7a; font-size: 8px; margin-left: auto; }
+        #chat-box .msg .time { color: #5a5a7a; font-size: 7px; margin-left: auto; }
         #chat-input {
             width: 100%;
             background: #1a1a2e;
             border: none;
             border-radius: 30px;
-            padding: 8px 14px;
+            padding: 6px 12px;
             color: #fff;
-            font-size: 12px;
-            margin-top: 8px;
+            font-size: 11px;
+            margin-top: 6px;
             outline: none;
         }
         #chat-input::placeholder { color: #5a5a7a; }
 
-        /* ===== CONTROLS (FOOTER) ===== */
+        /* ===== CONTROLS ===== */
         #controls {
-            padding: 8px 12px 14px 12px;
+            padding: 6px 10px 12px 10px;
             background: #0d0d18;
             border-top: 1px solid #1f1f30;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .ctrl-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
         }
         .ctrl-btn {
             background: #1a1a2e;
             border: 1px solid #2a2a3a;
             color: #c0c0d0;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 30px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             flex: 1;
-            min-width: 44px;
-            max-width: 120px;
+            min-width: 36px;
+            max-width: 100px;
             white-space: nowrap;
             user-select: none;
-            touch-action: manipulation;
         }
         .ctrl-btn:active { transform: scale(0.94); }
         .ctrl-btn.primary { background: #f0b429; border-color: #f0b429; color: #0a0a12; }
@@ -430,109 +398,110 @@
             background: transparent;
             border-color: transparent;
             color: #6a6a8a;
-            font-size: 10px;
-            padding: 6px 8px;
+            font-size: 9px;
+            padding: 4px 6px;
             flex: 1;
-            max-width: 100px;
+            max-width: 80px;
         }
-        .ctrl-btn.overlay-btn.active {
-            color: #f0b429;
-            background: rgba(240, 180, 41, 0.12);
-            border-color: rgba(240, 180, 41, 0.3);
-        }
+        .ctrl-btn.overlay-btn.active { color: #f0b429; background: rgba(240, 180, 41, 0.1); border-color: rgba(240, 180, 41, 0.2); }
         .ctrl-btn.overlay-btn.mesh-active { color: #00d26a; border-color: rgba(0, 210, 106, 0.3); background: rgba(0, 210, 106, 0.08); }
         .ctrl-btn.overlay-btn.radar-active { color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); background: rgba(34, 211, 238, 0.08); }
         .ctrl-btn.overlay-btn.chat-active { color: #a78bfa; border-color: rgba(167, 139, 250, 0.3); background: rgba(167, 139, 250, 0.08); }
-        .ctrl-btn .icon { font-size: 14px; }
-        .ctrl-btn .badge {
-            font-size: 8px;
-            background: #ff3b4a;
-            color: #fff;
-            border-radius: 10px;
-            padding: 1px 6px;
-            margin-left: 2px;
-        }
-        /* Stop alarm button (appears when alarm active) */
-        #btnStopAlarm {
-            display: none;
-            background: #ff3b4a;
-            border-color: #ff3b4a;
-            color: #fff;
-            animation: pulse-threat 0.8s infinite;
-            flex: 1.5;
-        }
+        .ctrl-btn .icon { font-size: 13px; }
+        .ctrl-btn .badge { font-size: 7px; background: #ff3b4a; color: #fff; border-radius: 10px; padding: 1px 5px; margin-left: 2px; }
+        #btnStopAlarm { display: none; background: #ff3b4a; border-color: #ff3b4a; color: #fff; animation: pulse-threat 0.8s infinite; flex: 1.5; }
         #btnStopAlarm.visible { display: flex; }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #0a0a12; }
-        ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 10px; }
+        /* Speed buttons inside controls */
+        .speed-group {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 30px;
+            flex: 1.5;
+            max-width: 160px;
+        }
+        .speed-group .label { font-size: 7px; color: #5a5a7a; font-weight: 700; text-transform: uppercase; margin-right: 2px; }
+        .speed-group button {
+            background: transparent;
+            border: none;
+            color: #7a7a9a;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .speed-group button.active { color: #f0b429; background: rgba(240, 180, 41, 0.15); }
+        .speed-group button:active { transform: scale(0.9); }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 450px) {
             #phone { border-radius: 0; max-height: 100vh; border: none; }
-            #header { padding: 12px 14px 6px 14px; }
-            #header h1 { font-size: 15px; }
-            #controls { padding: 6px 8px 12px 8px; gap: 6px; }
-            .ctrl-btn { font-size: 9px; padding: 6px 6px; min-width: 36px; max-width: 100px; }
-            .ctrl-btn.overlay-btn { font-size: 9px; padding: 4px 6px; max-width: 80px; }
-            #status-overlay { font-size: 8px; padding: 4px 10px; gap: 6px; top: 8px; left: 8px; }
-            #map-container { margin: 6px 6px 4px 6px; border-radius: 14px; }
-            #chat-box { bottom: 120px; max-height: 120px; }
-            #splash-screen img { width: 60%; }
-        }
-        @media (max-width: 380px) {
-            .ctrl-btn { font-size: 8px; padding: 4px 4px; min-width: 30px; }
-            .ctrl-btn.overlay-btn { font-size: 8px; padding: 3px 4px; }
+            #header { padding: 10px 12px 4px 12px; }
+            #header h1 { font-size: 14px; }
+            #controls { padding: 4px 6px 10px 6px; gap: 4px; }
+            .ctrl-btn { font-size: 8px; padding: 4px 5px; min-width: 30px; max-width: 80px; }
+            .ctrl-btn.overlay-btn { font-size: 8px; padding: 3px 4px; max-width: 60px; }
+            #status-overlay { font-size: 7px; padding: 3px 8px; top: 6px; left: 6px; }
+            #scenario-bar { top: 6px; right: 6px; }
+            #scenario-bar button { font-size: 7px; padding: 2px 6px; }
+            #map-container { margin: 4px 6px 2px 6px; border-radius: 12px; }
+            #chat-box { bottom: 100px; max-height: 100px; }
+            .speed-group { max-width: 120px; }
+            .speed-group button { font-size: 7px; padding: 1px 4px; }
         }
     </style>
 </head>
 <body>
 
 <div id="phone">
-    <!-- ===== HEADER ===== -->
+    <!-- HEADER -->
     <div id="header">
-        <h1>🦅 RAPTOR'S CALL <small>Foundation • Simulator</small></h1>
+        <h1>🦅 RAPTOR'S CALL <small>Tactical Simulator</small></h1>
         <div id="sim-badge">⚡ SIM</div>
     </div>
 
-    <!-- ===== SPLASH SCREEN ===== -->
+    <!-- SPLASH -->
     <div id="splash-screen">
-        <!-- Replace src with your actual image URL or local file -->
         <img src="https://i.imgur.com/WKyKrQD.jpg" alt="Raptor's Call" onerror="this.style.display='none'">
         <div class="splash-title">RAPTOR'S CALL</div>
-        <div class="splash-sub">Protecting Our Community</div>
-        <div class="splash-loader">
-            <span></span><span></span><span></span>
-        </div>
+        <div class="splash-sub">Tactical Defense Network</div>
+        <div class="splash-loader"><span></span><span></span><span></span></div>
     </div>
 
-    <!-- ===== MAP AREA ===== -->
+    <!-- MAP -->
     <div id="map-container">
-        <div id="map-layer"></div>
-        <canvas id="radar-canvas"></canvas>
+        <canvas id="sim-canvas"></canvas>
+
+        <!-- Rewind Sticker -->
+        <div id="rewind-sticker">
+            ⏪ REWIND <span class="time" id="rewind-time">2026-08-24 14:32:15</span>
+        </div>
 
         <!-- Status -->
         <div id="status-overlay">
             <span class="dot"></span> <span id="status-text">Online</span>
-            <span id="node-count">📡 0 Nodes</span>
-            <span id="speed-display">⏱ 1.0x</span>
-            <div id="speed-control">
-                <span class="label">Speed</span>
-                <button data-speed="0.5">0.5x</button>
-                <button data-speed="1" class="active">1x</button>
-                <button data-speed="2">2x</button>
-                <button data-speed="5">5x</button>
-            </div>
+            <span id="node-count">📡 4 Nodes</span>
+            <span id="scenario-label">📍 MO</span>
+        </div>
+
+        <!-- Scenario Selector -->
+        <div id="scenario-bar">
+            <button data-scenario="mo" class="active">📍 MO</button>
+            <button data-scenario="ms">📍 MS</button>
+            <button data-scenario="md">📍 MD</button>
         </div>
 
         <!-- Alarm Indicator -->
         <div id="alarm-indicator">
             <span class="pulse-dot"></span>
-            <span id="alarm-label">ALARM ACTIVE</span>
+            <span id="alarm-label">ALARM</span>
         </div>
 
-        <!-- Alert Toast -->
+        <!-- Toast -->
         <div id="alert-toast">
             <span id="toast-message">🚨 THREAT DETECTED</span>
             <div class="pin-prompt" id="pin-prompt" style="display:none;">
@@ -541,44 +510,50 @@
             </div>
         </div>
 
-        <!-- Chat Box -->
+        <!-- Chat -->
         <div id="chat-box">
             <div id="chat-messages">
-                <div class="msg"><span class="sender">🦅 System</span><span class="text">Welcome to the Raptor's Call Simulator.</span><span class="time">now</span></div>
+                <div class="msg"><span class="sender">🦅 System</span><span class="text">Tactical Simulator ready.</span><span class="time">now</span></div>
             </div>
-            <input id="chat-input" type="text" placeholder="Type a message to your team...">
+            <input id="chat-input" type="text" placeholder="Type a message...">
         </div>
     </div>
 
-    <!-- ===== CONTROLS ===== -->
+    <!-- CONTROLS -->
     <div id="controls">
-        <!-- Row 1: Overlay Toggles (persistent, always visible) -->
+        <!-- Row 1: Overlays -->
         <div class="ctrl-row">
-            <button class="ctrl-btn overlay-btn" id="btnMesh">📡 Meshtastic</button>
+            <button class="ctrl-btn overlay-btn" id="btnMesh">📡 Mesh</button>
             <button class="ctrl-btn overlay-btn" id="btnRadarToggle">📡 Radar</button>
             <button class="ctrl-btn overlay-btn" id="btnChatToggle">💬 Chat</button>
-        </div>
-        <!-- Row 2: Action Buttons (always visible) -->
-        <div class="ctrl-row">
             <button class="ctrl-btn primary" id="btnRewind">🔄 Rewind</button>
+        </div>
+        <!-- Row 2: Speed + Alarms -->
+        <div class="ctrl-row">
+            <div class="speed-group">
+                <span class="label">Speed</span>
+                <button data-speed="0.5">0.5x</button>
+                <button data-speed="1" class="active">1x</button>
+                <button data-speed="2">2x</button>
+                <button data-speed="5">5x</button>
+            </div>
             <button class="ctrl-btn silent" id="btnSilent">🔇 Silent</button>
             <button class="ctrl-btn danger" id="btnLoud">🔊 Alarm</button>
-            <button class="ctrl-btn danger" id="btnStopAlarm">⏹ Stop Alarm</button>
+            <button class="ctrl-btn danger" id="btnStopAlarm">⏹ Stop</button>
         </div>
     </div>
 </div>
 
 <script>
     // ========================================================================
-    //  SIMULATION ENGINE — Updated with all requested features
+    //  RAPTOR'S CALL — TACTICAL SIMULATOR V3
+    //  Features: Canvas Map, Waypoint Pathing, 3 Scenarios, Rewind Sticker,
+    //  Speed Control, Heading Triangle, Hardware Nudges.
     // ========================================================================
 
-    // --- DOM refs ---
-    const mapContainer = document.getElementById('map-container');
-    const mapLayer = document.getElementById('map-layer');
-    const radarCanvas = document.getElementById('radar-canvas');
-    const ctx = radarCanvas.getContext('2d');
-    const chatBox = document.getElementById('chat-box');
+    // --- DOM REFS ---
+    const canvas = document.getElementById('sim-canvas');
+    const ctx = canvas.getContext('2d');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const alertToast = document.getElementById('alert-toast');
@@ -588,78 +563,514 @@
     const pinSubmit = document.getElementById('pin-submit');
     const alarmIndicator = document.getElementById('alarm-indicator');
     const alarmLabel = document.getElementById('alarm-label');
+    const rewindSticker = document.getElementById('rewind-sticker');
+    const rewindTime = document.getElementById('rewind-time');
     const statusText = document.getElementById('status-text');
     const nodeCountDisplay = document.getElementById('node-count');
-    const speedDisplay = document.getElementById('speed-display');
+    const scenarioLabel = document.getElementById('scenario-label');
     const splashScreen = document.getElementById('splash-screen');
 
-    // --- State ---
+    // --- STATE ---
     let nodes = [];
     let nodeHistory = {};
     let isRewinding = false;
-    let radarActive = false; // starts off, user enables via toggle
+    let radarActive = false;
     let radarAngle = 0;
     let chatOpen = false;
-    let alertTimer = null;
     let alarmActive = false;
-    let alarmType = ''; // 'loud' or 'silent'
+    let alarmType = '';
     let speedMultiplier = 1.0;
-    let showMesh = false;
+    let showMesh = true; // default on
     let showRadarOverlay = false;
     let showChatOverlay = false;
+    let alertTimer = null;
     let audioCtx = null;
-    let sirenOsc1 = null;
-    let sirenOsc2 = null;
-    let sirenGain = null;
     let sirenInterval = null;
     let isAlarmSounding = false;
+    let currentScenario = 'mo';
+    let simTime = Date.now();
+    let rewindActive = false;
+    let frameCount = 0;
 
-    // --- Config ---
-    const NODE_COUNT = 6;
-    const FRIENDLY_IDS = ['You', 'Kai', 'Aisha', 'Marcus'];
-    const THREAT_NAMES = ['Unknown-1', 'Unknown-2'];
-
-    // --- Helpers ---
-    function rand(min, max) { return Math.random() * (max - min) + min; }
-    function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
-
-    // --- Initialize Nodes ---
-    function initNodes() {
-        const newNodes = [];
-        const usedNames = [...FRIENDLY_IDS];
-        for (let i = 0; i < NODE_COUNT; i++) {
-            let type = 'mesh';
-            let status = 'friendly';
-            let name = usedNames.pop() || `Node-${i}`;
-            if (i === 0) { type = 'personal'; name = 'You'; status = 'friendly'; }
-            else if (i === NODE_COUNT - 1) { status = 'threat'; name = THREAT_NAMES[0]; }
-            else if (i === NODE_COUNT - 2) { status = 'unknown'; name = 'Unknown-1'; }
-            const node = {
-                id: `node-${i}`,
-                name: name,
-                type: type,
-                status: status,
-                x: rand(15, 85),
-                y: rand(15, 85),
-                vx: rand(-0.3, 0.3),
-                vy: rand(-0.3, 0.3),
-                history: [],
-                userTriggered: false,
-            };
-            newNodes.push(node);
-            nodeHistory[node.id] = [];
+    // --- SCENARIO DEFINITIONS (Waypoints for real locations) ---
+    // Coordinates are in percentage of canvas (0-100).
+    // MO: Danye Jones (St. Louis County, suburban)
+    // MS: Tasia Fortune (Jackson, grid street)
+    // MD: Catherine Lee (Annapolis, wooded suburban)
+    const SCENARIOS = {
+        mo: {
+            label: '📍 MO (Danye Jones)',
+            mapStyle: 'suburban',
+            victimPath: [{x: 15, y: 75}, {x: 25, y: 65}, {x: 35, y: 55}, {x: 45, y: 50}, {x: 55, y: 45}],
+            threatPath: [{x: 80, y: 20}, {x: 70, y: 30}, {x: 60, y: 40}, {x: 50, y: 45}, {x: 55, y: 45}],
+            protectors: [[70, 80], [20, 20], [85, 70]],
+            treePos: {x: 55, y: 45}
+        },
+        ms: {
+            label: '📍 MS (Tasia Fortune)',
+            mapStyle: 'grid',
+            victimPath: [{x: 20, y: 80}, {x: 30, y: 70}, {x: 40, y: 60}, {x: 50, y: 50}, {x: 60, y: 40}],
+            threatPath: [{x: 85, y: 15}, {x: 75, y: 25}, {x: 65, y: 35}, {x: 55, y: 40}, {x: 60, y: 40}],
+            protectors: [[80, 80], [15, 15], [85, 85]],
+            treePos: {x: 60, y: 40}
+        },
+        md: {
+            label: '📍 MD (Catherine Lee)',
+            mapStyle: 'wooded',
+            victimPath: [{x: 10, y: 85}, {x: 20, y: 75}, {x: 30, y: 65}, {x: 40, y: 55}, {x: 50, y: 50}],
+            threatPath: [{x: 90, y: 10}, {x: 80, y: 20}, {x: 70, y: 30}, {x: 60, y: 40}, {x: 50, y: 50}],
+            protectors: [[75, 85], [10, 15], [90, 75]],
+            treePos: {x: 50, y: 50}
         }
-        return newNodes;
+    };
+
+    // --- HELPERS ---
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    // --- NODE FACTORY ---
+    function createNode(id, name, type, status, path, color) {
+        const start = path[0] || {x: rand(10,90), y: rand(10,90)};
+        return {
+            id, name, type, status,
+            x: start.x, y: start.y,
+            path: path.slice(1), // remaining waypoints
+            pathIndex: 0,
+            targetX: path[1] ? path[1].x : start.x,
+            targetY: path[1] ? path[1].y : start.y,
+            color: color,
+            history: [],
+            heading: rand(0, 360),
+            size: type === 'personal' ? 12 : 8,
+        };
     }
-    nodes = initNodes();
 
-    // --- Splash Screen ---
-    setTimeout(() => {
-        splashScreen.classList.add('hidden');
-        setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
-    }, 2200);
+    function initScenario(scenarioKey) {
+        const scenario = SCENARIOS[scenarioKey];
+        if (!scenario) return;
 
-    // --- Audio: Siren Generator (Web Audio) ---
+        // Reset nodes
+        const newNodes = [];
+        const vPath = scenario.victimPath;
+        const tPath = scenario.threatPath;
+
+        // 1. You (Victim) - Green
+        const you = createNode('you', 'You', 'personal', 'friendly', vPath, '#00d26a');
+        you.heading = 90;
+        newNodes.push(you);
+
+        // 2. Threat - Red
+        const threat = createNode('threat', 'Unknown', 'threat', 'threat', tPath, '#ff3b4a');
+        newNodes.push(threat);
+
+        // 3. Protectors (Green friends) coming from sides
+        scenario.protectors.forEach((pos, i) => {
+            const p = createNode(`protector-${i}`, `Team-${String.fromCharCode(65+i)}`, 'mesh', 'friendly', 
+                [{x: pos[0], y: pos[1]}, {x: pos[0]-5, y: pos[1]-5}], '#00d26a');
+            p.x = pos[0];
+            p.y = pos[1];
+            p.targetX = pos[0];
+            p.targetY = pos[1];
+            p.path = [];
+            newNodes.push(p);
+        });
+
+        nodes = newNodes;
+        nodeHistory = {};
+        nodes.forEach(n => { nodeHistory[n.id] = []; });
+
+        // Update UI
+        scenarioLabel.textContent = scenario.label;
+        document.querySelectorAll('#scenario-bar button').forEach(b => {
+            b.classList.toggle('active', b.dataset.scenario === scenarioKey);
+        });
+        addChatMessage('🔄 Scenario', `Loaded ${scenario.label}`, 'System');
+        addChatMessage('📍 Route', 'Victim walking toward the tree. Threat approaching.', 'System');
+    }
+
+    // --- UPDATE NODES (Waypoint Pathing) ---
+    function updateNodes() {
+        const speed = speedMultiplier * 0.6; // base speed
+        const now = Date.now();
+
+        nodes.forEach(node => {
+            // If node has a path, follow it
+            if (node.path && node.path.length > 0) {
+                const target = node.path[node.pathIndex] || node.path[node.path.length - 1];
+                const dx = target.x - node.x;
+                const dy = target.y - node.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist < 0.8) {
+                    // Move to next waypoint
+                    if (node.pathIndex < node.path.length - 1) {
+                        node.pathIndex++;
+                        const nextTarget = node.path[node.pathIndex];
+                        // Update heading based on direction
+                        const hdx = nextTarget.x - node.x;
+                        const hdy = nextTarget.y - node.y;
+                        if (Math.abs(hdx) > 0.1 || Math.abs(hdy) > 0.1) {
+                            node.heading = Math.atan2(hdy, hdx) * (180 / Math.PI);
+                        }
+                    }
+                } else {
+                    // Move toward target
+                    const moveX = (dx / dist) * speed * 0.5;
+                    const moveY = (dy / dist) * speed * 0.5;
+                    node.x += moveX;
+                    node.y += moveY;
+                    // Update heading smoothly
+                    if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+                        node.heading = Math.atan2(dy, dx) * (180 / Math.PI);
+                    }
+                }
+            }
+
+            // Clamp
+            node.x = Math.max(1, Math.min(99, node.x));
+            node.y = Math.max(1, Math.min(99, node.y));
+
+            // Store history (for rewind)
+            nodeHistory[node.id].push({ x: node.x, y: node.y, time: now });
+            if (nodeHistory[node.id].length > 80) nodeHistory[node.id].shift();
+
+            // Threat logic: if alarm not active, stalk. If alarm active, flee or stand still.
+            if (node.status === 'threat' && !alarmActive) {
+                // Threat moves toward the "You" node if not on path
+                // But since we have waypoints, we let waypoints handle it.
+                // Just ensure it follows its path.
+            }
+        });
+
+        // Radar sweep
+        radarAngle += 0.05 * speedMultiplier;
+        if (radarAngle > 360) radarAngle = 0;
+
+        // Update node count
+        nodeCountDisplay.textContent = '📡 ' + nodes.length + ' Nodes';
+    }
+
+    // --- DRAW MAP (Static suburban tactical map) ---
+    function drawMap(scale = 1.0) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const scenario = SCENARIOS[currentScenario];
+
+        // Background
+        ctx.fillStyle = '#0a0e1c';
+        ctx.fillRect(0, 0, w, h);
+
+        // Draw grid / roads depending on scenario
+        const isGrid = scenario.mapStyle === 'grid';
+        const isWooded = scenario.mapStyle === 'wooded';
+
+        // Draw roads (dark gray)
+        ctx.strokeStyle = '#1a1f2e';
+        ctx.lineWidth = 3;
+
+        if (isGrid) {
+            // Grid streets
+            for (let i = 0; i <= 10; i++) {
+                const pos = (i / 10) * w;
+                ctx.beginPath();
+                ctx.moveTo(pos, 0);
+                ctx.lineTo(pos, h);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, pos);
+                ctx.lineTo(w, pos);
+                ctx.stroke();
+            }
+        } else if (isWooded) {
+            // Winding paths
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.8);
+            ctx.quadraticCurveTo(w * 0.3, h * 0.6, w * 0.5, h * 0.5);
+            ctx.quadraticCurveTo(w * 0.7, h * 0.4, w, h * 0.2);
+            ctx.stroke();
+            // Side path
+            ctx.beginPath();
+            ctx.moveTo(w * 0.4, h);
+            ctx.quadraticCurveTo(w * 0.5, h * 0.7, w * 0.5, h * 0.5);
+            ctx.stroke();
+        } else {
+            // Suburban (MO) - rectangle blocks with roads
+            ctx.strokeStyle = '#1a1f2e';
+            ctx.lineWidth = 2.5;
+            // Main horizontal road
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.5);
+            ctx.lineTo(w, h * 0.5);
+            ctx.stroke();
+            // Vertical road
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, 0);
+            ctx.lineTo(w * 0.5, h);
+            ctx.stroke();
+            // Side streets
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.25);
+            ctx.lineTo(w * 0.5, h * 0.25);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, h * 0.75);
+            ctx.lineTo(w, h * 0.75);
+            ctx.stroke();
+            // Block fill (lawns)
+            ctx.fillStyle = '#0d1f12';
+            ctx.fillRect(5, 5, w*0.48-10, h*0.23-10);
+            ctx.fillRect(w*0.52+5, 5, w*0.48-10, h*0.23-10);
+            ctx.fillRect(5, h*0.27+5, w*0.48-10, h*0.21-10);
+            ctx.fillRect(w*0.52+5, h*0.27+5, w*0.48-10, h*0.21-10);
+            ctx.fillRect(5, h*0.52+5, w*0.48-10, h*0.21-10);
+            ctx.fillRect(w*0.52+5, h*0.52+5, w*0.48-10, h*0.21-10);
+            // Houses (small brown rectangles)
+            ctx.fillStyle = '#2a1f14';
+            const housePositions = [
+                [15, 15], [30, 15], [70, 15], [85, 15],
+                [15, 35], [30, 35], [70, 35], [85, 35],
+                [15, 60], [30, 60], [70, 60], [85, 60],
+                [15, 80], [30, 80], [70, 80], [85, 80]
+            ];
+            housePositions.forEach(([px, py]) => {
+                const x = (px / 100) * w;
+                const y = (py / 100) * h;
+                ctx.fillRect(x - 6, y - 4, 12, 8);
+                ctx.fillStyle = '#3a2f24';
+                ctx.fillRect(x - 2, y - 6, 4, 3);
+                ctx.fillStyle = '#2a1f14';
+            });
+        }
+
+        // Draw the "Hanging Tree" (Red marker with trunk)
+        const tree = scenario.treePos;
+        const tx = (tree.x / 100) * w;
+        const ty = (tree.y / 100) * h;
+
+        // Trunk
+        ctx.fillStyle = '#3a2a1a';
+        ctx.fillRect(tx - 2, ty, 4, 12);
+
+        // Canopy (red circle for danger)
+        ctx.shadowColor = '#ff3b4a';
+        ctx.shadowBlur = 30;
+        ctx.beginPath();
+        ctx.arc(tx, ty - 4, 16, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 59, 74, 0.25)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(tx, ty - 4, 12, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 59, 74, 0.5)';
+        ctx.fill();
+        ctx.font = '10px sans-serif';
+        ctx.fillStyle = '#ff6a76';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠️ TREE', tx, ty - 22);
+
+        // Draw street labels
+        ctx.font = '7px monospace';
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.textAlign = 'left';
+        if (isGrid) {
+            ctx.fillText('JACKSON AVE', 10, 12);
+            ctx.fillText('STATE ST', w*0.52+10, h*0.52-5);
+        } else if (!isWooded) {
+            ctx.fillText('PARK RIDGE RD', 10, h*0.52 - 5);
+            ctx.fillText('ELM ST', w*0.52 + 10, 20);
+        }
+    }
+
+    // --- DRAW NODES ---
+    function drawNodes() {
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // If Rewind is active, draw trails FIRST (so they are behind nodes)
+        if (isRewinding) {
+            const now = Date.now();
+            nodes.forEach(node => {
+                if (node.status === 'threat' || node.status === 'unknown') {
+                    const history = nodeHistory[node.id] || [];
+                    history.forEach((pos, idx) => {
+                        const alpha = 0.1 + (idx / history.length) * 0.6;
+                        const size = 2 + (idx / history.length) * 5;
+                        const x = (pos.x / 100) * w;
+                        const y = (pos.y / 100) * h;
+                        ctx.beginPath();
+                        ctx.arc(x, y, size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 59, 74, ${alpha * 0.6})`;
+                        ctx.fill();
+                    });
+                }
+            });
+        } else {
+            // Normal: show recent trail for threats only
+            nodes.forEach(node => {
+                if (node.status === 'threat') {
+                    const history = nodeHistory[node.id] || [];
+                    const recent = history.slice(-30);
+                    recent.forEach((pos, idx) => {
+                        const alpha = 0.05 + (idx / recent.length) * 0.2;
+                        const x = (pos.x / 100) * w;
+                        const y = (pos.y / 100) * h;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 59, 74, ${alpha})`;
+                        ctx.fill();
+                    });
+                }
+            });
+        }
+
+        // Draw nodes
+        nodes.forEach(node => {
+            // Skip if mesh is off and node is not personal
+            if (!showMesh && node.type !== 'personal' && node.status !== 'threat') return;
+
+            const x = (node.x / 100) * w;
+            const y = (node.y / 100) * h;
+            const size = node.size || 8;
+
+            // Glow
+            const color = node.status === 'threat' ? '#ff3b4a' : (node.status === 'unknown' ? '#f0b429' : '#00d26a');
+            const shadow = ctx.shadowColor;
+            const blur = ctx.shadowBlur;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 20;
+
+            // Dot
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Border
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Label
+            ctx.font = '7px monospace';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.textAlign = 'center';
+            ctx.fillText(node.name, x, y - size - 6);
+
+            // Heading Triangle (for "You")
+            if (node.type === 'personal') {
+                const angle = (node.heading || 0) * (Math.PI / 180);
+                const triSize = 10;
+                ctx.beginPath();
+                ctx.moveTo(x + Math.cos(angle) * triSize, y + Math.sin(angle) * triSize);
+                ctx.lineTo(x + Math.cos(angle + 2.5) * triSize * 0.5, y + Math.sin(angle + 2.5) * triSize * 0.5);
+                ctx.lineTo(x + Math.cos(angle - 2.5) * triSize * 0.5, y + Math.sin(angle - 2.5) * triSize * 0.5);
+                ctx.closePath();
+                ctx.fillStyle = '#f0b429';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        });
+    }
+
+    // --- DRAW RADAR ---
+    function drawRadar() {
+        if (!showRadarOverlay || !radarActive) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w/2, cy = h/2;
+        const radius = Math.min(w, h) * 0.32;
+
+        // Semi-transparent radar rings
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
+        ctx.lineWidth = 0.5;
+        for (let r = 0.2; r <= 1; r += 0.2) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Sweep
+        const sweepAngle = (radarAngle * Math.PI) / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, sweepAngle - 0.4, sweepAngle + 0.1);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.05)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.3)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Blips
+        nodes.forEach(node => {
+            const dx = node.x - 50;
+            const dy = node.y - 50;
+            const dist = Math.sqrt(dx*dx + dy*dy) / 50;
+            if (dist > 1) return;
+            const angle = Math.atan2(dy, dx);
+            const bx = cx + Math.cos(angle) * dist * radius;
+            const by = cy + Math.sin(angle) * dist * radius;
+            ctx.beginPath();
+            ctx.arc(bx, by, 3 + Math.random()*2, 0, Math.PI*2);
+            const col = node.status === 'threat' ? 'rgba(255,59,74,0.7)' : 'rgba(34,211,238,0.6)';
+            ctx.fillStyle = col;
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    }
+
+    // --- REWIND STICKER UPDATE ---
+    function updateRewindSticker() {
+        if (isRewinding) {
+            rewindSticker.style.display = 'block';
+            const now = new Date();
+            const timeStr = now.toISOString().replace('T', ' ').slice(0, 19);
+            rewindTime.textContent = timeStr;
+        } else {
+            rewindSticker.style.display = 'none';
+        }
+    }
+
+    // --- MAIN RENDER LOOP ---
+    function render() {
+        const container = canvas.parentElement;
+        const w = container.clientWidth || 400;
+        const h = container.clientHeight || 600;
+        canvas.width = w;
+        canvas.height = h;
+
+        // 1. Draw Map
+        drawMap();
+
+        // 2. Draw Nodes (with trails)
+        drawNodes();
+
+        // 3. Draw Radar overlay
+        drawRadar();
+
+        // 4. Update sticker
+        updateRewindSticker();
+
+        // 5. Frame counter
+        frameCount++;
+    }
+
+    // --- GAME LOOP ---
+    function gameLoop() {
+        updateNodes();
+        render();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- ALARM / AUDIO ---
     function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -671,129 +1082,106 @@
         initAudio();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        isAlarmSounding = true;
-        sirenGain = audioCtx.createGain();
-        sirenGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-        sirenGain.connect(audioCtx.destination);
+        // Try loading a wave file first
+        const audioEl = new Audio('/siren.wav');
+        audioEl.volume = 1.0;
+        audioEl.play().then(() => {
+            isAlarmSounding = true;
+            // Loop it
+            audioEl.loop = true;
+            sirenInterval = setInterval(() => {
+                if (!isAlarmSounding) {
+                    audioEl.pause();
+                    audioEl.currentTime = 0;
+                    clearInterval(sirenInterval);
+                }
+            }, 1000);
+        }).catch(() => {
+            // Fallback: Web Audio Synth
+            isAlarmSounding = true;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+            gain.connect(audioCtx.destination);
 
-        let freq = 400;
-        let dir = 1;
-        sirenInterval = setInterval(() => {
-            if (!isAlarmSounding) return;
-            freq += dir * 20;
-            if (freq > 800) { dir = -1; }
-            if (freq < 400) { dir = 1; }
-            if (sirenOsc1) {
-                try { sirenOsc1.frequency.setValueAtTime(freq, audioCtx.currentTime); } catch(e) {}
-            }
-        }, 80);
+            let freq = 400;
+            let dir = 1;
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.connect(gain);
+            osc.start();
 
-        sirenOsc1 = audioCtx.createOscillator();
-        sirenOsc1.type = 'sawtooth';
-        sirenOsc1.frequency.setValueAtTime(400, audioCtx.currentTime);
-        sirenOsc1.connect(sirenGain);
-        sirenOsc1.start();
-
-        // Second oscillator for richness
-        sirenOsc2 = audioCtx.createOscillator();
-        sirenOsc2.type = 'square';
-        sirenOsc2.frequency.setValueAtTime(200, audioCtx.currentTime);
-        const g2 = audioCtx.createGain();
-        g2.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        sirenOsc2.connect(g2);
-        g2.connect(sirenGain);
-        sirenOsc2.start();
+            sirenInterval = setInterval(() => {
+                if (!isAlarmSounding) { 
+                    clearInterval(sirenInterval); 
+                    try { osc.stop(); } catch(e) {}
+                    return; 
+                }
+                freq += dir * 25;
+                if (freq > 850) dir = -1;
+                if (freq < 350) dir = 1;
+                try { osc.frequency.setValueAtTime(freq, audioCtx.currentTime); } catch(e) {}
+            }, 70);
+        });
     }
 
     function stopSiren() {
         isAlarmSounding = false;
         if (sirenInterval) { clearInterval(sirenInterval); sirenInterval = null; }
-        try {
-            if (sirenOsc1) { sirenOsc1.stop(); sirenOsc1.disconnect(); sirenOsc1 = null; }
-            if (sirenOsc2) { sirenOsc2.stop(); sirenOsc2.disconnect(); sirenOsc2 = null; }
-            if (sirenGain) { sirenGain.disconnect(); sirenGain = null; }
-        } catch(e) {}
-        if (audioCtx && audioCtx.state === 'running') {
-            // optionally suspend to save battery
-        }
+        // Stop all audio elements
+        document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
     }
 
-    // --- Toast / Alert ---
-    function showToast(message, isSilent = false, showPin = false) {
-        toastMessage.textContent = message;
-        alertToast.className = isSilent ? 'silent' : '';
-        alertToast.style.display = 'block';
-        pinPrompt.style.display = showPin ? 'flex' : 'none';
-        if (showPin) {
-            pinInput.value = '';
-            pinInput.focus();
-        }
-        clearTimeout(alertTimer);
-        if (!showPin) {
-            alertTimer = setTimeout(() => {
-                alertToast.style.display = 'none';
-            }, 5000);
-        }
-        // Add to chat
-        addChatMessage('🚨 ALERT', message, 'System');
-    }
-
-    function hideToast() {
-        alertToast.style.display = 'none';
-        pinPrompt.style.display = 'none';
-        clearTimeout(alertTimer);
-    }
-
-    // --- Alarm Logic ---
+    // --- TRIGGER ALARM ---
     function triggerAlarm(type) {
         if (alarmActive && type === alarmType) return;
         initAudio();
 
-        // Hardware nudge: remind them to buy hardware
-        if (type === 'loud') {
-            showToast('🔊 LOUD ALARM — Siren activated! (Hardware: Personal Alarm Loadout 1)', false, false);
-        } else {
-            showToast('🔇 SILENT ALARM — Team notified discreetly. (Hardware: Mesh Nodes Loadout 3)', true, false);
-        }
+        const msg = type === 'loud' ? 
+            '🔊 LOUD ALARM — Siren activated! (Hardware: Personal Alarm Loadout 1)' :
+            '🔇 SILENT ALARM — Team notified discreetly. (Hardware: Mesh Nodes Loadout 3)';
+        showToast(msg, type === 'silent', false);
 
         alarmActive = true;
         alarmType = type;
         document.getElementById('btnStopAlarm').classList.add('visible');
-
-        // Show indicator
         alarmIndicator.style.display = 'flex';
         if (type === 'silent') {
             alarmIndicator.className = 'silent-mode';
-            alarmLabel.textContent = 'SILENT ALARM';
+            alarmLabel.textContent = 'SILENT';
         } else {
             alarmIndicator.className = '';
-            alarmLabel.textContent = 'LOUD ALARM';
+            alarmLabel.textContent = 'LOUD';
         }
 
-        // Play sound for loud alarm
-        if (type === 'loud') {
-            playSiren();
-        }
+        if (type === 'loud') playSiren();
 
-        // Add to chat
+        // Move protectors toward the tree
+        const scenario = SCENARIOS[currentScenario];
+        const tree = scenario.treePos;
+        nodes.forEach(node => {
+            if (node.status === 'friendly' && node.type !== 'personal') {
+                node.path = [{x: tree.x + rand(-5,5), y: tree.y + rand(-5,5)}];
+                node.pathIndex = 0;
+                node.targetX = tree.x;
+                node.targetY = tree.y;
+            }
+        });
+
         addChatMessage('🆘 ' + (type === 'loud' ? '🔊' : '🔇'), 
-            type === 'loud' ? 'EMERGENCY! Sending location to all protectors.' : 'I need backup. Tracking enabled.', 'You');
+            type === 'loud' ? 'EMERGENCY! Converging on location.' : 'I need backup. Discreet tracking.', 'You');
 
-        // Simulate team response
         setTimeout(() => {
-            addChatMessage('✅ Team', type === 'loud' ? 'Arriving in 60 seconds. Stay safe.' : 'On our way. 3 minutes out.', 'System');
-        }, type === 'loud' ? 1000 : 1500);
-
-        // Chat nudge
+            addChatMessage('✅ Team', 'Responding. ETA 60 seconds.', 'System');
+        }, 1000);
         setTimeout(() => {
-            addChatMessage('💡 Raptor', 'Hardware required: ' + (type === 'loud' ? 'Personal Alarm (Loadout 1)' : 'Mesh Nodes (Loadout 3)'), 'System');
-        }, 3000);
+            addChatMessage('💡 Raptor', 'Hardware: ' + (type === 'loud' ? 'Personal Alarm (L1)' : 'Mesh Nodes (L3)'), 'System');
+        }, 2500);
     }
 
     function stopAlarmWithPin() {
         if (!alarmActive) return;
-        // Show PIN prompt directly in the toast
-        showToast(alarmType === 'loud' ? '🔊 Enter PIN to stop alarm' : '🔇 Enter PIN to stop alarm', alarmType === 'silent', true);
+        showToast('Enter PIN (1111) to stop', alarmType === 'silent', true);
     }
 
     function verifyPinAndStop() {
@@ -804,7 +1192,7 @@
             showToast('✅ Alarm cancelled. PIN verified.', false, false);
         } else {
             pinInput.value = '';
-            pinInput.placeholder = '❌ Try again';
+            pinInput.placeholder = '❌';
             setTimeout(() => { pinInput.placeholder = 'PIN'; }, 1500);
         }
     }
@@ -816,44 +1204,26 @@
         alarmIndicator.style.display = 'none';
         stopSiren();
         hideToast();
-        // Reset status
         statusText.textContent = 'Online';
-        // Show a chat message
-        addChatMessage('✅ System', 'Alarm cleared. All clear.', 'System');
+        addChatMessage('✅ System', 'All clear. Alarm stopped.', 'System');
     }
 
-    // --- Rewind Logic ---
-    function toggleRewind() {
-        isRewinding = !isRewinding;
-        const btn = document.getElementById('btnRewind');
-        if (isRewinding) {
-            btn.style.background = '#f0b429';
-            btn.style.color = '#0a0a12';
-            mapContainer.classList.add('rewind-mode');
-            showToast('🔄 Rewind Active — Tracing threat paths...', true, false);
-            addChatMessage('🔄 Rewind', 'Showing trails of all unknown/threat entities.', 'System');
-            // Nudge
-            setTimeout(() => {
-                addChatMessage('💡 Raptor', 'Rewind works best with Mesh Nodes (Loadout 3) for full historical data.', 'System');
-            }, 2500);
-        } else {
-            btn.style.background = '';
-            btn.style.color = '';
-            mapContainer.classList.remove('rewind-mode');
+    // --- TOAST ---
+    function showToast(message, isSilent = false, showPin = false) {
+        toastMessage.textContent = message;
+        alertToast.className = isSilent ? 'silent' : '';
+        alertToast.style.display = 'block';
+        pinPrompt.style.display = showPin ? 'flex' : 'none';
+        if (showPin) { pinInput.value = ''; pinInput.focus(); }
+        clearTimeout(alertTimer);
+        if (!showPin) {
+            alertTimer = setTimeout(() => { alertToast.style.display = 'none'; }, 5000);
         }
-        renderMap();
+        addChatMessage('🚨 ALERT', message, 'System');
     }
+    function hideToast() { alertToast.style.display = 'none'; pinPrompt.style.display = 'none'; clearTimeout(alertTimer); }
 
-    // --- Speed Control ---
-    function setSpeed(speed) {
-        speedMultiplier = speed;
-        speedDisplay.textContent = '⏱ ' + speed + 'x';
-        document.querySelectorAll('#speed-control button').forEach(b => b.classList.remove('active'));
-        document.querySelector(`#speed-control button[data-speed="${speed}"]`)?.classList.add('active');
-        addChatMessage('⚡ Speed', 'Simulation speed set to ' + speed + 'x', 'System');
-    }
-
-    // --- Chat ---
+    // --- CHAT ---
     function addChatMessage(sender, text, type = 'User') {
         const div = document.createElement('div');
         div.className = 'msg';
@@ -861,341 +1231,102 @@
         div.innerHTML = `<span class="sender">${sender}</span><span class="text">${text}</span><span class="time">${time}</span>`;
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        if (chatMessages.children.length > 50) {
-            chatMessages.removeChild(chatMessages.children[0]);
-        }
+        if (chatMessages.children.length > 50) chatMessages.removeChild(chatMessages.children[0]);
     }
 
     function toggleChat() {
         chatOpen = !chatOpen;
         chatBox.classList.toggle('active');
-        if (chatOpen) {
-            chatInput.focus();
-            addChatMessage('🦅 Raptor', '💬 Chat active. (Hardware: Mesh Nodes Loadout 3 for off-grid)', 'System');
-        }
+        if (chatOpen) { chatInput.focus(); addChatMessage('🦅 Raptor', '💬 Chat active. (Mesh Nodes L3 for off-grid)', 'System'); }
     }
 
-    // --- Simulate incoming network messages ---
-    function simulateNetworkChat() {
-        if (chatOpen) return;
-        if (Math.random() < 0.025) {
-            const msgs = [
-                '📡 Node-2 detected movement 50m north.',
-                '👤 Unknown person approaching the trail.',
-                '🔄 Rewind shows they came from the parking lot.',
-                '✅ Team Aisha is 2 minutes out.',
-                '⚠️ Radar shows 2 people behind the treeline.',
-                '🔊 Loud alarm triggered at Sector 4.',
-                '🔇 Silent beacon activated at your location.',
-            ];
-            const msg = msgs[randInt(0, msgs.length-1)];
-            addChatMessage('📡 Network', msg, 'System');
-        }
-    }
-
-    // --- Update Nodes ---
-    function updateNodes() {
-        const speed = speedMultiplier;
-        nodes.forEach(node => {
-            const effectiveVx = node.vx * speed;
-            const effectiveVy = node.vy * speed;
-            node.x += effectiveVx;
-            node.y += effectiveVy;
-
-            if (node.x < 2 || node.x > 98) { node.vx *= -1; }
-            if (node.y < 2 || node.y > 98) { node.vy *= -1; }
-            node.x = Math.max(1, Math.min(99, node.x));
-            node.y = Math.max(1, Math.min(99, node.y));
-
-            nodeHistory[node.id].push({ x: node.x, y: node.y, time: Date.now() });
-            if (nodeHistory[node.id].length > 60) nodeHistory[node.id].shift();
-
-            // Threat stalks "You" if not in alarm mode
-            if (node.status === 'threat' && !alarmActive && Math.random() < 0.015) {
-                const you = nodes[0];
-                if (you) {
-                    const dx = you.x - node.x;
-                    const dy = you.y - node.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist > 4) {
-                        node.vx = (dx / dist) * 0.35;
-                        node.vy = (dy / dist) * 0.35;
-                    }
-                }
-            }
-        });
-
-        // Radar sweep
-        radarAngle += 0.06 * speed;
-        if (radarAngle > 360) radarAngle = 0;
-
-        // Update node count
-        nodeCountDisplay.textContent = '📡 ' + nodes.length + ' Nodes';
-    }
-
-    // --- Render Map ---
-    function renderMap() {
-        const container = mapLayer.parentElement;
-        const width = container.clientWidth || 400;
-        const height = container.clientHeight || 600;
-
-        mapLayer.innerHTML = '';
-
-        // Trails
-        if (isRewinding) {
-            nodes.forEach(node => {
-                if (node.status === 'threat' || node.status === 'unknown') {
-                    const history = nodeHistory[node.id] || [];
-                    history.forEach((pos, idx) => {
-                        const trail = document.createElement('div');
-                        trail.className = 'trail-segment';
-                        const x = (pos.x / 100) * width;
-                        const y = (pos.y / 100) * height;
-                        trail.style.left = x + 'px';
-                        trail.style.top = y + 'px';
-                        trail.style.opacity = 0.15 + (idx / history.length) * 0.7;
-                        const size = 3 + (idx / history.length) * 6;
-                        trail.style.width = size + 'px';
-                        trail.style.height = size + 'px';
-                        const color = node.status === 'threat' ? 'rgba(255, 59, 74, ' : 'rgba(240, 180, 41, ';
-                        trail.style.background = color + (0.2 + (idx/history.length)*0.6) + ')';
-                        mapLayer.appendChild(trail);
-                    });
-                }
-            });
-        } else {
-            nodes.forEach(node => {
-                if (node.status === 'threat') {
-                    const history = nodeHistory[node.id] || [];
-                    const recent = history.slice(-20);
-                    recent.forEach((pos, idx) => {
-                        const trail = document.createElement('div');
-                        trail.className = 'trail-segment';
-                        const x = (pos.x / 100) * width;
-                        const y = (pos.y / 100) * height;
-                        trail.style.left = x + 'px';
-                        trail.style.top = y + 'px';
-                        trail.style.opacity = 0.05 + (idx / recent.length) * 0.3;
-                        trail.style.width = '4px';
-                        trail.style.height = '4px';
-                        trail.style.background = 'rgba(255, 59, 74, 0.4)';
-                        mapLayer.appendChild(trail);
-                    });
-                }
-            });
-        }
-
-        // Nodes — only show if mesh overlay is on, or always show personal
-        nodes.forEach(node => {
-            if (!showMesh && node.type !== 'personal') return;
-            const x = (node.x / 100) * width;
-            const y = (node.y / 100) * height;
-
-            const dot = document.createElement('div');
-            dot.className = `node-dot ${node.status}`;
-            dot.style.left = x + 'px';
-            dot.style.top = y + 'px';
-            dot.title = `${node.name} (${node.status})`;
-            mapLayer.appendChild(dot);
-
-            const label = document.createElement('div');
-            label.className = 'node-label';
-            label.style.left = x + 'px';
-            label.style.top = (y - 18) + 'px';
-            label.textContent = node.name;
-            mapLayer.appendChild(label);
-        });
-    }
-
-    // --- Render Radar ---
-    function renderRadar() {
-        const container = radarCanvas.parentElement;
-        const width = container.clientWidth || 400;
-        const height = container.clientHeight || 600;
-        radarCanvas.width = width;
-        radarCanvas.height = height;
-        ctx.clearRect(0, 0, width, height);
-
-        if (!showRadarOverlay || !radarActive) return;
-
-        const cx = width / 2;
-        const cy = height / 2;
-        const radius = Math.min(width, height) * 0.38;
-
-        // Glow
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        grad.addColorStop(0, 'rgba(34, 211, 238, 0.03)');
-        grad.addColorStop(1, 'rgba(34, 211, 238, 0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sweep arc
-        const sweepAngle = (radarAngle * Math.PI) / 180;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, sweepAngle - 0.5, sweepAngle + 0.1);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.07)';
-        ctx.fill();
-
-        // Sweep line
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + Math.cos(sweepAngle) * radius, cy + Math.sin(sweepAngle) * radius);
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Blips
-        nodes.forEach(node => {
-            if (node.type === 'personal' && node.name !== 'You') return;
-            const dx = node.x - 50;
-            const dy = node.y - 50;
-            const dist = Math.sqrt(dx*dx + dy*dy) / 50;
-            if (dist > 1) return;
-            const angle = Math.atan2(dy, dx);
-            const blipX = cx + Math.cos(angle) * dist * radius;
-            const blipY = cy + Math.sin(angle) * dist * radius;
-            const alpha = Math.random() * 0.3 + 0.7;
-            const color = node.status === 'threat' ? `rgba(255, 59, 74, ${alpha})` : `rgba(34, 211, 238, ${alpha})`;
-            ctx.beginPath();
-            ctx.arc(blipX, blipY, 3 + Math.random() * 3, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(blipX, blipY, 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        });
-
-        // Rings
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.06)';
-        ctx.lineWidth = 0.5;
-        for (let r = 0.2; r <= 1; r += 0.2) {
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        ctx.font = '8px monospace';
-        ctx.fillText('N', cx - 4, 14);
-        ctx.fillText('S', cx - 4, height - 6);
-        ctx.fillText('E', width - 16, cy + 3);
-        ctx.fillText('W', 6, cy + 3);
-    }
-
-    // --- Hardware Nudge System ---
-    function showHardwareNudge(feature, loadout) {
-        const msgs = {
-            'radar': '💡 Radar Dongle (Loadout 2) required for real wall-penetrating detection.',
-            'mesh': '💡 Mesh Nodes (Loadout 3) needed for full trilateration and team tracking.',
-            'chat': '💡 Mesh Nodes (Loadout 3) enable encrypted off-grid team chat.',
-            'rewind': '💡 Mesh Nodes (Loadout 3) + Backhaul (Loadout 4) for extended rewind history.',
-            'alarm': '💡 Personal Alarm (Loadout 1) for physical siren + mesh alert.',
-            'camera': '💡 Camera Balls (Loadout 5) for 360° video evidence capture.'
-        };
-        const msg = msgs[feature] || '💡 Purchase the appropriate loadout for this feature.';
-        addChatMessage('🛒 Upgrade', msg, 'System');
-        // Also show toast briefly
-        showToast('🛒 ' + msg, true, false);
-        setTimeout(hideToast, 4000);
-    }
-
-    // --- UI Event Listeners ---
-
-    // 1. Overlay Toggles
+    // --- UI EVENTS ---
     document.getElementById('btnMesh').addEventListener('click', function() {
         showMesh = !showMesh;
         this.classList.toggle('mesh-active');
-        if (showMesh) {
-            this.textContent = '📡 Meshtastic ON';
-            showHardwareNudge('mesh');
-        } else {
-            this.textContent = '📡 Meshtastic';
-        }
-        renderMap();
+        this.textContent = showMesh ? '📡 Mesh ON' : '📡 Mesh';
+        if (showMesh) addChatMessage('💡 Raptor', 'Mesh Nodes (L3) required for trilateration.', 'System');
     });
 
     document.getElementById('btnRadarToggle').addEventListener('click', function() {
         radarActive = !radarActive;
         this.classList.toggle('radar-active');
-        if (radarActive) {
-            this.textContent = '📡 Radar ON';
-            showHardwareNudge('radar');
-        } else {
-            this.textContent = '📡 Radar';
-        }
-        renderRadar();
+        this.textContent = radarActive ? '📡 Radar ON' : '📡 Radar';
+        if (radarActive) addChatMessage('💡 Raptor', 'Radar Dongle (L2) required.', 'System');
     });
 
     document.getElementById('btnChatToggle').addEventListener('click', function() {
         showChatOverlay = !showChatOverlay;
         this.classList.toggle('chat-active');
-        if (showChatOverlay) {
-            this.textContent = '💬 Chat ON';
-            toggleChat();
-            showHardwareNudge('chat');
-        } else {
-            this.textContent = '💬 Chat';
-            if (chatOpen) toggleChat();
+        if (showChatOverlay) { this.textContent = '💬 Chat ON'; toggleChat(); addChatMessage('💡 Raptor', 'Chat requires Mesh Nodes (L3).', 'System'); }
+        else { this.textContent = '💬 Chat'; if (chatOpen) toggleChat(); }
+    });
+
+    document.getElementById('btnRewind').addEventListener('click', function() {
+        isRewinding = !isRewinding;
+        this.style.background = isRewinding ? '#f0b429' : '';
+        this.style.color = isRewinding ? '#0a0a12' : '';
+        if (isRewinding) {
+            showToast('🔄 Rewind Active — Tracing threat paths...', true, false);
+            addChatMessage('🔄 Rewind', 'Showing historical trails. (Hardware: Mesh L3 + Backhaul L4)', 'System');
         }
     });
 
-    // 2. Rewind
-    document.getElementById('btnRewind').addEventListener('click', toggleRewind);
-
-    // 3. Silent Alarm
     document.getElementById('btnSilent').addEventListener('click', function() {
         if (alarmActive) { stopAlarmWithPin(); return; }
         triggerAlarm('silent');
     });
 
-    // 4. Loud Alarm
     document.getElementById('btnLoud').addEventListener('click', function() {
         if (alarmActive) { stopAlarmWithPin(); return; }
         triggerAlarm('loud');
     });
 
-    // 5. Stop Alarm Button
     document.getElementById('btnStopAlarm').addEventListener('click', stopAlarmWithPin);
 
-    // 6. PIN Submit
     pinSubmit.addEventListener('click', verifyPinAndStop);
-    pinInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') verifyPinAndStop();
-    });
+    pinInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyPinAndStop(); });
 
-    // 7. Speed Control
-    document.querySelectorAll('#speed-control button').forEach(btn => {
+    document.querySelectorAll('#scenario-bar button').forEach(btn => {
         btn.addEventListener('click', function() {
-            const speed = parseFloat(this.dataset.speed);
-            setSpeed(speed);
+            const key = this.dataset.scenario;
+            if (key === currentScenario) return;
+            currentScenario = key;
+            initScenario(key);
+            // Reset alarm state if active
+            if (alarmActive) stopAlarm();
+            // Reset rewind
+            isRewinding = false;
+            document.getElementById('btnRewind').style.background = '';
+            document.getElementById('btnRewind').style.color = '';
         });
     });
 
-    // 8. Chat Input
+    document.querySelectorAll('.speed-group button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const speed = parseFloat(this.dataset.speed);
+            speedMultiplier = speed;
+            document.querySelectorAll('.speed-group button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            addChatMessage('⚡ Speed', 'Set to ' + speed + 'x', 'System');
+        });
+    });
+
     chatInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && this.value.trim()) {
             const text = this.value.trim();
             addChatMessage('💬 You', text, 'User');
             this.value = '';
             setTimeout(() => {
-                const replies = ['Copy that.', 'On watch.', 'Roger.', 'Stay safe.', 'We see you.'];
+                const replies = ['Copy.', 'Watching.', 'Roger.', 'Stay safe.'];
                 addChatMessage('✅ Team', replies[randInt(0, replies.length-1)], 'System');
             }, 600);
             if (text.toLowerCase().includes('help') || text.toLowerCase().includes('backup')) {
-                setTimeout(() => {
-                    addChatMessage('💡 Raptor', 'Mesh hardware required for off-grid comms. Purchase Loadout 3.', 'System');
-                }, 1500);
+                setTimeout(() => addChatMessage('💡 Raptor', 'Hardware required. See Loadout 3.', 'System'), 1200);
             }
         }
     });
 
-    // Close chat on outside click
     document.addEventListener('click', function(e) {
         if (chatOpen && !chatBox.contains(e.target) && e.target.id !== 'btnChatToggle') {
             chatBox.classList.remove('active');
@@ -1205,30 +1336,35 @@
         }
     });
 
-    // --- Main Loop ---
-    function gameLoop() {
-        updateNodes();
-        renderMap();
-        renderRadar();
-        simulateNetworkChat();
-        requestAnimationFrame(gameLoop);
-    }
+    // --- START ---
+    function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
 
-    // --- Init ---
+    // Splash screen
     setTimeout(() => {
-        addChatMessage('🦅 Raptor', '🆓 FREE Foundation Simulator ready.', 'System');
-        addChatMessage('💡 Tip', 'Press SILENT or ALARM to test response. PIN 1111 to stop.', 'System');
-        addChatMessage('💡 Tip', 'Toggle Meshtastic, Radar, Chat overlays above.', 'System');
-        addChatMessage('💡 Tip', 'Use Speed control to speed up/slow down simulation.', 'System');
+        splashScreen.classList.add('hidden');
+        setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
+    }, 2200);
+
+    // Init default scenario
+    initScenario('mo');
+
+    // Welcome messages
+    setTimeout(() => {
+        addChatMessage('🦅 Raptor', '🆓 Tactical Simulator loaded.', 'System');
+        addChatMessage('💡 Tip', 'Select MO, MS, or MD for real crime scenes.', 'System');
+        addChatMessage('💡 Tip', 'Press ALARM to see protectors swarm in.', 'System');
+        addChatMessage('💡 Tip', 'PIN 1111 to stop alarms. Use Rewind for trails.', 'System');
     }, 2500);
 
-    window.addEventListener('resize', () => { renderRadar(); });
+    // Resize handler
+    window.addEventListener('resize', () => { render(); });
 
+    // Start the loop
     gameLoop();
 
-    console.log('🦅 Raptor\'s Call Simulator V2.1 — Ready for presentation!');
-    console.log('📌 Features: Splash, Persistent Overlays, Alarm with Sound, PIN Stop, Speed Control, Rewind Fade.');
+    console.log('🦅 Raptor\'s Call Tactical Simulator V3 loaded.');
+    console.log('📍 Scenarios: MO (Danye), MS (Tasia), MD (Catherine)');
+    console.log('🔊 Place siren.wav in /public for custom sound.');
 </script>
-
 </body>
 </html>
