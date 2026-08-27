@@ -654,7 +654,7 @@
 
   function playSiren(){
     try{
-      sirenAudioEl = new Audio('siren.wav');
+      sirenAudioEl = new Audio('bigWhoShotYaClean.mp3');
       sirenAudioEl.loop = true; sirenAudioEl.volume = 0.5;
       sirenAudioEl.addEventListener('error', function(){ sirenAudioEl = null; startFallbackSiren(); });
       const p = sirenAudioEl.play();
