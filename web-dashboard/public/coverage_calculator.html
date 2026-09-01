@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perimeter Defense Coverage Calculator</title>
+    <style>
+        :root {
+            --bg-dark: #12181b;
+            --panel-bg: #1e262c;
+            --accent-green: #00e676;
+            --accent-blue: #00b0ff;
+            --accent-orange: #ff9100;
+            --accent-red: #ff5252;
+            --text-main: #e0e6ed;
+            --text-dim: #90a4ae;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #2a353d;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--accent-green);
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #2a353d;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px 12px;
+            background: #12181b;
+            border: 1px solid #37474f;
+            color: var(--text-main);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-green);
+        }
+
+        .stat-card {
+            background: #12181b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        canvas {
+            width: 100%;
+            height: 500px;
+            background: #0a0d0f;
+            border-radius: 8px;
+            border: 1px solid #2a353d;
+            display: block;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--text-dim);
+            background: #12181b;
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Controls Panel -->
+    <div class="panel">
+        <h2>System Configuration</h2>
+        
+        <div class="form-group">
+            <label for="persons">Number of Persons / Operators</label>
+            <input type="number" id="persons" value="2" min="1" max="10">
+        </div>
+
+        <div class="form-group">
+            <label for="extraNodes">Extra Sensor Nodes (Per Person)</label>
+            <input type="number" id="extraNodes" value="3" min="0" max="12">
+        </div>
+
+        <div class="form-group">
+            <label for="relays">RF Relays / P2P Bridges</label>
+            <input type="number" id="relays" value="1" min="0" max="5">
+        </div>
+
+        <div class="form-group">
+            <label for="environment">Environment Type</label>
+            <select id="environment">
+                <option value="1.0">Open Field (Max Range)</option>
+                <option value="0.75" selected>Suburban (Light Structures)</option>
+                <option value="0.50">Dense Urban / Heavy Forest</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="units">Display Measurement Unit</label>
+            <select id="units">
+                <option value="sqft">Square Feet (sq ft)</option>
+                <option value="sqm">Square Meters (sq m)</option>
+                <option value="acres">Acres</option>
+            </select>
+        </div>
+
+        <label class="checkbox-group">
+            <input type="checkbox" id="radarDongle">
+            <span>Include UWB Radar Dongle (Adds Non-Line-of-Sight Wall Penetration)</span>
+        </label>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Effective Coverage Area</div>
+            <div class="stat-val" id="areaDisplay">0 sq ft</div>
+        </div>
+
+        <div class="stat-card" style="border-left-color: var(--accent-blue);">
+            <div class="stat-label">Max Outer Warning Radius</div>
+            <div class="stat-val" id="radiusDisplay" style="color: var(--accent-blue);">0 ft</div>
+        </div>
+    </div>
+
+    <!-- Visualizer Panel -->
+    <div class="panel">
+        <h2>Tactical Layout & Mesh Visualizer</h2>
+        <canvas id="canvas"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background: var(--accent-green);"></div> Operator Position</div>
+            <div class="legend-item"><div class="dot" style="background: var(--accent-red);"></div> Sensor Node (Seismic/PIR/Thermal)</div>
+            <div class="legend-item"><div class="dot" style="background: var(--accent-orange);"></div> RF Relay Bridge</div>
+            <div class="legend-item"><div class="dot" style="background: rgba(0, 176, 255, 0.4);"></div> Wall-Penetrating Radar Zone</div>
+        </div>
+
+        <div class="instructions" id="layoutInstructions">
+            Calculating optimal layout instructions...
+        </div>
+    </div>
+</div>
+
+<script>
+    // Base Ranges in Meters (unobstructed)
+    const BASE_SEISMIC = 70;
+    const BASE_PIR = 40;
+    const BASE_THERMAL = 20;
+    const BASE_RADAR = 15;
+    const RELAY_BOOST_METERS = 60;
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function getInputs() {
+        return {
+            persons: parseInt(document.getElementById('persons').value) || 1,
+            extraNodes: parseInt(document.getElementById('extraNodes').value) || 0,
+            relays: parseInt(document.getElementById('relays').value) || 0,
+            envFactor: parseFloat(document.getElementById('environment').value),
+            units: document.getElementById('units').value,
+            hasRadar: document.getElementById('radarDongle').checked
+        };
+    }
+
+    function calculate() {
+        const inp = getInputs();
+        
+        // Compute degraded operational ranges
+        const rSeismic = BASE_SEISMIC * inp.envFactor;
+        const rRadar = BASE_RADAR * inp.envFactor;
+
+        // Total hardware deployed
+        const totalNodes = (inp.persons * 3) + inp.extraNodes;
+        
+        // Overlap efficiency factor: nodes arranged in mesh share ~25% coverage area to prevent blind spots
+        const meshEfficiency = 0.75;
+        
+        // Single node area based on seismic outer boundary
+        const areaPerNode = Math.PI * Math.pow(rSeismic, 2);
+        
+        // Total coverage in square meters
+        let totalAreaSqm = totalNodes * areaPerNode * meshEfficiency;
+        
+        // Relay extensions add linear distance reach between clusters
+        if (inp.relays > 0) {
+            totalAreaSqm += (inp.relays * Math.PI * Math.pow(RELAY_BOOST_METERS * inp.envFactor, 2) * 0.5);
+        }
+
+        // Radar dongles add wall-penetration coverage per person
+        if (inp.hasRadar) {
+            totalAreaSqm += (inp.persons * Math.PI * Math.pow(rRadar, 2) * 0.8);
+        }
+
+        // Maximum warning distance vector from team core
+        const maxRadiusMeters = (rSeismic + (inp.relays * (RELAY_BOOST_METERS * inp.envFactor * 0.5)));
+
+        // Output Display Formatting
+        let displayArea = '';
+        let displayRadius = '';
+
+        if (inp.units === 'sqft') {
+            displayArea = Math.round(totalAreaSqm * 10.7639).toLocaleString() + ' sq ft';
+            displayRadius = Math.round(maxRadiusMeters * 3.28084).toLocaleString() + ' ft';
+        } else if (inp.units === 'sqm') {
+            displayArea = Math.round(totalAreaSqm).toLocaleString() + ' sq m';
+            displayRadius = Math.round(maxRadiusMeters).toLocaleString() + ' m';
+        } else if (inp.units === 'acres') {
+            displayArea = (totalAreaSqm * 0.000247105).toFixed(2) + ' acres';
+            displayRadius = Math.round(maxRadiusMeters * 3.28084).toLocaleString() + ' ft';
+        }
+
+        document.getElementById('areaDisplay').innerText = displayArea;
+        document.getElementById('radiusDisplay').innerText = displayRadius;
+
+        updateInstructions(inp, totalNodes, rSeismic);
+        drawCanvas(inp, totalNodes, rSeismic, rRadar);
+    }
+
+    function updateInstructions(inp, totalNodes, rSeismic) {
+        const spacingFt = Math.round((rSeismic * 1.5) * 3.28084);
+        let text = `<strong>Optimal Node Placement:</strong> Place perimeter sensor nodes approximately <strong>${spacingFt} feet</strong> apart around your team's central location to maintain an overlapping detection mesh without blind spots. `;
+        
+        if (inp.relays > 0) {
+            text += `Position your <strong>${inp.relays} relay(s)</strong> along linear avenues of approach (roads, pathways) to extend warning range across long distance gaps. `;
+        }
+
+        if (inp.hasRadar) {
+            text += `Attach radar dongles to central nodes near building walls/obscurations to maintain interior Through-the-Wall (TTW) motion tracking.`;
+        }
+
+        document.getElementById('layoutInstructions').innerHTML = text;
+    }
+
+    function drawCanvas(inp, totalNodes, rSeismic, rRadar) {
+        // Resize canvas internally for crisp rendering
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const cX = canvas.width / 2;
+        const cY = canvas.height / 2;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Scale factor: fit max coverage on screen
+        const scale = (Math.min(canvas.width, canvas.height) / 2.6) / (rSeismic * 2.2);
+
+        // 1. Draw Grid Lines
+        ctx.strokeStyle = '#1e262c';
+        ctx.lineWidth = 1;
+        const gridSize = 40;
+        for(let x = 0; x < canvas.width; x += gridSize) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for(let y = 0; y < canvas.height; y += gridSize) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        // Generate operator & node positions
+        const personPositions = [];
+        const nodePositions = [];
+        const relayPositions = [];
+
+        // Distribute operators near center
+        const opRadius = 25 * scale;
+        for (let i = 0; i < inp.persons; i++) {
+            const angle = (i * (2 * Math.PI / inp.persons)) - (Math.PI / 2);
+            personPositions.push({
+                x: cX + (inp.persons === 1 ? 0 : opRadius * Math.cos(angle)),
+                y: cY + (inp.persons === 1 ? 0 : opRadius * Math.sin(angle))
+            });
+        }
+
+        // Distribute nodes in a surrounding ring
+        const ringRadius = (rSeismic * 1.2) * scale;
+        for (let i = 0; i < totalNodes; i++) {
+            const angle = i * (2 * Math.PI / totalNodes);
+            nodePositions.push({
+                x: cX + ringRadius * Math.cos(angle),
+                y: cY + ringRadius * Math.sin(angle)
+            });
+        }
+
+        // Distribute relays outward along avenues
+        for (let i = 0; i < inp.relays; i++) {
+            const angle = (i * (2 * Math.PI / inp.relays)) + (Math.PI / 4);
+            const dist = ringRadius + (45 * scale);
+            relayPositions.push({
+                x: cX + dist * Math.cos(angle),
+                y: cY + dist * Math.sin(angle)
+            });
+        }
+
+        // Draw Shaded Total Mesh Polygon Coverage
+        ctx.beginPath();
+        nodePositions.forEach((pos, idx) => {
+            if (idx === 0) ctx.moveTo(pos.x, pos.y);
+            else ctx.lineTo(pos.x, pos.y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 230, 118, 0.08)';
+        ctx.fill();
+
+        // 2. Render Node Detection Circles (Seismic & PIR Radii)
+        nodePositions.forEach(pos => {
+            // Seismic Outer Radius
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, rSeismic * scale, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255, 82, 82, 0.06)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 82, 82, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Node Dot
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff5252';
+            ctx.fill();
+
+            // Inter-node telemetry lines back to core
+            ctx.beginPath();
+            ctx.moveTo(cX, cY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = 'rgba(255, 82, 82, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+
+        // 3. Render Relays
+        relayPositions.forEach(pos => {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, (rSeismic * 0.7) * scale, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255, 145, 0, 0.08)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 145, 0, 0.4)';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff9100';
+            ctx.fill();
+
+            // Link to main mesh
+            ctx.beginPath();
+            ctx.moveTo(cX, cY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = 'rgba(255, 145, 0, 0.3)';
+            ctx.setLineDash([2, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        });
+
+        // 4. Render Radar Dongle Zones (Wall penetration behind team)
+        if (inp.hasRadar) {
+            personPositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, rRadar * 1.8 * scale, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(0, 176, 255, 0.15)';
+                ctx.fill();
+                ctx.strokeStyle = '#00b0ff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+        }
+
+        // 5. Render Operator Positions (Center)
+        personPositions.forEach(pos => {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 7, 0, 2 * Math.PI);
+            ctx.fillStyle = '#00e676';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        });
+    }
+
+    // Attach Event Listeners
+    document.querySelectorAll('input, select').forEach(element => {
+        element.addEventListener('input', calculate);
+    });
+
+    window.addEventListener('resize', calculate);
+
+    // Initial Run
+    calculate();
+</script>
+</body>
+</html>
