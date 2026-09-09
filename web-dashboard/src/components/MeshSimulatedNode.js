@@ -1,5 +1,5 @@
-import { NodeInterface } from './NodeInterface';
-import { supabase } from '../lib/supabaseClient'; // Your existing supabase client
+import { NodeInterface } from './NodeInterface.js';
+import { supabase } from './../lib/supabaseClient.js'; // Your existing supabase client
 
 export class MeshSimulatedNode extends NodeInterface {
     constructor(userId, channelId) {

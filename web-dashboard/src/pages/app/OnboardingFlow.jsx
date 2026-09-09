@@ -4,6 +4,12 @@ import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide-react';
 import RaptorMark from '../../components/RaptorMark.jsx';
+import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
+// Add at the top of the file
+import { MeshHardwareNode } from '../../components/MeshHardwareNode';
+// Add at the top of the file
+import { DeviceDetector } from '../../lib/deviceDetector';
+
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -226,9 +232,10 @@ function HomeField({ location, onOpenSettings }) {
   const [activity, setActivity] = useState(0.15);
   const [sensorsEnabled, setSensorsEnabled] = useState(false);
   const [meshConnected, setMeshConnected] = useState(false);
+  const [dongleConnected, setDongleConnected] = useState(false);
   const [mapFailed, setMapFailed] = useState(false);
   const lastMag = useRef(null);
-
+  const meshNodeRef = useRef(null);
   // --- NEW STATES FROM MOMMA RAPTOR ---
   const [alarmStatus, setAlarmStatus] = useState('CLEAR');
   const [activeNodes, setActiveNodes] = useState([]);
@@ -241,15 +248,111 @@ function HomeField({ location, onOpenSettings }) {
   const [showRadarOverlay, setShowRadarOverlay] = useState(false);
   const [showChatOverlay, setShowChatOverlay] = useState(false);
 
+  // In the HomeField component
+  const tracker = useRef(new ActiveNodeTracker());
+ 
+    // --- UPDATE UI FUNCTION ---
+  const updateUI = (stats) => {
+    const nodesOnline = document.getElementById('nodes-online');
+    const friendsOnline = document.getElementById('friends-online');
+    const relaysOnline = document.getElementById('relays-online');
+    const sensorsOnline = document.getElementById('sensors-online');
+    
+    if (nodesOnline) nodesOnline.textContent = stats.total;
+    if (friendsOnline) friendsOnline.textContent = stats.friends;
+    if (relaysOnline) relaysOnline.textContent = stats.relays;
+    if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
+  };
 
+
+  // --- USB DEVICE SETUP ---
+  useEffect(() => {
+    async function setupDevices() {
+      try {
+        // Check if Web Serial API is available
+        if (!navigator.serial) {
+          console.log('Web Serial API not available - running in simulation mode');
+          return;
+        }
+
+        // Get available ports
+        const ports = await navigator.serial.getPorts();
+        
+        if (ports.length === 0) {
+          console.log('No USB devices detected - running in simulation mode');
+          return;
+        }
+
+        // Import device detector
+        const { DeviceDetector } = await import('../../lib/deviceDetector');
+        const detector = new DeviceDetector();
+        const assignments = await detector.assignDevices(ports);
+
+        // Check if RAK node was found
+        const hasRakNode = assignments.some(a => a.type === 'RAK_NODE');
+        if (hasRakNode) {
+          setDongleConnected(true);
+          setMeshConnected(true);
+          console.log('RAK node detected - live mode active');
+          
+          // ---- INSERT YOUR MESH HARDWARE CODE HERE ----
+          const { MeshHardwareNode } = await import('../../components/MeshHardwareNode');
+          const rakAssignment = assignments.find(a => a.type === 'RAK_NODE');
+          
+          
+          // Assign the detected port to the mesh node
+          
+          if (rakAssignment) {
+            meshNodeRef.current = new MeshHardwareNode();
+            meshNodeRef.current.port = rakAssignment.port;
+            await meshNodeRef.current.start();
+
+            // Now listen for packets
+            meshNodeRef.current.on('packet', (packet) => {
+              tracker.current.processPacket(packet);
+              updateUI(tracker.current.getStats());
+            });
+          }
+          // ---- END INSERT ----
+          
+        } else {
+          console.log('No RAK node detected - running in simulation mode');
+          // Run simulation fallback here
+          simulateIncomingFieldMeshNodes(location);
+        }
+
+      } catch (error) {
+        console.error('USB setup failed:', error);
+        // Fall back to simulation mode
+        simulateIncomingFieldMeshNodes(location);
+        
+      }
+    }
+
+   // Cleanup function for mesh node
+    const cleanup = () => {
+      if (meshNodeRef.current && typeof meshNodeRef.current.stop === 'function') {
+        meshNodeRef.current.stop();
+      }
+    };
+
+    setupDevices();
+    return cleanup;
+  }, [location]);
+ 
+ 
   // --- NEW FUNCTIONS FROM MOMMA RAPTOR (MOVED OUTSIDE THE useEffect SO BUTTONS CAN SEE THEM!) ---
   const simulateIncomingFieldMeshNodes = (baseCoord) => {
+    if (!baseCoord) return;
     const mockNodes = [
       { id: 'RAPTOR_NODE_01', lat: baseCoord.lat + 0.003, lng: baseCoord.lon + 0.002, alias: 'North Ridge Relay', threat: 'CLEAR', unvouchedDots: 0 },
       { id: 'RAPTOR_NODE_02', lat: baseCoord.lat - 0.002, lng: baseCoord.lon - 0.004, alias: 'South Exit Choke', threat: 'CLEAR', unvouchedDots: 0 },
       { id: 'RAPTOR_NODE_03', lat: baseCoord.lat + 0.001, lng: baseCoord.lon - 0.002, alias: 'West Treeline Perimeter', threat: 'PENDING', unvouchedDots: 3 }
     ];
     setActiveNodes(mockNodes);
+       // Update UI with simulation stats
+    const stats = { total: 3, friends: 2, relays: 1, sensors: 0 };
+    updateUI(stats);
   };
 
   const engageEmergencyState = (type) => {
@@ -266,6 +369,54 @@ function HomeField({ location, onOpenSettings }) {
     setInitialAlarmLocation(null);
   };
   // --- END MOVED FUNCTIONS ---
+
+/* commented out for deletion
+  // --- USB DEVICE SETUP ---
+  useEffect(() => {
+    async function setupDevices() {
+      try {
+        // Check if Web Serial API is available
+        if (!navigator.serial) {
+          console.log('Web Serial API not available - running in simulation mode');
+          return;
+        }
+
+        // Get available ports
+        const ports = await navigator.serial.getPorts();
+        
+        if (ports.length === 0) {
+          console.log('No USB devices detected - running in simulation mode');
+          return;
+        }
+
+        // Import device detector
+        const { DeviceDetector } = await import('../../lib/deviceDetector');
+        const detector = new DeviceDetector();
+        const assignments = await detector.assignDevices(ports);
+
+        // Check if RAK node was found
+        const hasRakNode = assignments.some(a => a.type === 'RAK_NODE');
+        if (hasRakNode) {
+          setDongleConnected(true);
+          setMeshConnected(true);
+          console.log('RAK node detected - live mode active');
+        } else {
+          console.log('No RAK node detected - running in simulation mode');
+        }
+
+        // If RAK node found, set up data routing
+        // (Your existing MeshHardwareNode logic here)
+
+      } catch (error) {
+        console.error('USB setup failed:', error);
+        // Fall back to simulation mode
+      }
+    }
+
+    setupDevices();
+  }, []); // Run once on mount
+*/
+  // -------------
 
   // Keep your original useEffect just for the sensors
   useEffect(() => {
@@ -333,6 +484,14 @@ function HomeField({ location, onOpenSettings }) {
           <RaptorMark className="h-4 w-4" />
           <span className="text-xs font-medium text-slate-200">Live</span>
         </div>
+
+        <div className="flex items-center gap-2 rounded-full border border-raptor-line bg-raptor-bg/90 px-3 py-1.5 backdrop-blur text-xs">
+          <span className="text-slate-400">Nodes: <span id="nodes-online" className="text-raptor-cyan font-bold">0</span></span>
+          <span className="text-slate-600">|</span>
+          <span className="text-slate-400">Friends: <span id="friends-online" className="text-emerald-400 font-bold">0</span></span>
+        </div>
+
+    
         <button onClick={onOpenSettings} className="rounded-full border border-raptor-line bg-raptor-bg/90 p-2 text-slate-300 backdrop-blur hover:text-raptor-cyan">
           <Settings className="h-4 w-4" />
         </button>
@@ -364,7 +523,7 @@ function HomeField({ location, onOpenSettings }) {
           <div className="flex flex-col gap-3">
             <div className="flex gap-3">
               <button onClick={() => engageEmergencyState('SCREAMING')} className="flex-1 rounded-lg bg-rose-600 py-3 text-sm font-bold text-white shadow-lg hover:bg-rose-500">
-                🔊 SOUND SCREAMER
+                🔊 ALARM SOUND
               </button>
               <button onClick={() => engageEmergencyState('SILENT')} className="flex-1 rounded-lg bg-amber-500 py-3 text-sm font-bold text-white shadow-lg hover:bg-amber-400">
                 🤫 SILENT BEACON
