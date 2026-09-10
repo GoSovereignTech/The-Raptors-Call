@@ -1,6 +1,19 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { initDatabase } from './lib/db';
+// force update check In your main.jsx or App.jsx
+import { registerSW } from 'virtual:pwa-register';
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm('New version available. Reload?')) {
+      updateSW(true);
+    }
+  },
+  onOfflineReady() {
+    console.log('App ready for offline use.');
+  },
+});
 
 export default function App() {
     const [dbReady, setDbReady] = useState(false);

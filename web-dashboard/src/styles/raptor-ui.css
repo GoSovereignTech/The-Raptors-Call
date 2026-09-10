@@ -1,0 +1,370 @@
+/* ============================================================
+   RAPTOR UI — Shared component styles
+   Extracted from ssim.html and adapted for React
+   ============================================================ */
+
+/* ---------- Design tokens (matches tailwind config) ---------- */
+:root {
+  --void: #040611;
+  --bg: #0a0e1c;
+  --bg2: #111834;
+  --line: #1c2540;
+  --cyan: #22d3ee;
+  --blue: #3b82f6;
+  --amber: #f59e0b;
+  --flare: #fb923c;
+  --threat: #f43f5e;
+}
+
+/* ============================================================
+   CHIP BUTTONS (Rewind / Radar / Mesh / Chat)
+   ============================================================ */
+.raptor-chiprow {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+}
+.raptor-chiprow::-webkit-scrollbar {
+  display: none;
+}
+
+.raptor-chip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.raptor-chip svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.raptor-chip:hover {
+  border-color: rgba(34, 211, 238, 0.3);
+  color: #e2e8f0;
+}
+
+.raptor-chip.active {
+  border-color: rgba(34, 211, 238, 0.5);
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--cyan);
+  box-shadow: 0 0 12px -4px rgba(34, 211, 238, 0.4);
+}
+
+/* ============================================================
+   SPEED GROUP (0.5x / 1x / 2x / 5x)
+   ============================================================ */
+.raptor-speed-group {
+  display: flex;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.raptor-speed-btn {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.raptor-speed-btn:hover {
+  color: #e2e8f0;
+}
+
+.raptor-speed-btn.active {
+  background: var(--cyan);
+  color: var(--void);
+}
+
+/* ============================================================
+   ALARM BUTTONS (Loud / Silent / Stop)
+   ============================================================ */
+.raptor-alarmrow {
+  display: flex;
+  gap: 8px;
+}
+
+.raptor-btn-alarm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.raptor-btn-alarm svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Loud alarm — red/orange gradient with glow */
+.raptor-btn-loud {
+  background: linear-gradient(135deg, #fb923c, var(--threat));
+  color: #fff;
+  box-shadow: 0 0 22px -4px rgba(244, 63, 94, 0.55);
+}
+.raptor-btn-loud:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 28px -4px rgba(244, 63, 94, 0.7);
+}
+
+/* Silent alarm — amber outline */
+.raptor-btn-silent {
+  background: transparent;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--amber);
+}
+.raptor-btn-silent:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.7);
+}
+
+/* Stop button — full width, red outline */
+.raptor-btn-stop {
+  width: 100%;
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.45);
+  color: #fda4af;
+  padding: 13px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+.raptor-btn-stop:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.7);
+}
+.raptor-btn-stop svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================================
+   BOTTOM SHEET (bottom bar container)
+   ============================================================ */
+.raptor-sheet {
+  background: rgba(10, 14, 28, 0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+}
+
+/* ============================================================
+   TOP BAR PILLS (SIMULATION / LIVE indicator)
+   ============================================================ */
+.raptor-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(10, 14, 28, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 12px;
+  backdrop-filter: blur(8px);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.raptor-pill.sim {
+  color: var(--amber);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.raptor-pill.live {
+  color: var(--cyan);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.raptor-pill .raptor-dotlive {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  flex: 0 0 auto;
+  animation: raptor-pulse 1.6s infinite ease-in-out;
+}
+
+@keyframes raptor-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+   RADAR SWEEP — pure CSS version for React
+   Use: <div className="raptor-radar-sweep" />
+   ============================================================ */
+.raptor-radar-sweep {
+  position: relative;
+  /* width: 240px;
+     height: 240px; */
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background:
+    radial-gradient(circle at center,
+      transparent 0%,
+      transparent 33%,
+      rgba(34, 211, 238, 0.28) 33.3%,
+      transparent 34%,
+      transparent 66%,
+      rgba(34, 211, 238, 0.28) 66.6%,
+      transparent 67%,
+      transparent 100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The sweeping cone */
+.raptor-radar-sweep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    rgba(34, 211, 238, 0.35) 0deg,
+    rgba(34, 211, 238, 0) 40deg,
+    rgba(34, 211, 238, 0) 360deg
+  );
+  border-radius: 999px;
+  animation: raptor-radar-spin 3s linear infinite;
+}
+
+/* The bright scan line */
+.raptor-radar-sweep::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+  transform-origin: left center;
+  animation: raptor-radar-spin 3s linear infinite;
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.raptor-radar-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+@keyframes raptor-radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   BUTTON ICON SIZING HELPERS
+   ============================================================ */
+.raptor-icon-16 { width: 16px; height: 16px; flex: 0 0 auto; }
+.raptor-icon-14 { width: 14px; height: 14px; flex: 0 0 auto; }
+.raptor-icon-18 { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* ============================================================
+   EMERGENCY BORDER — pulsing screen edge during alarm
+   ============================================================ */
+.raptor-emergency-border {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+  border: 0 solid transparent;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.raptor-emergency-border.loud {
+  opacity: 1;
+  border-width: 6px;
+  border-color: var(--threat);
+  animation: raptor-pulse-border 1s infinite;
+}
+
+.raptor-emergency-border.silent {
+  opacity: 1;
+  border-width: 6px;
+  border-color: var(--amber);
+  animation: raptor-pulse-border 1.6s infinite;
+}
+
+@keyframes raptor-pulse-border {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.85; }
+}
+
+/* NEW - Panel 1: chip row + connect button */
+.raptor-panel-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(28, 37, 64, 0.6);
+}
+
+.raptor-panel-row .raptor-chip {
+  flex: 0 0 auto;
+  min-width: 80px;
+  justify-content: center;
+}
+
+/* Connect Meshtastic chip — pushed to the right on wide screens */
+.raptor-panel-row .raptor-chip-connect {
+  min-width: 160px;
+  margin-left: auto;
+}
+
+.raptor-panel-row .raptor-chip-connect.connected {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+/* On narrow screens, connect chip drops to its own row */
+@media (max-width: 480px) {
+  .raptor-panel-row .raptor-chip-connect {
+    margin-left: 0;
+    flex: 1 0 100%;
+  }
+}

@@ -1,0 +1,28 @@
+{
+    "name": "The Raptors Call",
+    "short_name": "The Raptors",
+    "description": "Tactical spatial mapping dashboard for decentralized LoRa mesh networks",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "theme_color": "#f26928",
+    "background_color": "#182b66",
+    "icons": [
+        {
+        "src": "/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+        },
+        {
+        "src": "/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+        },
+        {
+        "src": "/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+        }
+    ]
+}

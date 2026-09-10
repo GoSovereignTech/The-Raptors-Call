@@ -9,7 +9,9 @@ import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
-
+import '../../styles/raptor-ui.css';
+import { NUDGES, getLoadout } from '../../lib/loadouts.js';
+import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -46,6 +48,29 @@ function Recenter({ lat, lon }) {
   return null;
 }
 
+
+function beaconIcon(heading, pulseDuration, alert) {
+  const color = alert ? '#f59e0b' : '#22d3ee';
+  return L.divIcon({
+    className: 'raptor-beacon-icon',
+    html: `
+      <div class="raptor-beacon">
+        <span class="raptor-beacon-ring" style="--raptor-beacon-color:${color}; animation-duration:${pulseDuration}s"></span>
+        <span class="raptor-beacon-ring" style="--raptor-beacon-color:${color}; animation-duration:${pulseDuration}s; animation-delay:${pulseDuration / 2}s"></span>
+        <div class="raptor-beacon-dot" style="background:${color}">
+          <svg viewBox="0 0 24 24" width="16" height="16" style="transform:rotate(${heading}deg); transition:transform 0.2s linear">
+            <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="#040611" />
+          </svg>
+        </div>
+        <div class="raptor-beacon-label">You</div>
+      </div>`,
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
+  });
+}
+/*
+
+old
 function beaconIcon(heading, pulseDuration, alert) {
   const color = alert ? '#f59e0b' : '#22d3ee';
   return L.divIcon({
@@ -64,6 +89,7 @@ function beaconIcon(heading, pulseDuration, alert) {
     iconAnchor: [24, 24],
   });
 }
+*/
 
 function HeadingMarker({ lat, lon, heading, pulseDuration, alert }) {
   const markerRef = useRef(null);
@@ -75,6 +101,27 @@ function HeadingMarker({ lat, lon, heading, pulseDuration, alert }) {
 
   return <Marker position={[lat, lon]} ref={markerRef} icon={icon()} interactive={false} keyboard={false} />;
 }
+
+
+// NEW -- Radar rendered as a Leaflet marker so it moves with the map
+function RadarSweepMarker({ lat, lon, size = 340 }) {
+  const icon = L.divIcon({
+    className: 'raptor-radar-icon',
+    html: `<div class="raptor-radar-sweep" style="width:${size}px;height:${size}px"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2], // center on the lat/lon point
+  });
+  return (
+    <Marker
+      position={[lat, lon]}
+      icon={icon}
+      interactive={false}
+      keyboard={false}
+      zIndexOffset={-100} // sit behind the beacon and node markers
+    />
+  );
+}
+
 
 function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
   return (
@@ -250,9 +297,31 @@ function HomeField({ location, onOpenSettings }) {
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
+  // --- TOAST / NUDGE STATE ---
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = (text, opts = {}) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, text, ...opts }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, opts.duration || 6000);
+  };
+
+  const showNudge = (key) => {
+    const nudge = NUDGES[key];
+    if (!nudge) return;
+    const loadout = getLoadout(nudge.loadout);
+    showToast(nudge.message, {
+      title: nudge.title,
+      loadout,
+      duration: 8000,
+    });
+  };
+
  
     // --- UPDATE UI FUNCTION ---
-  const updateUI = (stats) => {
+    const updateUI = (stats) => {
     const nodesOnline = document.getElementById('nodes-online');
     const friendsOnline = document.getElementById('friends-online');
     const relaysOnline = document.getElementById('relays-online');
@@ -262,7 +331,7 @@ function HomeField({ location, onOpenSettings }) {
     if (friendsOnline) friendsOnline.textContent = stats.friends;
     if (relaysOnline) relaysOnline.textContent = stats.relays;
     if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
-  };
+};
 
 
   // --- USB DEVICE SETUP ---
@@ -270,8 +339,10 @@ function HomeField({ location, onOpenSettings }) {
     async function setupDevices() {
       try {
         // Check if Web Serial API is available
+        // Check if Web Serial API is available
         if (!navigator.serial) {
           console.log('Web Serial API not available - running in simulation mode');
+          simulateIncomingFieldMeshNodes(location);
           return;
         }
 
@@ -280,6 +351,7 @@ function HomeField({ location, onOpenSettings }) {
         
         if (ports.length === 0) {
           console.log('No USB devices detected - running in simulation mode');
+          simulateIncomingFieldMeshNodes(location);
           return;
         }
 
@@ -360,6 +432,39 @@ function HomeField({ location, onOpenSettings }) {
     const logCoordinates = { lat: location.lat, lon: location.lon };
     if (!initialAlarmLocation) setInitialAlarmLocation(logCoordinates);
     simulateIncomingFieldMeshNodes(logCoordinates);
+
+    // Loud alarm plays the siren; silent does not.
+    if (type === 'SCREAMING') {
+      playSiren();
+    } else {
+      stopSiren();
+    }
+
+    // Outgoing mesh payload (real hardware sends this; simulation logs it).
+    const payload = {
+      type: 'ALARM',
+      alarmType: type,
+      gpsOrigin: logCoordinates,
+      gpsCurrent: logCoordinates,
+      timestamp: Date.now(),
+      audioFile: type === 'SCREAMING' ? 'bigHypnotize' : null,
+      playAt: Date.now() + 2000,
+      ttsText:
+        type === 'SCREAMING'
+          ? 'Help! I am under attack!'
+          : 'Silent alert triggered.',
+    };
+
+    if (meshNodeRef.current && typeof meshNodeRef.current.sendAlert === 'function') {
+      meshNodeRef.current.sendAlert(payload).catch((err) =>
+        console.warn('Failed to send alarm:', err)
+      );
+    } else {
+      console.log('Alarm sent (simulation):', payload);
+    }
+
+    // Nudge the user about what gear makes this real.
+    showNudge('alarm');
   };
 
   const cancelEmergencyState = () => {
@@ -367,56 +472,10 @@ function HomeField({ location, onOpenSettings }) {
     setActiveNodes([]);
     setSelectedNode(null);
     setInitialAlarmLocation(null);
+    stopSiren();
   };
-  // --- END MOVED FUNCTIONS ---
-
-/* commented out for deletion
-  // --- USB DEVICE SETUP ---
-  useEffect(() => {
-    async function setupDevices() {
-      try {
-        // Check if Web Serial API is available
-        if (!navigator.serial) {
-          console.log('Web Serial API not available - running in simulation mode');
-          return;
-        }
-
-        // Get available ports
-        const ports = await navigator.serial.getPorts();
-        
-        if (ports.length === 0) {
-          console.log('No USB devices detected - running in simulation mode');
-          return;
-        }
-
-        // Import device detector
-        const { DeviceDetector } = await import('../../lib/deviceDetector');
-        const detector = new DeviceDetector();
-        const assignments = await detector.assignDevices(ports);
-
-        // Check if RAK node was found
-        const hasRakNode = assignments.some(a => a.type === 'RAK_NODE');
-        if (hasRakNode) {
-          setDongleConnected(true);
-          setMeshConnected(true);
-          console.log('RAK node detected - live mode active');
-        } else {
-          console.log('No RAK node detected - running in simulation mode');
-        }
-
-        // If RAK node found, set up data routing
-        // (Your existing MeshHardwareNode logic here)
-
-      } catch (error) {
-        console.error('USB setup failed:', error);
-        // Fall back to simulation mode
-      }
-    }
-
-    setupDevices();
-  }, []); // Run once on mount
-*/
-  // -------------
+  
+ 
 
   // Keep your original useEffect just for the sensors
   useEffect(() => {
@@ -459,6 +518,12 @@ function HomeField({ location, onOpenSettings }) {
         pulseDuration={pulseDuration} 
         onFail={() => setMapFailed(true)}
       >
+
+        {/* Radar sweep — appears centered on your position */}
+        {showRadarOverlay && (
+          <RadarSweepMarker lat={location.lat} lon={location.lon} size={340} />
+        )}
+
         {/* Now the markers are children of the MapContainer! */}
         {activeNodes.map((node) => (
           <Marker
@@ -476,13 +541,23 @@ function HomeField({ location, onOpenSettings }) {
           />
         ))}
       </LiveMap>
+      {/* Radar sweep overlay — appears centered when toggled */}
+     
 
       <div className="pointer-events-none absolute inset-0 z-[400] bg-gradient-to-b from-raptor-void/70 via-transparent to-raptor-void/80" />
 
       <div className="absolute left-0 right-0 top-0 z-[500] flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-2 rounded-full border border-raptor-line bg-raptor-bg/90 px-3 py-1.5 backdrop-blur">
+        <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur ${
+          dongleConnected 
+            ? 'border-emerald-500/30 bg-emerald-500/10' 
+            : 'border-amber-500/30 bg-amber-500/10'
+        }`}>
           <RaptorMark className="h-4 w-4" />
-          <span className="text-xs font-medium text-slate-200">Live</span>
+          <span className={`text-xs font-medium ${
+            dongleConnected ? 'text-emerald-300' : 'text-amber-300'
+          }`}>
+            {dongleConnected ? 'Live' : 'Simulation'}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 rounded-full border border-raptor-line bg-raptor-bg/90 px-3 py-1.5 backdrop-blur text-xs">
@@ -505,63 +580,200 @@ function HomeField({ location, onOpenSettings }) {
 
 
       {/* --- NEW OVERLAY TOOLBAR --- */}
-      <div className="absolute bottom-24 left-1/2 z-[500] flex -translate-x-1/2 gap-2 rounded-full bg-raptor-bg/90 p-1.5 backdrop-blur border border-raptor-line">
-        <button onClick={() => setShowMeshOverlay(!showMeshOverlay)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${showMeshOverlay ? 'bg-raptor-cyan/20 text-raptor-cyan' : 'text-slate-400 hover:text-slate-200'}`}>
-          Meshtastic
-        </button>
-        <button onClick={() => setShowRadarOverlay(!showRadarOverlay)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${showRadarOverlay ? 'bg-raptor-cyan/20 text-raptor-cyan' : 'text-slate-400 hover:text-slate-200'}`}>
-          Radar
-        </button>
-        <button onClick={() => setShowChatOverlay(!showChatOverlay)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${showChatOverlay ? 'bg-raptor-cyan/20 text-raptor-cyan' : 'text-slate-400 hover:text-slate-200'}`}>
-          Chat
-        </button>
-      </div>
+
+ 
  
 
-      <div className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl border-t border-raptor-line bg-raptor-bg/95 px-4 pb-6 pt-4 backdrop-blur">
-        {alarmStatus === 'CLEAR' ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-3">
-              <button onClick={() => engageEmergencyState('SCREAMING')} className="flex-1 rounded-lg bg-rose-600 py-3 text-sm font-bold text-white shadow-lg hover:bg-rose-500">
-                🔊 ALARM SOUND
-              </button>
-              <button onClick={() => engageEmergencyState('SILENT')} className="flex-1 rounded-lg bg-amber-500 py-3 text-sm font-bold text-white shadow-lg hover:bg-amber-400">
-                🤫 SILENT BEACON
-              </button>
-            </div>
-            <button onClick={() => setMeshConnected((v) => !v)} className={`w-full rounded-lg border px-3 py-2 text-sm ${meshConnected ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' : 'border-raptor-line text-slate-400 hover:border-slate-600'}`}>
-              <span className="flex items-center justify-center gap-2"><Radio className="h-4 w-4" /> {meshConnected ? 'Meshtastic connected' : 'Connect Meshtastic'}</span>
-            </button>
-          </div>
-        ) : (
-          // ALARM ACTIVE STATE
-          <div className="flex flex-col gap-3">
-            <button onClick={cancelEmergencyState} className="w-full rounded-lg bg-emerald-500 py-4 text-sm font-bold text-white shadow-lg hover:bg-emerald-400">
-              ✅ CANCEL ALERT (PIN)
-            </button>
-            {/* Selected Node Overlay */}
-            {selectedNode && (
-              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-                <p className="text-xs text-amber-300">Node {selectedNode.id} selected.</p>
-                <input 
-                  placeholder="Enter threat notes..." 
-                  value={nodeThreatDescription} 
-                  onChange={(e) => setNodeThreatDescription(e.target.value)}
-                  className="mt-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white outline-none" 
-                />
-                <button onClick={() => {
-                    setActiveNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, threat: 'CONFIRMED_OPPOSITION' } : n));
-                    setSelectedNode(null);
-                    setNodeThreatDescription('');
-                  }} 
-                  className="mt-2 w-full rounded bg-rose-600 py-1 text-xs font-bold text-white">
-                  CONFIRM OPPOSITION
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+     <div className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl border-t border-raptor-line bg-raptor-bg/95 px-4 pb-6 pt-4 backdrop-blur">
+
+  {/* ─── PANEL 1: overlay toggles + mesh connect ─── */}
+  <div className="raptor-panel-row">
+    <button
+      className={`raptor-chip ${showMeshOverlay ? 'active' : ''}`}
+      onClick={() => {
+        const next = !showMeshOverlay;
+        setShowMeshOverlay(next);
+        if (next) showNudge('mesh');
+      }}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 11.5a11.5 11.5 0 0 1 16 0" />
+        <path d="M7.3 15a7 7 0 0 1 9.4 0" />
+        <circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" />
+      </svg>
+      <span>Mesh</span>
+    </button>
+
+    <button
+      className={`raptor-chip ${showRadarOverlay ? 'active' : ''}`}
+      onClick={() =>  {
+        const next = !showRadarOverlay;
+        setShowRadarOverlay(next);
+        if (next) showNudge('radar');
+      }}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="12" r="6.5" />
+        <circle cx="12" cy="12" r="10.5" opacity="0.5" />
+      </svg>
+      <span>Radar</span>
+    </button>
+
+    <button
+      className={`raptor-chip ${showChatOverlay ? 'active' : ''}`}
+      onClick={() => {
+        const next = !showChatOverlay;
+        setShowChatOverlay(next);
+        if (next) showNudge('chat');
+      }}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.8a8.3 8.3 0 0 1-.9-3.8A8.4 8.4 0 0 1 12.5 3h.1a8.4 8.4 0 0 1 8.4 8.4z" />
+      </svg>
+      <span>Chat</span>
+    </button>
+
+    <button
+      className={`raptor-chip raptor-chip-connect ${meshConnected ? 'connected' : ''}`}
+      onClick={() => {
+        const next = !meshConnected;
+        setMeshConnected(next);
+        if (next && !dongleConnected) showNudge('connect');
+      }}
+    >
+      <Radio className="raptor-icon-14" />
+      <span>{meshConnected ? 'Connected' : 'Connect Meshtastic'}</span>
+    </button>
+  </div>
+
+  {/* ─── PANEL 2: alarm ─── */}
+  {alarmStatus === 'CLEAR' ? (
+    <div className="raptor-alarmrow">
+      <button
+        className="raptor-btn-alarm raptor-btn-loud"
+        onClick={() => engageEmergencyState('SCREAMING')}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="raptor-icon-16">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+        </svg>
+        <span>Loud Alarm</span>
+      </button>
+
+      <button
+        className="raptor-btn-alarm raptor-btn-silent"
+        onClick={() => engageEmergencyState('SILENT')}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="raptor-icon-16">
+          <path d="M8.7 3.7A6 6 0 0 1 18 8c0 3.5.9 5.8 1.6 7.1" />
+          <path d="M6.3 6.3C6 6.9 6 7.9 6 8c0 7-3 9-3 9h13" />
+          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+          <line x1="2" y1="2" x2="22" y2="22" />
+        </svg>
+        <span>Silent</span>
+      </button>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-3">
+      <button onClick={cancelEmergencyState} className="raptor-btn-stop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="raptor-icon-16">
+          <line x1="6" y1="6" x2="18" y2="18" />
+          <line x1="18" y1="6" x2="6" y2="18" />
+        </svg>
+        <span>Cancel Alert (PIN)</span>
+      </button>
+      {selectedNode && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+          <p className="text-xs text-amber-300">Node {selectedNode.id} selected.</p>
+          <input
+            placeholder="Enter threat notes..."
+            value={nodeThreatDescription}
+            onChange={(e) => setNodeThreatDescription(e.target.value)}
+            className="mt-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white outline-none"
+          />
+          <button
+            onClick={() => {
+              setActiveNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, threat: 'CONFIRMED_OPPOSITION' } : n));
+              setSelectedNode(null);
+              setNodeThreatDescription('');
+            }}
+            className="mt-2 w-full rounded bg-rose-600 py-1 text-xs font-bold text-white"
+          >
+                        CONFIRM OPPOSITION
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+{/* ─── TOASTS (nudges) ─── */}
+<div className="pointer-events-none absolute left-3 right-3 top-20 z-[700] flex flex-col gap-2">
+  {toasts.map((t) => (
+    <div
+      key={t.id}
+      className="pointer-events-auto rounded-xl border border-raptor-line bg-raptor-bg/95 px-3 py-2 backdrop-blur shadow-lg"
+    >
+      {t.title && (
+        <div className="mb-0.5 text-xs font-semibold text-raptor-cyan">
+          {t.title}
+        </div>
+      )}
+      <div className="text-xs leading-relaxed text-slate-300">{t.text}</div>
+      {t.loadout && (
+        <a
+          href={t.loadout.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1.5 inline-block text-xs font-semibold text-raptor-cyan underline underline-offset-2"
+        >
+          Get {t.loadout.title} →
+        </a>
+      )}
+    </div>
+  ))}
+</div>
+
+{/* ─── CHAT DRAWER ─── */}
+<div
+  className={`absolute right-0 top-0 bottom-0 z-[600] w-[min(340px,88vw)] border-l border-raptor-line bg-raptor-bg/95 backdrop-blur transition-transform duration-300 ${
+    showChatOverlay ? 'translate-x-0' : 'translate-x-full'
+  }`}
+>
+  <div className="flex items-center justify-between border-b border-raptor-line px-4 py-3">
+    <b className="text-sm text-slate-100">Mesh Chat</b>
+    <button
+      onClick={() => setShowChatOverlay(false)}
+      className="text-slate-400 hover:text-slate-100"
+      aria-label="Close chat"
+    >
+      ✕
+    </button>
+  </div>
+  <div className="flex h-[calc(100%-56px)] flex-col">
+    <div className="flex-1 space-y-2 overflow-y-auto p-3">
+      <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-2 text-center text-[11px] text-amber-300">
+        Simulation — connect a C2 Dongle to enable live mesh chat.
       </div>
+    </div>
+    <div className="flex gap-2 border-t border-raptor-line p-3">
+      <input
+        type="text"
+        placeholder="Message the mesh…"
+        maxLength={140}
+        className="flex-1 rounded-lg border border-raptor-line bg-raptor-bg2 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-raptor-cyan"
+      />
+      <button
+        className="rounded-lg bg-raptor-cyan px-4 text-sm font-bold text-raptor-void"
+        onClick={() => showNudge('chat')}
+      >
+        Send
+      </button>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 }
