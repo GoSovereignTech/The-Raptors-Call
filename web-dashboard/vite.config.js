@@ -14,6 +14,7 @@ export default defineConfig({
         type: 'module',
       },
       includeAssets: [
+        'ssim.html', 
         'favicon.ico',
         'apple-touch-icon.png',
         'favicon-16x16.png',
@@ -51,6 +52,22 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,mp3}'],
+        runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'openstreetmap-tiles',
+            expiration: {
+              maxEntries: 5000,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 Days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB for the MP3
       },
     }),

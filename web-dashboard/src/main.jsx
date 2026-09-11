@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import OnboardingFlow from './pages/app/OnboardingFlow.jsx';
 import AdminApp from './pages/admin/AdminVettingForm.jsx'; 
+import './lib/simulation';
 import 'leaflet/dist/leaflet.css'
 import "./index.css"
 

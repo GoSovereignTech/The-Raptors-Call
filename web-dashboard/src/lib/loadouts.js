@@ -45,7 +45,7 @@ export const NUDGES = {
   mesh: {
     title: 'Mesh overlay',
     message:
-      'You need a Meshtastic Tag + Smartphone Node to see teammates on the mesh.',
+      'To detect and see LIVE people on the map you need, the OTG adapter and the Meshtastic RAKWireless Node.',
     loadout: 'c2Dongle',
   },
   radar: {

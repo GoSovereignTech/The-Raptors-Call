@@ -12,6 +12,7 @@ import { DeviceDetector } from '../../lib/deviceDetector';
 import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -67,29 +68,7 @@ function beaconIcon(heading, pulseDuration, alert) {
     iconSize: [48, 48],
     iconAnchor: [24, 24],
   });
-}
-/*
-
-old
-function beaconIcon(heading, pulseDuration, alert) {
-  const color = alert ? '#f59e0b' : '#22d3ee';
-  return L.divIcon({
-    className: 'raptor-beacon-icon',
-    html: `
-      <div class="raptor-beacon">
-        <span class="raptor-beacon-ring" style="--raptor-beacon-color:${color}; animation-duration:${pulseDuration}s"></span>
-        <span class="raptor-beacon-ring" style="--raptor-beacon-color:${color}; animation-duration:${pulseDuration}s; animation-delay:${pulseDuration / 2}s"></span>
-        <div class="raptor-beacon-dot" style="background:${color}">
-          <svg viewBox="0 0 24 24" width="16" height="16" style="transform:rotate(${heading}deg); transition:transform 0.2s linear">
-            <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="#040611" />
-          </svg>
-        </div>
-      </div>`,
-    iconSize: [48, 48],
-    iconAnchor: [24, 24],
-  });
-}
-*/
+} 
 
 function HeadingMarker({ lat, lon, heading, pulseDuration, alert }) {
   const markerRef = useRef(null);
@@ -275,6 +254,7 @@ function LocationSetup({ onLocated }) {
 }
 
 function HomeField({ location, onOpenSettings }) {
+  const live = useLiveLocation(location);
   const [heading, setHeading] = useState(0);
   const [activity, setActivity] = useState(0.15);
   const [sensorsEnabled, setSensorsEnabled] = useState(false);
@@ -429,7 +409,7 @@ function HomeField({ location, onOpenSettings }) {
 
   const engageEmergencyState = (type) => {
     setAlarmStatus(type);
-    const logCoordinates = { lat: location.lat, lon: location.lon };
+    const logCoordinates = { lat: live.lat, lon: live.lon };
     if (!initialAlarmLocation) setInitialAlarmLocation(logCoordinates);
     simulateIncomingFieldMeshNodes(logCoordinates);
 
@@ -511,17 +491,17 @@ function HomeField({ location, onOpenSettings }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-raptor-void">
       {/* 1. The Map */}
-            <LiveMap 
-        lat={location.lat} 
-        lon={location.lon} 
-        heading={heading} 
+      <LiveMap 
+        lat={live.lat} 
+        lon={live.lon} 
+        heading={live.heading} 
         pulseDuration={pulseDuration} 
         onFail={() => setMapFailed(true)}
       >
 
         {/* Radar sweep — appears centered on your position */}
         {showRadarOverlay && (
-          <RadarSweepMarker lat={location.lat} lon={location.lon} size={340} />
+          <RadarSweepMarker lat={live.lat} lon={live.lon} size={340} />
         )}
 
         {/* Now the markers are children of the MapContainer! */}
@@ -713,8 +693,15 @@ function HomeField({ location, onOpenSettings }) {
   {toasts.map((t) => (
     <div
       key={t.id}
-      className="pointer-events-auto rounded-xl border border-raptor-line bg-raptor-bg/95 px-3 py-2 backdrop-blur shadow-lg"
+      className="pointer-events-auto relative rounded-xl border border-raptor-line bg-raptor-bg/95 px-3 py-2 pr-8 backdrop-blur shadow-lg"
     >
+      <button
+        onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+        className="absolute right-2 top-2 text-slate-500 hover:text-slate-200 transition-colors"
+        aria-label="Close"
+      >
+        ✕
+      </button>
       {t.title && (
         <div className="mb-0.5 text-xs font-semibold text-raptor-cyan">
           {t.title}
