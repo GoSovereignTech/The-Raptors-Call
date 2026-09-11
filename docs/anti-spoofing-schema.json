@@ -1,0 +1,50 @@
+{
+  "protocol": "RAPTOR_MESH_V2",
+  "security": {
+    "nonce": 10482,
+    "timestamp_utc": 1787740960,
+    "signature_hash": "a8f9c3e210b457f"
+  },
+  "tag_data": {
+    "id": "TAG-8842",
+    "first_name": "Guardian_01",
+    "battery_pct": 94,
+    "gps": {
+      "lat": 39.27214,
+      "lon": -76.73142,
+      "alt_m": 124.5
+    }
+  },
+  "node_telemetry": {
+    "node_id": "GRID-NODE-03",
+    "battery_pct": 87,
+    "gps": {
+      "lat": 39.27301,
+      "lon": -76.73055,
+      "alt_m": 128.0
+    },
+    "user_action": "START_ALARM",
+    "sensors": {
+      "thermal_array": {
+        "type": "MLX90640",
+        "magnitude_celsius": 37.8,
+        "triggered": true
+      },
+      "motion_detector": {
+        "type": "PIR_AM312",
+        "magnitude_val": 89,
+        "triggered": true
+      },
+      "footstep_detector": {
+        "type": "PIEZO_SEISMIC",
+        "magnitude_hz": 14.2,
+        "triggered": true
+      }
+    }
+  },
+  "heartbeat": {
+    "system_status": "HEALTHY",
+    "uptime_seconds": 432000,
+    "self_diagnostic_pass": true
+  }
+}

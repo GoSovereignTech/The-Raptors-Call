@@ -46,7 +46,7 @@ export default function App() {
     // Your app content
     return (
         <div>
-            <h1>Raptor's Call</h1>
+            <h1>The Raptors Call</h1>
             {/* Rest of your app */}
         </div>
     );
