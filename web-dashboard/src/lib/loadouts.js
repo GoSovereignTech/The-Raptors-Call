@@ -1,6 +1,16 @@
 // src/lib/loadouts.js
 // Central registry for loadout links and nudge messages.
 // Update URLs here — they propagate through the entire app.
+/*
+How to add TTS?	Pre-generate WAV files with espeak-ng, map command IDs to files
+*/
+export const AUDIO_COMMANDS = {
+  1: { file: 'WAV_SIREN_130DB.wav',          label: 'Loud siren' },
+  2: { file: 'WAV_WARNING_LEGAL.wav',        label: 'Legal warning' },
+  3: { file: 'WAV_TACTICAL_EXTRACTION.wav',  label: 'Extraction route' },
+  4: { file: 'TTS_HELP_UNDER_ATTACK.wav',    label: 'TTS: Help under attack' },
+  5: { file: 'TTS_TEAM_2_MIN_OUT.wav',       label: 'TTS: Team 2 min out' },
+};
 
 export const LOADOUTS = {
   personalAlarm: {

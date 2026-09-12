@@ -6,9 +6,11 @@ import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide
 import RaptorMark from '../../components/RaptorMark.jsx';
 import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 // Add at the top of the file
+import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
+import { registerSimHandler } from '../../lib/simulation.js';
 import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
@@ -16,6 +18,7 @@ import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
+
 
 function cardinal(deg) {
   const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
@@ -279,6 +282,10 @@ function HomeField({ location, onOpenSettings }) {
   const tracker = useRef(new ActiveNodeTracker());
   // --- TOAST / NUDGE STATE ---
   const [toasts, setToasts] = useState([]);
+  
+  const [selectedFusion, setSelectedFusion] = useState(null);
+  const [fusionPackets, setFusionPackets] = useState([]);
+
 
   const showToast = (text, opts = {}) => {
     const id = Date.now() + Math.random();
@@ -302,16 +309,60 @@ function HomeField({ location, onOpenSettings }) {
  
     // --- UPDATE UI FUNCTION ---
     const updateUI = (stats) => {
-    const nodesOnline = document.getElementById('nodes-online');
-    const friendsOnline = document.getElementById('friends-online');
-    const relaysOnline = document.getElementById('relays-online');
-    const sensorsOnline = document.getElementById('sensors-online');
-    
-    if (nodesOnline) nodesOnline.textContent = stats.total;
-    if (friendsOnline) friendsOnline.textContent = stats.friends;
-    if (relaysOnline) relaysOnline.textContent = stats.relays;
-    if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
-};
+      const nodesOnline = document.getElementById('nodes-online');
+      const friendsOnline = document.getElementById('friends-online');
+      const relaysOnline = document.getElementById('relays-online');
+      const sensorsOnline = document.getElementById('sensors-online');
+      
+      if (nodesOnline) nodesOnline.textContent = stats.total;
+      if (friendsOnline) friendsOnline.textContent = stats.friends;
+      if (relaysOnline) relaysOnline.textContent = stats.relays;
+      if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
+    };
+    // ─── Sim → Map bridge ───
+    useEffect(() => {
+      registerSimHandler((packet) => {
+        console.log('[SIM IN]', packet.typ, packet.nid, packet.d);
+
+        // Route by packet type
+        if (packet.typ === 'SNS') {
+          // Add to fusion packets → renders as FusionPacketMarker on map
+          setFusionPackets((prev) => [...prev.slice(-50), packet]);
+        }
+        else if (packet.typ === 'ALM') {
+          // Trigger alarm UI
+          setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
+          if (packet.d.mode === 'SCR') playSiren();
+        }
+        else if (packet.typ === 'HBT') {
+          // Add or update a friendly node on map
+          const nodeId = packet.nid;
+          setActiveNodes((prev) => {
+            const existing = prev.findIndex((n) => n.id === nodeId);
+            const node = {
+              id: nodeId,
+              lat: packet.d.lat,
+              lng: packet.d.lon,
+              alias: nodeId,
+              threat: 'CLEAR',
+              unvouchedDots: 0,
+            };
+            if (existing >= 0) {
+              const next = [...prev];
+              next[existing] = { ...next[existing], ...node };
+              return next;
+            }
+            return [...prev, node];
+          });
+        }
+        else if (packet.typ === 'CHT') {
+          // Optional: log to chat drawer later
+          console.log('[CHAT]', packet.d.from, ':', packet.d.txt);
+        }
+      });
+    }, []);
+
+  
 
 
   // --- USB DEVICE SETUP ---
@@ -363,6 +414,9 @@ function HomeField({ location, onOpenSettings }) {
             meshNodeRef.current.on('packet', (packet) => {
               tracker.current.processPacket(packet);
               updateUI(tracker.current.getStats());
+                if (packet.typ === 'SNS') {
+                  setFusionPackets(prev => [...prev.slice(-50), packet]);
+                }
             });
           }
           // ---- END INSERT ----
@@ -503,7 +557,14 @@ function HomeField({ location, onOpenSettings }) {
         {showRadarOverlay && (
           <RadarSweepMarker lat={live.lat} lon={live.lon} size={340} />
         )}
-
+        {/* Fusion packets — as Leaflet markers */}
+        {fusionPackets.map((p) => (
+          <FusionPacketMarker
+            key={p.id}
+            packet={p}
+            onSelect={setSelectedFusion}
+          />
+        ))}
         {/* Now the markers are children of the MapContainer! */}
         {activeNodes.map((node) => (
           <Marker
@@ -523,6 +584,13 @@ function HomeField({ location, onOpenSettings }) {
       </LiveMap>
       {/* Radar sweep overlay — appears centered when toggled */}
      
+      {/* Detail panel is OUTSIDE LiveMap — it's a floating panel, not a marker */}
+      {selectedFusion && (
+        <FusionDetailPanel
+          packet={selectedFusion}
+          onClose={() => setSelectedFusion(null)}
+        />
+      )}
 
       <div className="pointer-events-none absolute inset-0 z-[400] bg-gradient-to-b from-raptor-void/70 via-transparent to-raptor-void/80" />
 
