@@ -5,6 +5,17 @@
 const SIM_PREFIX = 'SIM_';
 const SIM_LAT = 39.2838;
 const SIM_LON = -76.6216;
+let SIM_BASE_LAT = 39.2838;
+let SIM_BASE_LON = -76.6216;
+
+export function setSimBase(lat, lon) {
+  if (typeof lat === 'number' && typeof lon === 'number' &&
+      !isNaN(lat) && !isNaN(lon)) {
+    SIM_BASE_LAT = lat;
+    SIM_BASE_LON = lon;
+    console.log('[Sim] Base updated to', lat.toFixed(5), lon.toFixed(5));
+  }
+}
 
 // ─── Capability bitmask ───
 // 1=GPS, 2=RADAR, 4=AUDIO, 8=CAMERA, 16=PIR, 32=THERMAL,
@@ -67,24 +78,24 @@ export const Simulations = {
   heartbeat: (opts = {}) =>
     envelope('HBT', {
       bat: opts.bat ?? 94,
-      lat: opts.lat ?? SIM_LAT,
-      lon: opts.lon ?? SIM_LON,
+      lat: opts.lat ?? SIM_BASE_LAT,
+      lon: opts.lon ?? SIM_BASE_LON,
       mot: opts.mot ?? 'still',
     }, opts),
 
   gpsWalking: (offset = 0.0005) =>
     envelope('HBT', {
       bat: 91,
-      lat: SIM_LAT + offset,
-      lon: SIM_LON + offset,
+      lat: SIM_BASE_LAT + offset,
+      lon: SIM_BASE_LON + offset,
       mot: 'walk',
     }, { prio: 1, cap: CAP.GPS | CAP.MOTION }),
 
   gpsRunning: (offset = 0.002) =>
     envelope('HBT', {
       bat: 88,
-      lat: SIM_LAT + offset,
-      lon: SIM_LON + offset,
+      lat: SIM_BASE_LAT + offset,
+      lon: SIM_BASE_LON + offset,
       mot: 'run',
     }, { prio: 2, cap: CAP.GPS | CAP.MOTION }),
 
@@ -104,12 +115,12 @@ export const Simulations = {
       mag: opts.mag ?? 89,
       conf: opts.conf ?? 92,
       trig: 1,
+      lat: SIM_BASE_LAT + 0.001,
+      lon: SIM_BASE_LON + 0.001,
     }, {
       nid: opts.nid ?? 'TRIGGER_03',
       prio: 2,
       cap: CAP.MOTION,
-      lat: SIM_LAT + 0.001,
-      lon: SIM_LON + 0.001,
     }),
 
   // ═══════════════════════════════════════════════════════════
@@ -117,109 +128,114 @@ export const Simulations = {
   // ═══════════════════════════════════════════════════════════
 
   // ─── SNS: All 3 sensors agree — confirmed human ───
+    // ═══════════════════════════════════════════════════════════
+  // FUSION PACKETS — Multi-sensor confirmed detection
+  // ═══════════════════════════════════════════════════════════
+
+  // ─── SNS: All 3 sensors agree — confirmed human ───
   fusionTriple: () =>
     envelope('SNS', {
-      src: 112,          // 16(PIR) + 32(THERMAL) + 64(GEO)
+      src: 112,
       conf: 94,
       mag: 87,
       peak_ms: 42,
       pir: 89,
       thm: 78,
       geo: 45,
+      lat: SIM_BASE_LAT + 0.001,
+      lon: SIM_BASE_LON + 0.001,
     }, {
       nid: 'NODE_FOREST_01',
       prio: 3,
       cap: NODE_CAPS.TRIPLE_SENSOR,
-      lat: SIM_LAT + 0.001,
-      lon: SIM_LON + 0.001,
     }),
 
-  // ─── SNS: Thermal + Geophone — stationary hider in bush ───
+  // ─── SNS: Thermal + Geophone — stationary hider ───
   fusionStationary: () =>
     envelope('SNS', {
-      src: 96,           // 32(THERMAL) + 64(GEO)
+      src: 96,
       conf: 82,
       mag: 72,
       peak_ms: 18,
       thm: 78,
       geo: 41,
+      lat: SIM_BASE_LAT + 0.002,
+      lon: SIM_BASE_LON - 0.001,
     }, {
       nid: 'NODE_FOREST_02',
       prio: 3,
       cap: NODE_CAPS.TRIPLE_SENSOR,
-      lat: SIM_LAT + 0.002,
-      lon: SIM_LON - 0.001,
     }),
 
   // ─── SNS: Geophone only — quiet footsteps ───
   fusionFootsteps: () =>
     envelope('SNS', {
-      src: 64,           // 64(GEO)
+      src: 64,
       conf: 65,
       mag: 55,
       peak_ms: 92,
       geo: 55,
+      lat: SIM_BASE_LAT - 0.001,
+      lon: SIM_BASE_LON + 0.002,
     }, {
       nid: 'NODE_TRAIL_03',
       prio: 2,
       cap: NODE_CAPS.TRIPLE_SENSOR,
-      lat: SIM_LAT - 0.001,
-      lon: SIM_LON + 0.002,
     }),
 
-  // ─── SNS: PIR + Thermal — moving person, no ground vibration ───
+  // ─── SNS: PIR + Thermal — moving person ───
   fusionMoving: () =>
     envelope('SNS', {
-      src: 48,           // 16(PIR) + 32(THERMAL)
+      src: 48,
       conf: 78,
       mag: 83,
       peak_ms: 25,
       pir: 85,
       thm: 80,
+      lat: SIM_BASE_LAT + 0.003,
+      lon: SIM_BASE_LON + 0.003,
     }, {
       nid: 'NODE_PATH_04',
       prio: 2,
       cap: NODE_CAPS.TRIPLE_SENSOR,
-      lat: SIM_LAT + 0.003,
-      lon: SIM_LON + 0.003,
     }),
 
   // ─── SNS: ToF path crossing ───
   fusionToF: () =>
     envelope('SNS', {
-      src: 128,          // 128(TOF)
+      src: 128,
       conf: 90,
       mag: 180,
       peak_ms: 5,
-      tof: 8,            // 0.8m distance
+      tof: 8,
+      lat: SIM_BASE_LAT + 0.004,
+      lon: SIM_BASE_LON,
     }, {
       nid: 'NODE_TRAIL_04',
       prio: 2,
       cap: CAP.TOF | CAP.MOTION,
-      lat: SIM_LAT + 0.004,
-      lon: SIM_LON,
     }),
 
   // ─── SNS: IR beam broken ───
   fusionIRBeam: () =>
     envelope('SNS', {
-      src: 256,          // 256(IR_BEAM)
+      src: 256,
       conf: 100,
       mag: 255,
       peak_ms: 1,
       irb: 1,
+      lat: SIM_BASE_LAT - 0.002,
+      lon: SIM_BASE_LON - 0.002,
     }, {
       nid: 'NODE_CHOKE_05',
       prio: 3,
       cap: CAP.IR_BEAM,
-      lat: SIM_LAT - 0.002,
-      lon: SIM_LON - 0.002,
     }),
 
   // ─── SNS: Full 5-sensor forest node ───
   fusionFullForest: () =>
     envelope('SNS', {
-      src: 496,          // 16+32+64+128+256 = 496
+      src: 496,
       conf: 98,
       mag: 92,
       peak_ms: 33,
@@ -228,21 +244,20 @@ export const Simulations = {
       geo: 45,
       tof: 12,
       irb: 1,
+      lat: SIM_BASE_LAT,
+      lon: SIM_BASE_LON,
     }, {
       nid: 'NODE_FOREST_FULL_01',
       prio: 3,
       cap: NODE_CAPS.FULL_FOREST,
-      lat: SIM_LAT,
-      lon: SIM_LON,
     }),
-
   // ─── ALM: Alarm ───
   emergency: (mode = 'SCR') =>
     envelope('ALM', {
       mode,
       tts: mode === 'SCR' ? 1 : 0,
-      lat: SIM_LAT,
-      lon: SIM_LON,
+      lat: SIM_BASE_LAT,
+      lon: SIM_BASE_LON,
     }, { prio: 3, ack: 1, cap: CAP.GPS | CAP.AUDIO }),
 
   // ─── CHT: Chat ───
@@ -260,24 +275,13 @@ export const Simulations = {
   friendOnline: () =>
     envelope('HBT', {
       bat: 96,
-      lat: SIM_LAT + 0.003,
-      lon: SIM_LON + 0.002,
+      lat: SIM_BASE_LAT + 0.003,
+      lon: SIM_BASE_LON + 0.002,
       mot: 'walk',
     }, { nid: 'FRIEND_02', team_id: 1, cap: CAP.GPS | CAP.MOTION }),
 };
 
-// ─── Console exposure ───
-if (typeof window !== 'undefined') {
-  window.Sim = Simulations;
-  window.Sim.CAP = CAP;
-  window.Sim.NODE_CAPS = NODE_CAPS;
-  console.log('[Sim] Ready. Try:');
-  console.log('  Sim.fusionTriple()      — 3 sensors confirm human');
-  console.log('  Sim.fusionStationary()  — hidden in bush');
-  console.log('  Sim.fusionFootsteps()   — quiet walker');
-  console.log('  Sim.fusionFullForest()  — all 5 sensors');
-  console.log('  Sim.emergency("SCR")    — loud alarm');
-}
+ 
 /*
 Sim.fusionTriple(); //      — 3 sensors confirm human');
 Sim.fusionStationary(); //  — hidden in bush');
@@ -286,6 +290,20 @@ Sim.fusionFullForest();// — all 5 sensors');
 Sim.emergency("SCR");//    — loud alarm');
 
 */
+// ─── Clear handler ───
+let clearHandler = null;
+
+export function registerClearHandler(handler) {
+  clearHandler = handler;
+}
+
+export function clearAll() {
+  if (clearHandler) clearHandler();
+  console.log('[Sim] All markers cleared.');
+}
+
+ 
+
 
 // ─── Sim → App bridge ───
 // The app registers a handler; Sim functions call it automatically.
@@ -312,6 +330,7 @@ export const Sim = new Proxy(_originalSim, {
 // Console exposure uses the wrapped version
 if (typeof window !== 'undefined') {
   window.Sim = Sim;
+  window.Sim.clearAll = clearAll;
   window.Sim.CAP = CAP;
   window.Sim.NODE_CAPS = NODE_CAPS;
   console.log('[Sim] Ready. Try:');
@@ -321,3 +340,4 @@ if (typeof window !== 'undefined') {
   console.log('  Sim.fusionFullForest()');
   console.log('  Sim.emergency("SCR")');
 }
+

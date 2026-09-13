@@ -10,7 +10,7 @@ import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPa
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
-import { registerSimHandler } from '../../lib/simulation.js';
+import { registerSimHandler, registerClearHandler, setSimBase } from '../../lib/simulation.js';
 import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
@@ -116,8 +116,8 @@ function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
       style={{ background: '#0a0e1c' }}
     >
       <TileLayer
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
+        url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+        attribution="&copy; CARTO"
         eventHandlers={{ tileerror: () => onFail() }}
       />
       <Recenter lat={lat} lon={lon} />
@@ -306,6 +306,9 @@ function HomeField({ location, onOpenSettings }) {
     });
   };
 
+  useEffect(() => {
+    setSimBase(live.lat, live.lon);
+  }, [live.lat, live.lon]);
  
     // --- UPDATE UI FUNCTION ---
     const updateUI = (stats) => {
@@ -319,6 +322,15 @@ function HomeField({ location, onOpenSettings }) {
       if (relaysOnline) relaysOnline.textContent = stats.relays;
       if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
     };
+
+    useEffect(() => {
+      registerClearHandler(() => {
+        setFusionPackets([]);
+        setActiveNodes([]);
+        setSelectedFusion(null);
+        setSelectedNode(null);
+      });
+    }, []);
     // ─── Sim → Map bridge ───
     useEffect(() => {
       registerSimHandler((packet) => {
