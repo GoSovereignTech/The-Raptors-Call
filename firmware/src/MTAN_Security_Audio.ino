@@ -5,8 +5,10 @@
  * @version 2.0
  */
 
-#include <Arduino.h>
+#include <Arduino.h> // ESP32-audioI2S  (best library for WAV/MP3)
 #include <ArduinoJson.h>
+
+Audio audio;
 
 // --- Configuration Hardware Pins ---
 #define RXD2 16  // UART Receive from Meshtastic Node
@@ -60,14 +62,25 @@ void triggerLocalAudio(int commandId) {
   Serial.printf("[AUDIO ENGINE] Authorized Match. Driving I2S Line. Executing Track ID: %d\n", commandId);
   switch(commandId) {
     case 1:
+     playFile("WAV_SIREN_130DB.wav");
       Serial.println("[AUDIO] Playing: WAV_SIREN_130DB.wav - Full Deterrence Output.");
       // Physical Hardware Hook: i2s_write(I2S_NUM_0, ...);
       break;
     case 2:
+      playFile("WAV_WARNING_LEGAL.wav");
       Serial.println("[AUDIO] Playing: WAV_WARNING_LEGAL.wav - Dispelling Crowd.");
       break;
     case 3:
+      playFile("WAV_TACTICAL_EXTRACTION.wav");
       Serial.println("[AUDIO] Playing: WAV_TACTICAL_EXTRACTION_NORTH.wav - Team Routing Instruction.");
+      break;
+    case 4:
+      playFile("TTS_HELP_UNDER_ATTACK.wav");
+      Serial.println("[TTS Playing]"); 
+      break;
+    case 5: 
+      playFile("TTS_TEAM_2_MIN_OUT.wav"); 
+      Serial.println("[TTS Playing] TTS_TEAM_2_MIN_OUT.wav");
       break;
     default:
       Serial.println("[AUDIO ERROR] Invalid command ID received.");
@@ -83,7 +96,14 @@ void setup() {
   // Clear Replay Buffer
   memset(seenPacketIds, 0, sizeof(seenPacketIds));
 
+  audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+  audio.setVolume(15);  // 0-21
+
   Serial.println("[SYSTEM INIT] The Raptor's Call: Audio Node Verification Loop Active.");
+}
+
+void playFile(const char* filename) {
+  audio.connecttoFS(SD, filename);  // from MicroSD card
 }
 
 void loop() {
