@@ -115,11 +115,32 @@ function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
       className="absolute inset-0 h-full w-full"
       style={{ background: '#0a0e1c' }}
     >
-      <TileLayer
+     {/*
+       <TileLayer
+          url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
+          attribution="&copy; OpenFreeMap &copy; OpenMapTiles &copy; OpenStreetMap contributors"
+          eventHandlers={{ tileerror: () => onFail() }}
+        />
+       <TileLayer
         url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
         attribution="&copy; CARTO"
         eventHandlers={{ tileerror: () => onFail() }}
+
+
+
+      <TileLayer
+  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+  attribution="&copy; Esri"
+  eventHandlers={{ tileerror: () => onFail() }}
+/>
+      */}
+      <TileLayer
+        url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+        attribution="&copy; OpenTopoMap"
+        eventHandlers={{ tileerror: () => onFail() }}
       />
+
+
       <Recenter lat={lat} lon={lon} />
       <HeadingMarker lat={lat} lon={lon} heading={heading} pulseDuration={pulseDuration} alert={false} />
       
