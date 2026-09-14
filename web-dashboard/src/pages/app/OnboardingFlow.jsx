@@ -2,11 +2,13 @@ import React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { Crosshair } from 'lucide-react';
 import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide-react';
 import RaptorMark from '../../components/RaptorMark.jsx';
 import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 // Add at the top of the file
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
+import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
@@ -15,10 +17,23 @@ import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import '@maplibre/maplibre-gl-leaflet';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
 
+
+function VectorBaseMap() {
+  const map = useMap();
+  useEffect(() => {
+    const gl = L.maplibreGL({
+      style: 'https://tiles.openfreemap.org/styles/dark'
+    }).addTo(map);
+    return () => { map.removeLayer(gl); };
+  }, [map]);
+  return null;
+}
 
 function cardinal(deg) {
   const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
@@ -105,7 +120,9 @@ function RadarSweepMarker({ lat, lon, size = 340 }) {
 }
 
 
+
 function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
+ 
   return (
     <MapContainer
       center={[lat, lon]}
@@ -115,31 +132,53 @@ function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
       className="absolute inset-0 h-full w-full"
       style={{ background: '#0a0e1c' }}
     >
-     {/*
-       <TileLayer
-          url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
-          attribution="&copy; OpenFreeMap &copy; OpenMapTiles &copy; OpenStreetMap contributors"
-          eventHandlers={{ tileerror: () => onFail() }}
-        />
-       <TileLayer
-        url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
-        attribution="&copy; CARTO"
-        eventHandlers={{ tileerror: () => onFail() }}
-
-
-
-      <TileLayer
-  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-  attribution="&copy; Esri"
-  eventHandlers={{ tileerror: () => onFail() }}
-/>
-      */}
       <TileLayer
         url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenTopoMap"
         eventHandlers={{ tileerror: () => onFail() }}
       />
+ 
 
+      {/* 
+        <VectorBaseMap />
+        <TileLayer
+            url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
+            attribution="&copy; OpenFreeMap &copy; OpenMapTiles &copy; OpenStreetMap contributors"
+            eventHandlers={{ tileerror: () => onFail() }}
+        />
+
+        {(() => {
+          const map = useMap();
+          useEffect(() => {
+            const gl = L.maplibreGL({
+              style: 'https://tiles.openfreemap.org/styles/liberty'
+            }).addTo(map);
+            return () => { map.removeLayer(gl); };
+          }, [map]);
+          return null;
+        })()}
+
+        <TileLayer
+          url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenTopoMap"
+          eventHandlers={{ tileerror: () => onFail() }}
+        />
+        <TileLayer
+          url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+          attribution="&copy; CARTO"
+          eventHandlers={{ tileerror: () => onFail() }}
+        />
+        <TileLayer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution="&copy; Esri"
+          eventHandlers={{ tileerror: () => onFail() }}
+        />
+        <TileLayer
+          url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenTopoMap"
+          eventHandlers={{ tileerror: () => onFail() }}
+        />
+      */}
 
       <Recenter lat={lat} lon={lon} />
       <HeadingMarker lat={lat} lon={lon} heading={heading} pulseDuration={pulseDuration} alert={false} />
@@ -298,6 +337,7 @@ function HomeField({ location, onOpenSettings }) {
   const [showMeshOverlay, setShowMeshOverlay] = useState(false);
   const [showRadarOverlay, setShowRadarOverlay] = useState(false);
   const [showChatOverlay, setShowChatOverlay] = useState(false);
+  const [showVariance, setShowVariance] = useState(true);
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
@@ -347,11 +387,18 @@ function HomeField({ location, onOpenSettings }) {
     useEffect(() => {
       registerClearHandler(() => {
         setFusionPackets([]);
-        setActiveNodes([]);
+        // setActiveNodes([]);
+        // DO NOT clear activeNodes — infrastructure stays visible
         setSelectedFusion(null);
         setSelectedNode(null);
       });
     }, []);
+    
+    function MapInstanceGetter({ onMap }) {
+      const map = useMap();
+      useEffect(() => { onMap(map); }, [map, onMap]);
+      return null;
+    }
     // ─── Sim → Map bridge ───
     useEffect(() => {
       registerSimHandler((packet) => {
@@ -493,7 +540,7 @@ function HomeField({ location, onOpenSettings }) {
     const stats = { total: 3, friends: 2, relays: 1, sensors: 0 };
     updateUI(stats);
   };
-
+const [leafletMap, setLeafletMap] = useState(null);
   const engageEmergencyState = (type) => {
     setAlarmStatus(type);
     const logCoordinates = { lat: live.lat, lon: live.lon };
@@ -586,6 +633,42 @@ function HomeField({ location, onOpenSettings }) {
         onFail={() => setMapFailed(true)}
       >
 
+
+      <OffScreenIndicators
+        markers={[
+          // Fusion packets
+          ...fusionPackets.map((p) => ({
+            id: p.id,
+            lat: p.d?.lat,
+            lng: p.d?.lon,
+            threat: p.d?.conf >= 80 ? 'threat' : 'stranger',
+            data: p,
+            type: 'fusion',
+          })),
+          // Active nodes
+          ...activeNodes.map((n) => ({
+            id: n.id,
+            lat: n.lat,
+            lng: n.lng,
+            threat: n.threat === 'CONFIRMED_OPPOSITION' ? 'threat' : 'CLEAR',
+            data: n,
+            type: 'node',
+          })),
+        ]}
+        onZoneClick={(marker) => {
+          if (!leafletMap) return;
+          leafletMap.flyTo([marker.lat, marker.lng], 16, { duration: 0.8 });
+          if (marker.type === 'fusion') setSelectedFusion(marker.data);
+          if (marker.type === 'node') setSelectedNode(marker.data);
+        }}
+      />
+
+       <MapInstanceGetter onMap={setLeafletMap} />
+       {/* 
+       TODO: I need to figure out how to get thia to show raster OpenFreeMap
+       <VectorBaseMap />
+        */}
+
         {/* Radar sweep — appears centered on your position */}
         {showRadarOverlay && (
           <RadarSweepMarker lat={live.lat} lon={live.lon} size={340} />
@@ -593,9 +676,10 @@ function HomeField({ location, onOpenSettings }) {
         {/* Fusion packets — as Leaflet markers */}
         {fusionPackets.map((p) => (
           <FusionPacketMarker
-            key={p.id}
+            key={`${p.id}-${showVariance ? 'v' : 'nv'}`}   // ← key changes with toggle
             packet={p}
             onSelect={setSelectedFusion}
+            showVariance={showVariance} 
           />
         ))}
         {/* Now the markers are children of the MapContainer! */}
@@ -615,6 +699,20 @@ function HomeField({ location, onOpenSettings }) {
           />
         ))}
       </LiveMap>
+      
+      {/* Radar sweep overlay — appears centered when toggled */} 
+      {leafletMap && (
+        <button
+          onClick={() => {
+            leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
+          }}
+          className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border border-raptor-line bg-raptor-bg/95 backdrop-blur shadow-lg transition hover:border-raptor-cyan hover:text-raptor-cyan"
+          aria-label="Return to my position"
+        >
+          <Crosshair className="h-5 w-5" />
+        </button>
+      )}
+
       {/* Radar sweep overlay — appears centered when toggled */}
      
       {/* Detail panel is OUTSIDE LiveMap — it's a floating panel, not a marker */}
@@ -648,9 +746,30 @@ function HomeField({ location, onOpenSettings }) {
         </div>
 
     
-        <button onClick={onOpenSettings} className="rounded-full border border-raptor-line bg-raptor-bg/90 p-2 text-slate-300 backdrop-blur hover:text-raptor-cyan">
-          <Settings className="h-4 w-4" />
-        </button>
+
+        <div className="flex items-center gap-2">
+            {/* Variance toggle — NEW */}
+            <button
+              onClick={() => setShowVariance((v) => !v)}
+              className={`flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs backdrop-blur transition ${
+                showVariance
+                  ? 'border-raptor-cyan/50 bg-raptor-cyan/10 text-raptor-cyan'
+                  : 'border-raptor-line bg-raptor-bg/90 text-slate-400'
+              }`}
+              aria-label="Toggle variance circles"
+            >
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span>Variance</span>
+            </button>
+
+            <button onClick={onOpenSettings} className="rounded-full border border-raptor-line bg-raptor-bg/90 p-2 text-slate-300 backdrop-blur hover:text-raptor-cyan">
+              <Settings className="h-4 w-4" />
+            </button>
+          </div>
+
       </div>
 
       {mapFailed && (

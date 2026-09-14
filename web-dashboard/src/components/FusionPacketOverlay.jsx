@@ -1,7 +1,7 @@
 // src/components/FusionPacketOverlay.jsx
 // Fusion SNS packet as a Leaflet marker — pans/zooms with the map.
 
-import { Marker } from 'react-leaflet';
+import { Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Radio, Thermometer, Activity, Waves, Zap } from 'lucide-react';
 
@@ -65,6 +65,11 @@ export function FusionDetailPanel({ packet, onClose }) {
           <div className="text-slate-600">
             Magnitude: {d.mag} · Peak: {d.peak_ms}ms
           </div>
+          {d.accuracy_m && (
+            <div className="text-slate-600">
+              Position accuracy: ±{d.accuracy_m}m
+            </div>
+          )}
         </div>
       </div>
 
@@ -166,14 +171,15 @@ export function FusionPacketMarker({ packet, onSelect }) {
 }
 */
 
-export function FusionPacketMarker({ packet, onSelect }) {
+export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
+  const map = useMap();   // ← gives us current zoom
+
   if (!packet || packet.typ !== 'SNS') return null;
 
   const d = packet.d || {};
-  
-  // ─── Guard: bail if no valid position ───
   const lat = d.lat;
   const lon = d.lon;
+
   if (typeof lat !== 'number' || typeof lon !== 'number' ||
       isNaN(lat) || isNaN(lon)) {
     console.warn('[FusionPacketMarker] Skipping packet with invalid position:', packet);
@@ -183,14 +189,41 @@ export function FusionPacketMarker({ packet, onSelect }) {
   const conf = d.conf || 0;
   const color = confidenceColor(conf);
   const sensors = decodeSensors(d.src || 0);
-  const primary = sensors[0] || { bit: 16, color };   // ← default to bit 16 (PIR)
+  const primary = sensors[0] || { bit: 16, color };
   const sensorCount = sensors.length;
 
-const icon = L.divIcon({
+  // ─── Compute accuracy circle diameter in pixels ───
+  const accuracyM = d.accuracy_m || 0;
+  let accuracyPx = 0;
+  if (showVariance && accuracyM > 0) {
+    const zoom = map.getZoom();
+    const metersPerPixel = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, zoom);
+    const pixelsPerMeter = 1 / metersPerPixel;
+    // Diameter = 2 × radius × pixels per meter
+    accuracyPx = accuracyM * 2 * pixelsPerMeter;
+    // Cap so it doesn't explode at high zoom — keeps it visible but sane
+    accuracyPx = Math.min(accuracyPx, 2000);
+  }
+
+  const icon = L.divIcon({
     className: 'fusion-packet-marker',
     html: `
       <div style="position:relative;width:40px;height:40px;">
+        ${accuracyPx > 0 ? `
+          <div style="
+            position:absolute;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            width:${accuracyPx}px;height:${accuracyPx}px;
+            border-radius:999px;
+            border:1px dashed ${color}88;
+            background:${color}11;
+            animation:variancePulse 3s ease-out infinite;
+            pointer-events:none;
+          "></div>
+        ` : ''}
+
         <div style="position:absolute;inset:0;border-radius:999px;background:${color};opacity:0.3;animation:fusionPulse 2s ease-out infinite;"></div>
+
         <div style="
           position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
           width:36px;height:36px;border-radius:999px;
@@ -202,6 +235,7 @@ const icon = L.divIcon({
         ">
           <div style="width:18px;height:18px;">${ICON_SVG[primary.bit] || ICON_SVG[16]}</div>
         </div>
+
         ${sensorCount > 1 ? `
           <div style="
             position:absolute;top:-4px;right:-4px;
@@ -211,6 +245,7 @@ const icon = L.divIcon({
             display:flex;align-items:center;justify-content:center;
           ">${sensorCount}</div>
         ` : ''}
+
         <div style="
           position:absolute;top:100%;left:50%;transform:translateX(-50%);
           margin-top:4px;white-space:nowrap;
@@ -228,6 +263,11 @@ const icon = L.divIcon({
           0% { transform: scale(0.8); opacity: 0.5; }
           100% { transform: scale(1.6); opacity: 0; }
         }
+        @keyframes variancePulse {
+          0% { transform: translate(-50%,-50%) scale(0.95); opacity: 0.35; }
+          50% { transform: translate(-50%,-50%) scale(1.0); opacity: 0.6; }
+          100% { transform: translate(-50%,-50%) scale(0.95); opacity: 0.35; }
+        }
       </style>
     `,
     iconSize: [40, 40],
@@ -236,7 +276,7 @@ const icon = L.divIcon({
 
   return (
     <Marker
-      position={[lat, lon]}    // ← now uses the guarded values
+      position={[lat, lon]}
       icon={icon}
       eventHandlers={{ click: () => onSelect?.(packet) }}
     />

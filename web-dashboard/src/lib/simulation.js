@@ -117,6 +117,7 @@ export const Simulations = {
       trig: 1,
       lat: SIM_BASE_LAT + 0.001,
       lon: SIM_BASE_LON + 0.001,
+      accuracy_m: 30,
     }, {
       nid: opts.nid ?? 'TRIGGER_03',
       prio: 2,
@@ -133,22 +134,14 @@ export const Simulations = {
   // ═══════════════════════════════════════════════════════════
 
   // ─── SNS: All 3 sensors agree — confirmed human ───
-  fusionTriple: () =>
-    envelope('SNS', {
-      src: 112,
-      conf: 94,
-      mag: 87,
-      peak_ms: 42,
-      pir: 89,
-      thm: 78,
-      geo: 45,
-      lat: SIM_BASE_LAT + 0.001,
-      lon: SIM_BASE_LON + 0.001,
-    }, {
-      nid: 'NODE_FOREST_01',
-      prio: 3,
-      cap: NODE_CAPS.TRIPLE_SENSOR,
-    }),
+fusionTriple: () =>
+  envelope('SNS', {
+    src: 112, conf: 94, mag: 87, peak_ms: 42,
+    pir: 89, thm: 78, geo: 45,
+    lat: SIM_BASE_LAT + 0.001,
+    lon: SIM_BASE_LON + 0.001,
+    accuracy_m: 15,                     // ← add this
+  }, { nid: 'NODE_FOREST_01', prio: 3, cap: NODE_CAPS.TRIPLE_SENSOR }),
 
   // ─── SNS: Thermal + Geophone — stationary hider ───
   fusionStationary: () =>
@@ -161,6 +154,7 @@ export const Simulations = {
       geo: 41,
       lat: SIM_BASE_LAT + 0.002,
       lon: SIM_BASE_LON - 0.001,
+      accuracy_m: 25,           
     }, {
       nid: 'NODE_FOREST_02',
       prio: 3,
@@ -177,6 +171,7 @@ export const Simulations = {
       geo: 55,
       lat: SIM_BASE_LAT - 0.001,
       lon: SIM_BASE_LON + 0.002,
+      accuracy_m: 40,           
     }, {
       nid: 'NODE_TRAIL_03',
       prio: 2,
@@ -210,6 +205,7 @@ export const Simulations = {
       tof: 8,
       lat: SIM_BASE_LAT + 0.004,
       lon: SIM_BASE_LON,
+      accuracy_m: 5,           
     }, {
       nid: 'NODE_TRAIL_04',
       prio: 2,
@@ -226,6 +222,7 @@ export const Simulations = {
       irb: 1,
       lat: SIM_BASE_LAT - 0.002,
       lon: SIM_BASE_LON - 0.002,
+      accuracy_m: 2,           
     }, {
       nid: 'NODE_CHOKE_05',
       prio: 3,
@@ -246,6 +243,7 @@ export const Simulations = {
       irb: 1,
       lat: SIM_BASE_LAT,
       lon: SIM_BASE_LON,
+      accuracy_m: 10,           
     }, {
       nid: 'NODE_FOREST_FULL_01',
       prio: 3,
@@ -313,15 +311,18 @@ export function registerSimHandler(handler) {
   simHandler = handler;
 }
 
-// Wrap every Sim function so it auto-dispatches
+// Functions that DO NOT emit packets — should not be wrapped
+const NON_PACKET_FNS = new Set(['clearAll']);
+
 const _originalSim = Simulations;
 export const Sim = new Proxy(_originalSim, {
   get(target, prop) {
     const fn = target[prop];
     if (typeof fn !== 'function') return fn;
+    if (NON_PACKET_FNS.has(prop)) return fn;   // ← pass through unwrapped
     return (...args) => {
       const packet = fn(...args);
-      if (simHandler) simHandler(packet);
+      if (simHandler && packet && packet.typ) simHandler(packet);  // ← also guard
       return packet;
     };
   },
