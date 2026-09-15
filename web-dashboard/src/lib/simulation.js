@@ -341,4 +341,20 @@ if (typeof window !== 'undefined') {
   console.log('  Sim.fusionFullForest()');
   console.log('  Sim.emergency("SCR")');
 }
+/* 
+
+Sim.fusionTriple();
+Sim.Stationary();
+Sim.Footsteps();
+Sim.ToF();
+Sim.IRBeam();
+Sim.FullForest();
+
+Sim.emergency('SCR');
+Sim.emergency('SIL');
+Sim.clearAll();
+
+Sim.gpsWalking(); 
+Sim.Running();
+*/
 

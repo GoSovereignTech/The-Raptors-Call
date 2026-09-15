@@ -750,7 +750,12 @@ const [leafletMap, setLeafletMap] = useState(null);
         <div className="flex items-center gap-2">
             {/* Variance toggle — NEW */}
             <button
-              onClick={() => setShowVariance((v) => !v)}
+              onClick={() => {
+                const next = !showVariance;
+                console.log('[Variance toggle]', next ? 'ON' : 'OFF');
+                setShowVariance(next);
+              }}
+
               className={`flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs backdrop-blur transition ${
                 showVariance
                   ? 'border-raptor-cyan/50 bg-raptor-cyan/10 text-raptor-cyan'

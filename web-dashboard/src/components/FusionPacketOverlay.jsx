@@ -4,7 +4,8 @@
 import { Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Radio, Thermometer, Activity, Waves, Zap } from 'lucide-react';
-
+import { useState } from 'react';
+import { entityFromPacket } from './../lib/entities.js';
 const SENSOR_META = {
   16:  { icon: Radio,   label: 'PIR',     color: '#f59e0b' },
   32:  { icon: Thermometer,   label: 'Thermal', color: '#f43f5e' },
@@ -41,7 +42,25 @@ export function FusionDetailPanel({ packet, onClose }) {
   if (!packet || packet.typ !== 'SNS') return null;
   const d = packet.d || {};
   const sensors = decodeSensors(d.src || 0);
+  // In FusionDetailPanel, add:
 
+  const entity = entityFromPacket(packet);
+  const [draftThreat, setDraftThreat] = useState(entity.threat);
+  const [draftReason, setDraftReason] = useState('');
+
+  const saveStatus = () => {
+    if (!draftReason.trim()) {
+      alert('Please enter a reason');
+      return;
+    }
+    onStatusChange?.({
+      entityId: entity.id,
+      threat: draftThreat,
+      reason: draftReason,
+      ts: Date.now(),
+    });
+    setDraftReason('');
+  };
   return (
     <div className="absolute bottom-24 left-4 right-4 z-[600] rounded-xl border border-raptor-line bg-raptor-bg/95 p-4 backdrop-blur shadow-xl">
       <div className="mb-3 flex items-center justify-between">
@@ -196,19 +215,39 @@ export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
   const accuracyM = d.accuracy_m || 0;
   let accuracyPx = 0;
   if (showVariance && accuracyM > 0) {
+
     const zoom = map.getZoom();
     const metersPerPixel = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, zoom);
     const pixelsPerMeter = 1 / metersPerPixel;
+    accuracyPx = accuracyM * 2 * pixelsPerMeter;
+    accuracyPx = Math.min(accuracyPx, 2000);
+    // NEW: ensure the circle is always at least 2× the marker size (80px)
+    accuracyPx = Math.max(accuracyPx, 80);
+
+ /* old code
     // Diameter = 2 × radius × pixels per meter
     accuracyPx = accuracyM * 2 * pixelsPerMeter;
     // Cap so it doesn't explode at high zoom — keeps it visible but sane
     accuracyPx = Math.min(accuracyPx, 2000);
+    */
   }
 
   const icon = L.divIcon({
     className: 'fusion-packet-marker',
-    html: `
-      <div style="position:relative;width:40px;height:40px;">
+     html: `
+    <div style="position:relative;width:40px;height:40px;">
+
+      ${showVariance ? `
+        <!-- Solid pulsing aura -->
+        <div style="
+          position:absolute;inset:0;
+          border-radius:999px;
+          background:${color};
+          opacity:0.3;
+          animation:fusionPulse 2s ease-out infinite;
+        "></div>
+
+        <!-- Accuracy / variance circle -->
         ${accuracyPx > 0 ? `
           <div style="
             position:absolute;top:50%;left:50%;
@@ -221,43 +260,55 @@ export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
             pointer-events:none;
           "></div>
         ` : ''}
+      ` : ''}
 
-        <div style="position:absolute;inset:0;border-radius:999px;background:${color};opacity:0.3;animation:fusionPulse 2s ease-out infinite;"></div>
-
-        <div style="
-          position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-          width:36px;height:36px;border-radius:999px;
-          border:2px solid ${color};
-          background:rgba(10,14,28,0.9);
-          box-shadow:0 0 16px ${color}66;
-          display:flex;align-items:center;justify-content:center;
-          color:${primary.color};
-        ">
-          <div style="width:18px;height:18px;">${ICON_SVG[primary.bit] || ICON_SVG[16]}</div>
-        </div>
-
-        ${sensorCount > 1 ? `
-          <div style="
-            position:absolute;top:-4px;right:-4px;
-            width:16px;height:16px;border-radius:999px;
-            background:${color};color:#040611;
-            font-size:10px;font-weight:700;
-            display:flex;align-items:center;justify-content:center;
-          ">${sensorCount}</div>
-        ` : ''}
-
-        <div style="
-          position:absolute;top:100%;left:50%;transform:translateX(-50%);
-          margin-top:4px;white-space:nowrap;
-          font-size:10px;font-weight:600;
-          background:rgba(10,14,28,0.9);
-          border:1px solid #1c2540;
-          border-radius:999px;
-          padding:2px 8px;
-          color:${color};
-          backdrop-filter:blur(8px);
-        ">${conf}% ${sensors.map(s => s.label).join('+')}</div>
+      <!-- Static solid marker — ALWAYS visible -->
+      <div style="
+        position:absolute;top:50%;left:50%;
+        transform:translate(-50%,-50%);
+        width:36px;height:36px;
+        border-radius:999px;
+        border:2px solid ${color};
+        background:rgba(10,14,28,0.9);
+        box-shadow:0 0 16px ${color}66;
+        display:flex;align-items:center;justify-content:center;
+        color:${primary.color};
+      ">
+        <div style="width:18px;height:18px;">${ICON_SVG[primary.bit] || ICON_SVG[16]}</div>
       </div>
+
+      ${sensorCount > 1 ? `
+        <div style="
+          position:absolute;top:-4px;right:-4px;
+          width:16px;height:16px;border-radius:999px;
+          background:${color};color:#040611;
+          font-size:10px;font-weight:700;
+          display:flex;align-items:center;justify-content:center;
+        ">${sensorCount}</div>
+      ` : ''}
+
+      <div style="
+        position:absolute;top:100%;left:50%;transform:translateX(-50%);
+        margin-top:4px;white-space:nowrap;
+        font-size:10px;font-weight:600;
+        background:rgba(10,14,28,0.9);
+        border:1px solid #1c2540;
+        border-radius:999px;
+        padding:2px 8px;
+        color:${color};
+        backdrop-filter:blur(8px);
+      ">${conf}% ${sensors.map(s => s.label).join('+')}</div>
+    </div>
+    <style>
+      @keyframes fusionPulse {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        100% { transform: scale(1.6); opacity: 0; }
+      }
+      @keyframes variancePulse {
+        0% { transform: translate(-50%,-50%) scale(0.95); opacity: 0.35; }
+        50% { transform: translate(-50%,-50%) scale(1.0); opacity: 0.6; }
+        100% { transform: translate(-50%,-50%) scale(0.95); opacity: 0.35; }
+      }
       <style>
         @keyframes fusionPulse {
           0% { transform: scale(0.8); opacity: 0.5; }
