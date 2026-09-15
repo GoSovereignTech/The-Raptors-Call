@@ -68,7 +68,7 @@ export default defineConfig({
           },
         },
       ],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB for the MP3
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8 MiB
       },
     }),
   ],

@@ -1,6 +1,7 @@
 {
   "name": "momma-raptors-scream-dashboard",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "description": "React-based tactical spatial mapping dashboard utilizing trilateration calculations over decentralized LoRa mesh networks.",
   "scripts": {
