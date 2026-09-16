@@ -294,7 +294,8 @@ let clearHandler = null;
 export function registerClearHandler(handler) {
   clearHandler = handler;
 }
-
+// simulator.js
+// ✅ simulation.js — just delegates
 export function clearAll() {
   if (clearHandler) clearHandler();
   console.log('[Sim] All markers cleared.');

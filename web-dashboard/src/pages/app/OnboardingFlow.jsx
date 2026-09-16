@@ -7,6 +7,8 @@ import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide
 import RaptorMark from '../../components/RaptorMark.jsx';
 import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 // Add at the top of the file
+
+import { DemoPilot } from '../../components/DemoPilot.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
 import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
@@ -61,12 +63,24 @@ async function requestMotionPermission() {
 // "map tiles unavailable" banner still works the same way it did.
 // ---------------------------------------------------------------------
 
+/*
 function Recenter({ lat, lon }) {
   const map = useMap();
   useEffect(() => { map.setView([lat, lon], map.getZoom(), { animate: true }); }, [lat, lon]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
-}
+}*/
 
+function InitialRecenter({ lat, lon }) {
+  const map = useMap();
+  const hasCentered = useRef(false);
+  useEffect(() => {
+    if (!hasCentered.current) {
+      map.setView([lat, lon], 16);
+      hasCentered.current = true;
+    }
+  }, [map, lat, lon]);
+  return null;
+}
 
 function beaconIcon(heading, pulseDuration, alert) {
   const color = alert ? '#f59e0b' : '#22d3ee';
@@ -180,7 +194,7 @@ function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
         />
       */}
 
-      <Recenter lat={lat} lon={lon} />
+     
       <HeadingMarker lat={lat} lon={lon} heading={heading} pulseDuration={pulseDuration} alert={false} />
       
       {/* THIS LINE LETS NODES BE RENDERED INSIDE THE MAP CONTAINER */}
@@ -332,7 +346,7 @@ function HomeField({ location, onOpenSettings }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [initialAlarmLocation, setInitialAlarmLocation] = useState(null);
   const [nodeThreatDescription, setNodeThreatDescription] = useState('');
-
+  const [chatMessages, setChatMessages] = useState([]);
     // --- OVERLAY STATES ---
   const [showMeshOverlay, setShowMeshOverlay] = useState(false);
   const [showRadarOverlay, setShowRadarOverlay] = useState(false);
@@ -366,7 +380,9 @@ function HomeField({ location, onOpenSettings }) {
       duration: 8000,
     });
   };
-
+  
+  const [isRewinding, setIsRewinding] = useState(false);
+  
   useEffect(() => {
     setSimBase(live.lat, live.lon);
   }, [live.lat, live.lon]);
@@ -387,10 +403,13 @@ function HomeField({ location, onOpenSettings }) {
     useEffect(() => {
       registerClearHandler(() => {
         setFusionPackets([]);
+        setChatMessages([]);
         // setActiveNodes([]);
         // DO NOT clear activeNodes — infrastructure stays visible
         setSelectedFusion(null);
         setSelectedNode(null);
+        setAlarmStatus('CLEAR');
+        stopSiren();
       });
     }, []);
     
@@ -436,8 +455,17 @@ function HomeField({ location, onOpenSettings }) {
           });
         }
         else if (packet.typ === 'CHT') {
-          // Optional: log to chat drawer later
-          console.log('[CHAT]', packet.d.from, ':', packet.d.txt);
+          setChatMessages((prev) => [
+            ...prev.slice(-50),
+            {
+              id: packet.id,
+              from: packet.d.from || 'Unknown',
+              text: packet.d.txt,
+              ts: packet.ts,
+            },
+          ]);
+          // Optional: auto-open drawer on first incoming message
+          if (chatMessages.length === 0) setShowChatOverlay(true);
         }
       });
     }, []);
@@ -632,7 +660,7 @@ const [leafletMap, setLeafletMap] = useState(null);
         pulseDuration={pulseDuration} 
         onFail={() => setMapFailed(true)}
       >
-
+      <InitialRecenter lat={live.lat} lon={live.lon} />
 
       <OffScreenIndicators
         markers={[
@@ -662,7 +690,15 @@ const [leafletMap, setLeafletMap] = useState(null);
           if (marker.type === 'node') setSelectedNode(marker.data);
         }}
       />
-
+{/*}
+      <DemoPilot onRun={(fn, arg) => {
+        const fnRef = Sim[fn];
+        if (typeof fnRef !== 'function') return;
+        if (Array.isArray(arg)) fnRef(...arg);
+        else if (arg !== undefined) fnRef(arg);
+        else fnRef();
+      }} />
+*/}
        <MapInstanceGetter onMap={setLeafletMap} />
        {/* 
        TODO: I need to figure out how to get thia to show raster OpenFreeMap
@@ -702,24 +738,50 @@ const [leafletMap, setLeafletMap] = useState(null);
       
       {/* Radar sweep overlay — appears centered when toggled */} 
       {leafletMap && (
-        <button
-          onClick={() => {
-            leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
-          }}
-          className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border border-raptor-line bg-raptor-bg/95 backdrop-blur shadow-lg transition hover:border-raptor-cyan hover:text-raptor-cyan"
-          aria-label="Return to my position"
-        >
-          <Crosshair className="h-5 w-5" />
-        </button>
+        <> 
+          <button
+            onClick={() => {
+              leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
+            }}
+            className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border border-raptor-line bg-raptor-bg/95 backdrop-blur shadow-lg transition hover:border-raptor-cyan hover:text-raptor-cyan"
+            aria-label="Return to my position"
+          >
+            <Crosshair className="h-5 w-5" />
+          </button>
+               {/* Demo pilot — above Crosshair */}
+            <DemoPilot
+              bottomOffset={280}
+              onRun={(fn, ...args) => {
+                const target = Sim[fn];
+                if (typeof target === 'function') target(...args);
+              }}
+            /> 
+         </>
       )}
 
       {/* Radar sweep overlay — appears centered when toggled */}
      
       {/* Detail panel is OUTSIDE LiveMap — it's a floating panel, not a marker */}
+      
       {selectedFusion && (
         <FusionDetailPanel
           packet={selectedFusion}
           onClose={() => setSelectedFusion(null)}
+          onStatusChange={(change) => {
+            console.log('[STATUS CHANGE]', change);
+            // Update the entity's threat level in fusionPackets
+            setFusionPackets((prev) =>
+              prev.map((p) =>
+                p.id === change.entityId
+                  ? { ...p, d: { ...p.d, threat: change.threat, threatReason: change.reason } }
+                  : p
+              )
+            );
+            showToast(`Status set to ${change.threat}. Reason: ${change.reason}`, {
+              title: 'Status saved',
+              duration: 4000,
+            });
+          }}
         />
       )}
 
@@ -750,25 +812,20 @@ const [leafletMap, setLeafletMap] = useState(null);
         <div className="flex items-center gap-2">
             {/* Variance toggle — NEW */}
             <button
-              onClick={() => {
-                const next = !showVariance;
-                console.log('[Variance toggle]', next ? 'ON' : 'OFF');
-                setShowVariance(next);
-              }}
-
-              className={`flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs backdrop-blur transition ${
+              onClick={() => setShowVariance((v) => !v)}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur transition ${
                 showVariance
                   ? 'border-raptor-cyan/50 bg-raptor-cyan/10 text-raptor-cyan'
                   : 'border-raptor-line bg-raptor-bg/90 text-slate-400'
               }`}
               aria-label="Toggle variance circles"
+              title="Toggle variance circles"
             >
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span>Variance</span>
-            </button>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
 
             <button onClick={onOpenSettings} className="rounded-full border border-raptor-line bg-raptor-bg/90 p-2 text-slate-300 backdrop-blur hover:text-raptor-cyan">
               <Settings className="h-4 w-4" />
@@ -791,66 +848,72 @@ const [leafletMap, setLeafletMap] = useState(null);
 
      <div className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl border-t border-raptor-line bg-raptor-bg/95 px-4 pb-6 pt-4 backdrop-blur">
 
-  {/* ─── PANEL 1: overlay toggles + mesh connect ─── */}
-  <div className="raptor-panel-row">
-    <button
-      className={`raptor-chip ${showMeshOverlay ? 'active' : ''}`}
-      onClick={() => {
-        const next = !showMeshOverlay;
-        setShowMeshOverlay(next);
-        if (next) showNudge('mesh');
-      }}
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 11.5a11.5 11.5 0 0 1 16 0" />
-        <path d="M7.3 15a7 7 0 0 1 9.4 0" />
-        <circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" />
-      </svg>
-      <span>Mesh</span>
-    </button>
+        {/* ─── PANEL 1: overlay toggles + mesh connect ─── */}
+        <div className="raptor-panel-row">
+          {/* Rewind */}
+          <button
+            className={`raptor-chip ${isRewinding ? 'active' : ''}`}
+            onClick={() => {
+              setIsRewinding(!isRewinding);
+              if (!isRewinding) showNudge('rewind');
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 5 3 12l8 7V5z" />
+              <path d="M21 5l-8 7 8 7V5z" />
+            </svg>
+            <span>Rewind</span>
+          </button>
 
-    <button
-      className={`raptor-chip ${showRadarOverlay ? 'active' : ''}`}
-      onClick={() =>  {
-        const next = !showRadarOverlay;
-        setShowRadarOverlay(next);
-        if (next) showNudge('radar');
-      }}
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none" />
-        <circle cx="12" cy="12" r="6.5" />
-        <circle cx="12" cy="12" r="10.5" opacity="0.5" />
-      </svg>
-      <span>Radar</span>
-    </button>
+          {/* Mesh */}
+          <button
+            className={`raptor-chip ${showMeshOverlay ? 'active' : ''}`}
+            onClick={() => {
+              const next = !showMeshOverlay;
+              setShowMeshOverlay(next);
+              if (next) showNudge('mesh');
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 11.5a11.5 11.5 0 0 1 16 0" />
+              <path d="M7.3 15a7 7 0 0 1 9.4 0" />
+              <circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" />
+            </svg>
+            <span>Mesh</span>
+          </button>
 
-    <button
-      className={`raptor-chip ${showChatOverlay ? 'active' : ''}`}
-      onClick={() => {
-        const next = !showChatOverlay;
-        setShowChatOverlay(next);
-        if (next) showNudge('chat');
-      }}
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.8a8.3 8.3 0 0 1-.9-3.8A8.4 8.4 0 0 1 12.5 3h.1a8.4 8.4 0 0 1 8.4 8.4z" />
-      </svg>
-      <span>Chat</span>
-    </button>
+          {/* Radar */}
+          <button
+            className={`raptor-chip ${showRadarOverlay ? 'active' : ''}`}
+            onClick={() => {
+              const next = !showRadarOverlay;
+              setShowRadarOverlay(next);
+              if (next) showNudge('radar');
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none" />
+              <circle cx="12" cy="12" r="6.5" />
+              <circle cx="12" cy="12" r="10.5" opacity="0.5" />
+            </svg>
+            <span>Radar</span>
+          </button>
 
-    <button
-      className={`raptor-chip raptor-chip-connect ${meshConnected ? 'connected' : ''}`}
-      onClick={() => {
-        const next = !meshConnected;
-        setMeshConnected(next);
-        if (next && !dongleConnected) showNudge('connect');
-      }}
-    >
-      <Radio className="raptor-icon-14" />
-      <span>{meshConnected ? 'Connected' : 'Connect Meshtastic'}</span>
-    </button>
-  </div>
+          {/* Chat */}
+          <button
+            className={`raptor-chip ${showChatOverlay ? 'active' : ''}`}
+            onClick={() => {
+              const next = !showChatOverlay;
+              setShowChatOverlay(next);
+              if (next) showNudge('chat');
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.8a8.3 8.3 0 0 1-.9-3.8A8.4 8.4 0 0 1 12.5 3h.1a8.4 8.4 0 0 1 8.4 8.4z" />
+            </svg>
+            <span>Chat</span>
+          </button>
+        </div>
 
   {/* ─── PANEL 2: alarm ─── */}
   {alarmStatus === 'CLEAR' ? (
@@ -965,8 +1028,22 @@ const [leafletMap, setLeafletMap] = useState(null);
   </div>
   <div className="flex h-[calc(100%-56px)] flex-col">
     <div className="flex-1 space-y-2 overflow-y-auto p-3">
-      <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-2 text-center text-[11px] text-amber-300">
-        Simulation — connect a C2 Dongle to enable live mesh chat.
+
+      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+        {chatMessages.length === 0 ? (
+          <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-2 text-center text-[11px] text-amber-300">
+            Simulation — connect a C2 Dongle to enable live mesh chat.
+          </div>
+        ) : (
+          chatMessages.map((m) => (
+            <div key={m.id} className="rounded-lg bg-raptor-bg2 px-3 py-2 text-xs">
+              <div className="mb-0.5 text-[10px] font-semibold text-raptor-cyan">
+                {m.from} · {new Date(m.ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <div className="text-slate-200">{m.text}</div>
+            </div>
+          ))
+        )}
       </div>
     </div>
     <div className="flex gap-2 border-t border-raptor-line p-3">

@@ -70,6 +70,11 @@ export const NUDGES = {
       'Live chat requires a Smartphone Node with Command Interface.',
     loadout: 'c2Dongle',
   },
+  rewind: {
+    title: 'Rewind feature',
+    message: 'Rewind shows where detected people came from. Requires a Companion dongle + mesh network.',
+    loadout: 'c2Dongle',
+  },
   connect: {
     title: 'No dongle detected',
     message:
