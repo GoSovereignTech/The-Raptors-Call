@@ -22,6 +22,9 @@ import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@maplibre/maplibre-gl-leaflet';
+import { PersonMarker, PersonTrail } from '../../components/PersonMarker.jsx';
+
+import { movementFromSpeed } from '../../lib/personIcons.js';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -356,6 +359,8 @@ function HomeField({ location, onOpenSettings }) {
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
+  // Position history per node for trail rendering
+  const nodeHistoryRef = useRef(new Map()); // nodeId → [{lat, lon, ts}, ...] 
   // --- TOAST / NUDGE STATE ---
   const [toasts, setToasts] = useState([]);
   
@@ -435,16 +440,32 @@ function HomeField({ location, onOpenSettings }) {
           if (packet.d.mode === 'SCR') playSiren();
         }
         else if (packet.typ === 'HBT') {
-          // Add or update a friendly node on map
           const nodeId = packet.nid;
+
+          // Push to trail history
+          const hist = nodeHistoryRef.current.get(nodeId) || [];
+          hist.push({ lat: packet.d.lat, lon: packet.d.lon, ts: packet.ts });
+          if (hist.length > 30) hist.shift(); // keep last 30
+          nodeHistoryRef.current.set(nodeId, hist);
+
+          // Derive movement state from packet
+          const movement = packet.d.mot || movementFromSpeed(packet.d.speed);
+          const isSelf = nodeId === 'SIM_N049A' && packet.d.mot; // adjust per your logic
+          // ^ OPTIONAL: mark as self if it's your own tag
+
           setActiveNodes((prev) => {
             const existing = prev.findIndex((n) => n.id === nodeId);
             const node = {
               id: nodeId,
               lat: packet.d.lat,
               lng: packet.d.lon,
-              alias: nodeId,
-              threat: 'CLEAR',
+              alias: packet.d.nickname || nodeId,
+              nickname: packet.d.nickname || null,
+              threat: existing >= 0 ? prev[existing].threat : 'CLEAR',
+              movement,
+              speed: packet.d.speed || 0,
+              alarm: packet.d.alarm || 'off',
+              isSelf,
               unvouchedDots: 0,
             };
             if (existing >= 0) {
@@ -720,21 +741,22 @@ const [leafletMap, setLeafletMap] = useState(null);
           />
         ))}
         {/* Now the markers are children of the MapContainer! */}
-        {activeNodes.map((node) => (
-          <Marker
-            key={node.id}
-            position={[node.lat, node.lng]}
-            icon={L.divIcon({
-              className: 'mesh-node-marker',
-              html: `<div style="background-color: ${node.unvouchedDots > 0 ? '#ef4444' : '#10b981'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.5);"></div>`,
-              iconSize: [14, 14],
-              iconAnchor: [7, 7]
-            })}
-            eventHandlers={{
-              click: () => setSelectedNode(node)
-            }}
-          />
-        ))}
+        {activeNodes.map((node) => {
+          const trail = nodeHistoryRef.current.get(node.id) || [];
+          return (
+            <React.Fragment key={node.id}>
+              <PersonTrail
+                points={trail}
+                entity={node}
+                maxPoints={12}
+              />
+              <PersonMarker
+                entity={node}
+                onSelect={setSelectedNode}
+              />
+            </React.Fragment>
+          );
+        })}
       </LiveMap>
       
       {/* Radar sweep overlay — appears centered when toggled */} 

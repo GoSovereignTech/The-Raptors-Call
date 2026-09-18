@@ -8,6 +8,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      server: {
+        host: '0.0.0.0',        // ← bind to all interfaces
+        port: 5173,
+        strictPort: true,       // fail rather than silently pick another port
+        hmr: {
+          clientPort: 443,
+        }      // Codespaces proxies WebSocket over 443
+      },
       includeAssets: [
         'ssim.html', 
         'favicon.ico',

@@ -434,7 +434,7 @@ export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
           padding:2px 8px;
           color:${color};
           backdrop-filter:blur(8px);
-        ">${conf}% ${sensors.map(s => s.label).join('+')}</div>
+        "}>${conf}%</div>
       </div>
       <style>
         @keyframes fusionPulse {
