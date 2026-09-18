@@ -9,6 +9,7 @@ import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 // Add at the top of the file
 
 import { DemoPilot } from '../../components/DemoPilot.jsx';
+import SplashPage from '../../components/SplashPage.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
 import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
@@ -221,7 +222,7 @@ function BrandBackdrop({ children, dim = true }) {
     </div>
   );
 }
-
+/* removing 
 function Splash() {
   return (
     <BrandBackdrop>
@@ -238,7 +239,7 @@ function Splash() {
     </BrandBackdrop>
   );
 }
-
+*/
 function LocationSetup({ onLocated }) {
   const [manual, setManual] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1068,31 +1069,44 @@ const [leafletMap, setLeafletMap] = useState(null);
 }
 
 export default function App() {
-  const [view, setView] = useState('splash');
+  const [view, setView] = useState('splash'); // 'splash' | 'setup' | 'home' | 'demo'
   const [location, setLocation] = useState(null);
 
+  // Check for stored location on mount
   useEffect(() => {
-    let cancelled = false;
-    const minDelay = new Promise((res) => setTimeout(res, 1100));
-    (async () => {
-      let loc = null;
-      try {
-        const storedData = localStorage.getItem('user-location');
-        if (storedData) loc = JSON.parse(storedData);
-      } catch (e) { /* no stored location yet */ }
-      await minDelay;
-      if (cancelled) return;
-      if (loc && typeof loc.lat === 'number' && typeof loc.lon === 'number') {
-        setLocation(loc);
-        setView('home');
-      } else {
-        setView('setup');
+    try {
+      const stored = localStorage.getItem('user-location');
+      if (stored) {
+        const loc = JSON.parse(stored);
+        if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+          setLocation(loc);
+          setView('home');
+        }
       }
-    })();
-    return () => { cancelled = true; };
+    } catch (e) { /* no stored location */ }
   }, []);
 
-  if (view === 'splash') return <Splash />;
-  if (view === 'setup') return <LocationSetup onLocated={(loc) => { setLocation(loc); setView('home'); }} />;
+  if (view === 'splash') {
+    return (
+      <SplashPage
+        onEnterPrecise={() => setView('setup')}
+        onEnterDemo={() => {
+          // Use a fixed demo location (downtown Baltimore in your sim area)
+          const demoLoc = { lat: 39.2838, lon: -76.6216, source: 'demo', label: 'Demo Mode' };
+          localStorage.setItem('user-location', JSON.stringify(demoLoc));
+          setLocation(demoLoc);
+          setView('home');
+        }}
+      />
+    );
+  }
+
+  if (view === 'setup') {
+    return <LocationSetup onLocated={(loc) => {
+      setLocation(loc);
+      setView('home');
+    }} />;
+  }
+
   return <HomeField location={location} onOpenSettings={() => setView('setup')} />;
 }

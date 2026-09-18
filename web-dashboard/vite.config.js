@@ -8,11 +8,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Enable in dev mode so you can test in Codespaces
-      devOptions: {
-        enabled: true,
-        type: 'module',
-      },
       includeAssets: [
         'ssim.html', 
         'favicon.ico',
