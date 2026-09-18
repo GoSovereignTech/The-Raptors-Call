@@ -1,5 +1,5 @@
 // src/lib/stats.js
-// All public-facing statistics with sources.
+// All public-facing statistics, loadouts, and prices.
 // Update numbers here — they propagate to the splash page.
 
 export const STATS = [
@@ -33,46 +33,69 @@ export const STATS = [
   },
 ];
 
+// ─── The challenge — used on the splash to qualify the audience ───
+export const CHALLENGE = [
+  'Do you want to be an active part of stopping the epidemic of missing persons, lynchings, and hate crimes?',
+  'Are you willing to be visible to a vetted team — and to see them in return?',
+  'Can you respond when a neighbor is in danger, even if you do not know them personally?',
+  'Are you willing to go through vetting — references, background check, and an in-person interview?',
+];
+
+// ─── Free vs. paid — what the dashboard gives you vs. the Key ───
+export const FREE_TIER = {
+  name: 'The Dashboard (Free)',
+  bullets: [
+    'Full map with your position and community overlay',
+    'See team members and detections from any paired node',
+    'Simulation mode for training and demos',
+    'Works on any modern phone browser',
+  ],
+};
+
+// ─── Loadouts — prices from updated BOM (2026) ───
 export const LOADOUTS = [
   {
     id: 1,
     name: 'Personal Alarm & Off-Grid Beacon Tag',
-    tagline: 'Wearable panic button + GPS beacon. Works with zero cell signal.',
-    price: 89,
-    priceLabel: '$89+',
+    tagline:
+      'Wearable panic button + GPS beacon. Works with zero cell signal. Sounds the alarm that brings your entire team to your exact location.',
+    priceLabel: '$149',
     benefits: [
-      'Instant alarm to your entire team',
+      'Instant alarm to your whole team',
       'Silent mode for discreet alerts',
-      'Disguised as jewelry — necklace, bracelet, hairpin',
+      'Disguised as jewelry — necklace, bracelet, hairpin, waist beads',
       'Rechargeable via solar',
+      'Reduces missing-person, lynching, and hate-crime outcomes',
     ],
     href: 'https://sparklesnovel.gumroad.com/l/personalAlarm',
   },
   {
     id: 2,
     name: "The Raptor's Key — Off-Grid Mesh Interface",
-    tagline: '3-port USB-C adapter. Turns any phone into a mesh+radar station.',
-    price: 98,
-    priceLabel: '$98+',
+    tagline:
+      'Three-port USB-C interface. Plug in the mesh node, radar, and power. Turns any phone into a detection station.',
+    priceLabel: '$129',
     benefits: [
       'Accepts the C2 Node, Radar Module, and charging',
       'Detects people through walls and foliage',
-      'Encrypted team messaging',
-      'No monthly fees, no subscription',
+      'Encrypted team messaging — no monthly fees',
+      'Works when paired with the free dashboard',
+      'This is what unlocks real-world detection',
     ],
     href: 'https://sparklesnovel.gumroad.com/l/teamwork',
   },
   {
     id: 3,
     name: 'Raptor-Relay Tree Canopy Solar Node',
-    tagline: 'Solar-powered repeater extends your neighborhood range for free.',
-    price: 95,
-    priceLabel: '$95+',
+    tagline:
+      'Solar-powered repeater that extends your neighborhood mesh range for free — indefinitely.',
+    priceLabel: '$149',
     benefits: [
       'Extends mesh coverage by miles',
       'Runs indefinitely on solar',
       'Weatherproof — mounts in tree canopy',
       'Relays traffic without seeing your data',
+      'Essential for rural and forested areas',
     ],
     href: 'https://sparklesnovel.gumroad.com/l/l_3_relays',
   },
@@ -82,13 +105,19 @@ export const MORE_LOADOUTS = [
   {
     id: 4,
     name: 'Raptor-Grid 3-Pack Perimeter Nodes',
-    priceLabel: '$229+',
+    priceLabel: '$529',
     href: 'https://sparklesnovel.gumroad.com/l/Triple-SensorNodes',
   },
   {
     id: 5,
     name: 'Raptor-Command Full Security System',
-    priceLabel: '$698–$848',
+    priceLabel: '$949',
     href: 'https://sparklesnovel.gumroad.com/l/l_5_c2',
+  },
+  {
+    id: 6,
+    name: 'Raptor-Radar Pocket Sensor',
+    priceLabel: '$119',
+    href: 'https://sparklesnovel.gumroad.com/l/l_6_radar',
   },
 ];

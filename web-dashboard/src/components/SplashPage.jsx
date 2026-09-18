@@ -1,17 +1,18 @@
 // src/components/SplashPage.jsx
-// The landing / education page shown before the map.
-// Mobile-first, scrollable, animated.
+// Landing page shown before the map.
 
 import { useState } from 'react';
 import {
-  Shield, Users, Zap, AlertTriangle, Radio, MapPin, Lock,
-  Bell, ExternalLink, CheckCircle2, ArrowRight, Github
+  Shield, Users, Zap, AlertTriangle, MapPin, Lock,
+  Bell, ExternalLink, CheckCircle2, ArrowRight, XCircle,
+  Fingerprint, UserCheck, Eye
 } from 'lucide-react';
-import { STATS, LOADOUTS, MORE_LOADOUTS } from '../lib/stats.js';
+import {
+  STATS, CHALLENGE, FREE_TIER, LOADOUTS, MORE_LOADOUTS
+} from '../lib/stats.js';
 import { useScrollReveal } from '../hooks/useScrollReveal.js';
 import RaptorMark from './RaptorMark.jsx';
 
-// ─── Scroll-animated wrapper ───
 function Reveal({ children, delay = 0 }) {
   const { ref, visible } = useScrollReveal();
   return (
@@ -27,7 +28,6 @@ function Reveal({ children, delay = 0 }) {
   );
 }
 
-// ─── Individual section ───
 function Section({ id, children, className = '' }) {
   return (
     <section
@@ -46,7 +46,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
 
   return (
     <div className="min-h-screen bg-raptor-void text-slate-100 overflow-x-hidden">
-      {/* ─── SECTION 1: HERO ─── */}
+      {/* ─── 1. HERO ─── */}
       <Section id="hero">
         <Reveal>
           <div className="mb-6 flex items-center gap-3">
@@ -81,18 +81,11 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
 
         <Reveal delay={300}>
           <div className="mt-6 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full border border-raptor-line bg-raptor-bg2 px-3 py-1 text-slate-400">
-              Works offline
-            </span>
-            <span className="rounded-full border border-raptor-line bg-raptor-bg2 px-3 py-1 text-slate-400">
-              No monthly fees
-            </span>
-            <span className="rounded-full border border-raptor-line bg-raptor-bg2 px-3 py-1 text-slate-400">
-              No data sold
-            </span>
-            <span className="rounded-full border border-raptor-line bg-raptor-bg2 px-3 py-1 text-slate-400">
-              Vetted community
-            </span>
+            {['Works offline', 'No monthly fees', 'No data sold', 'Vetted community'].map((t) => (
+              <span key={t} className="rounded-full border border-raptor-line bg-raptor-bg2 px-3 py-1 text-slate-400">
+                {t}
+              </span>
+            ))}
           </div>
         </Reveal>
 
@@ -104,8 +97,63 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 2: THE REALITY ─── */}
-      <Section id="reality" className="bg-raptor-bg/30">
+      {/* ─── 2. THE CHALLENGE (audience qualification) ─── */}
+      <Section id="challenge" className="bg-raptor-bg/30">
+        <Reveal>
+          <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-amber-400">
+            The Challenge
+          </div>
+          <h2 className="mb-4 text-2xl font-bold text-slate-50 sm:text-3xl">
+            This app is not for everyone.
+          </h2>
+          <p className="mb-8 text-sm text-slate-400">
+            Before you read further, ask yourself four questions honestly.
+          </p>
+        </Reveal>
+
+        <div className="space-y-3">
+          {CHALLENGE.map((q, i) => (
+            <Reveal key={i} delay={i * 100}>
+              <div className="flex gap-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4">
+                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-amber-500/50 bg-amber-500/10 text-[10px] font-bold text-amber-400">
+                  {i + 1}
+                </div>
+                <p className="text-sm text-slate-200">{q}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={500}>
+          <div className="mt-8 space-y-3 text-sm">
+            <div className="flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4">
+              <XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-rose-400" />
+              <div>
+                <div className="font-semibold text-rose-200">
+                  If you answered "no" to any of these
+                </div>
+                <p className="mt-1 text-rose-100/80">
+                  This app is not for you. Walk away. No hard feelings.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-400" />
+              <div>
+                <div className="font-semibold text-emerald-200">
+                  If you answered "yes" to all four
+                </div>
+                <p className="mt-1 text-emerald-100/80">
+                  You're one of us. Keep reading — and take this seriously.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </Section>
+
+      {/* ─── 3. THE REALITY ─── */}
+      <Section id="reality">
         <Reveal>
           <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-rose-400">
             The Reality
@@ -128,17 +176,10 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
                     <div className="mt-1 text-[10px] text-slate-500">
                       Source:{' '}
                       {stat.sourceUrl ? (
-                        <a
-                          href={stat.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-raptor-cyan underline underline-offset-2"
-                        >
+                        <a href={stat.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-raptor-cyan underline underline-offset-2">
                           {stat.source}
                         </a>
-                      ) : (
-                        stat.source
-                      )}
+                      ) : stat.source}
                     </div>
                   </div>
                 </div>
@@ -160,55 +201,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 3: WHAT THIS IS ─── */}
-      <Section id="what-is-this">
-        <Reveal>
-          <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
-            What This Is
-          </div>
-          <h2 className="mb-6 text-2xl font-bold text-slate-50 sm:text-3xl">
-            It's not vs. Instagram.
-            <br />
-            <span className="text-raptor-cyan">It runs alongside everything else.</span>
-          </h2>
-        </Reveal>
-
-        <Reveal delay={150}>
-          <p className="text-base text-slate-300">
-            You install it once. It sits in the background like your weather app. It
-            doesn't interrupt you. It doesn't sell your data. It doesn't advertise.
-          </p>
-        </Reveal>
-
-        <Reveal delay={250}>
-          <p className="mt-4 text-base text-slate-300">
-            It just watches for danger. And when something happens, it tells you —
-            and your team.
-          </p>
-        </Reveal>
-
-        <Reveal delay={400}>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {[
-              { icon: Shield, title: 'See them first', body: 'Detect people before they see you' },
-              { icon: Users, title: 'Team awareness', body: 'Your team sees what you see' },
-              { icon: Bell, title: 'Instant alerts', body: 'One button — everyone knows' },
-              { icon: Lock, title: 'Your data is yours', body: 'No subscriptions, no tracking' },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4"
-              >
-                <item.icon className="mb-2 h-5 w-5 text-raptor-cyan" />
-                <div className="text-sm font-semibold text-slate-100">{item.title}</div>
-                <div className="mt-0.5 text-xs text-slate-400">{item.body}</div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </Section>
-
-      {/* ─── SECTION 4: HOW IT WORKS ─── */}
+      {/* ─── 4. HOW IT WORKS ─── */}
       <Section id="how-it-works" className="bg-raptor-bg/30">
         <Reveal>
           <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
@@ -221,21 +214,9 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
 
         <div className="space-y-6">
           {[
-            {
-              n: '01',
-              title: 'Detect',
-              body: 'Sensor nodes and your phone see people through walls, foliage, and darkness — before they see you.',
-            },
-            {
-              n: '02',
-              title: 'Connect',
-              body: 'Everyone vetted in your community is on the same private mesh. Encrypted. Off-grid. No cellular towers.',
-            },
-            {
-              n: '03',
-              title: 'Respond',
-              body: 'One person presses the button. Everyone sees the location. Everyone comes.',
-            },
+            { n: '01', title: 'Detect', body: 'Sensor nodes and your phone see people through walls, foliage, and darkness — before they see you.' },
+            { n: '02', title: 'Connect', body: 'Everyone vetted in your community is on the same private mesh. Encrypted. Off-grid. No cell towers.' },
+            { n: '03', title: 'Respond', body: 'One person presses the button. Everyone sees the location. Everyone comes.' },
           ].map((step, i) => (
             <Reveal key={step.n} delay={i * 150}>
               <div className="flex gap-4">
@@ -252,25 +233,43 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
         </div>
       </Section>
 
-      {/* ─── SECTION 5: PRIVACY & TRUST ─── */}
+      {/* ─── 5. PRIVACY (no hidden mode) ─── */}
       <Section id="privacy">
         <Reveal>
           <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-emerald-400">
-            Privacy & Trust
+            Privacy & Visibility
           </div>
           <h2 className="mb-6 text-2xl font-bold text-slate-50 sm:text-3xl">
             Here's exactly how your location is handled.
           </h2>
         </Reveal>
 
-        <Reveal delay={150}>
-          <div className="space-y-3">
+        <Reveal delay={100}>
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+            <div className="flex items-start gap-3">
+              <Eye className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" />
+              <div>
+                <div className="text-sm font-bold text-amber-100">
+                  There is no hidden mode. This is intentional.
+                </div>
+                <p className="mt-1 text-sm text-amber-100/80">
+                  If your team cannot see you, they cannot rescue you. Every member is
+                  visible to the team — and the team is visible to every member.
+                  Reciprocity is the foundation of trust.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={250}>
+          <div className="mt-6 space-y-3">
             {[
               {
-                icon: CheckCircle2,
+                icon: UserCheck,
                 color: 'text-emerald-400',
                 title: 'Only vetted members see you',
-                body: 'Before anyone can see your location on their map, they go through an in-person verification and background check. Known abusers are refused.',
+                body: 'Before anyone can see your location on their map, they go through in-person verification, references, and a background check. Known abusers are refused.',
               },
               {
                 icon: Lock,
@@ -281,8 +280,8 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
               {
                 icon: Users,
                 color: 'text-amber-400',
-                title: 'You see them too',
-                body: 'Visibility is reciprocal. If you can see a teammate, they can see you. There is no one-way surveillance.',
+                title: 'Visibility is reciprocal',
+                body: 'If you can see a teammate, they can see you. There is no one-way surveillance. Nobody gets to watch without being watched.',
               },
               {
                 icon: Shield,
@@ -291,10 +290,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
                 body: 'This is not a product. There is no central server watching you. Your data stays on your device and inside the community.',
               },
             ].map((item, i) => (
-              <div
-                key={i}
-                className="flex gap-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4"
-              >
+              <div key={i} className="flex gap-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4">
                 <item.icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${item.color}`} />
                 <div>
                   <div className="text-sm font-semibold text-slate-100">{item.title}</div>
@@ -307,30 +303,147 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
 
         <Reveal delay={500}>
           <div className="mt-6 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4 text-xs text-slate-400">
-            <a
-              href="/privacy.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-raptor-cyan underline underline-offset-2"
-            >
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-raptor-cyan underline underline-offset-2">
               Read the full privacy policy <ExternalLink className="h-3 w-3" />
             </a>
           </div>
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 6: LOADOUTS ─── */}
+      {/* ─── 6. HOW WE PREVENT INFILTRATION ─── */}
+      <Section id="infiltration" className="bg-raptor-bg/30">
+        <Reveal>
+          <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
+            Trust & Security
+          </div>
+          <h2 className="mb-4 text-2xl font-bold text-slate-50 sm:text-3xl">
+            How we prevent bad actors from joining.
+          </h2>
+          <p className="mb-8 text-sm text-slate-400">
+            The biggest risk to a community safety network is that an enemy
+            infiltrates it. Here is exactly how we stop that.
+          </p>
+        </Reveal>
+
+        <div className="space-y-4">
+          {[
+            {
+              icon: UserCheck,
+              n: '01',
+              title: 'Personal references',
+              body: 'Every applicant provides 2–3 independent references we contact separately. References are asked whether they would feel safe being alone with the applicant.',
+            },
+            {
+              icon: Fingerprint,
+              n: '02',
+              title: 'In-person or encrypted video interview',
+              body: 'A structured behavioral interview conducted by a reviewer who is not the person who recruited them. Answers are cross-checked against references.',
+            },
+            {
+              icon: Lock,
+              n: '03',
+              title: 'Background check',
+              body: 'Verified against public records — violence, theft, and known abuser registries. Flagged applicants are silently declined.',
+            },
+            {
+              icon: Users,
+              n: '04',
+              title: 'Probation tier',
+              body: 'New members start in Tier 1 — they can send alerts and receive them, but cannot see the full network until they have been active and clean for a defined period.',
+            },
+            {
+              icon: Eye,
+              n: '05',
+              title: 'Anomaly detection',
+              body: 'Unusual behavioral patterns — sudden location jumps, speed anomalies, or deviation from registered routines — are flagged automatically. If it looks like a setup, the network pauses.',
+            },
+            {
+              icon: XCircle,
+              n: '06',
+              title: 'Silent ban',
+              body: 'If someone is caught, we do not delete their account — we lock it. They see generic errors and believe their hardware is broken. They cannot re-register with a new identity.',
+            },
+          ].map((item, i) => (
+            <Reveal key={i} delay={i * 100}>
+              <div className="flex gap-4 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-raptor-cyan/50 bg-raptor-cyan/10">
+                  <item.icon className="h-5 w-5 text-raptor-cyan" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-slate-100">{item.title}</div>
+                  <p className="mt-1 text-xs text-slate-400">{item.body}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={700}>
+          <div className="mt-8 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+            <strong>The result:</strong> A community where every member has been
+            vouched for, checked, and is visible to every other member. Strangers are
+            not part of the network — neighbors are.
+          </div>
+        </Reveal>
+      </Section>
+
+      {/* ─── 7. FREE VS PAID ─── */}
+      <Section id="free-vs-paid">
+        <Reveal>
+          <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
+            Free Dashboard. Real Gear.
+          </div>
+          <h2 className="mb-6 text-2xl font-bold text-slate-50 sm:text-3xl">
+            The dashboard is free. The Key makes it real.
+          </h2>
+        </Reveal>
+
+        <Reveal delay={150}>
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+              <div className="text-base font-bold text-emerald-200">{FREE_TIER.name}</div>
+            </div>
+            <ul className="space-y-1.5">
+              {FREE_TIER.bullets.map((b, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+
+        <Reveal delay={300}>
+          <div className="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-5">
+            <div className="mb-2 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-amber-400" />
+              <div className="text-base font-bold text-amber-200">
+                The Raptor's Key unlocks detection
+              </div>
+            </div>
+            <p className="text-sm text-amber-100/80">
+              Buy the Key and any loadout to go from "watching a map" to
+              "detecting real threats in the real world." That's the difference
+              between a demo and a defense.
+            </p>
+          </div>
+        </Reveal>
+      </Section>
+
+      {/* ─── 8. LOADOUTS ─── */}
       <Section id="loadouts" className="bg-raptor-bg/30">
         <Reveal>
           <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
             Choose Your Loadout
           </div>
           <h2 className="mb-3 text-2xl font-bold text-slate-50 sm:text-3xl">
-            The dashboard is free.
+            Start with the gear that fits your situation.
           </h2>
           <p className="mb-8 text-sm text-slate-400">
-            The loadouts are what make it work in the real world — detection, alerts,
-            and full mesh coverage.
+            Every loadout is priced to sustain the mission — no hidden fees, no
+            subscription traps.
           </p>
         </Reveal>
 
@@ -348,9 +461,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
                     <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-raptor-cyan">
                       Loadout #{lo.id}
                     </div>
-                    <div className="mt-1 text-base font-bold text-slate-100">
-                      {lo.name}
-                    </div>
+                    <div className="mt-1 text-base font-bold text-slate-100">{lo.name}</div>
                     <p className="mt-1 text-xs text-slate-400">{lo.tagline}</p>
                     <ul className="mt-3 space-y-1">
                       {lo.benefits.map((b, j) => (
@@ -362,10 +473,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
                     </ul>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-black text-amber-400">
-                      {lo.priceLabel}
-                    </div>
-                    <div className="text-[10px] text-slate-500">and up</div>
+                    <div className="text-lg font-black text-amber-400">{lo.priceLabel}</div>
                   </div>
                 </div>
               </a>
@@ -394,7 +502,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 7: NOTIFICATIONS ─── */}
+      {/* ─── 9. NOTIFICATIONS ─── */}
       <Section id="notifications">
         <Reveal>
           <div className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-raptor-cyan">
@@ -407,8 +515,8 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
 
         <Reveal delay={150}>
           <p className="text-base text-slate-300">
-            You don't have to watch the screen all day. The app runs in the background.
-            It sends you a notification when it matters.
+            You don't have to watch the screen all day. The app runs in the
+            background. It sends you a notification when it matters.
           </p>
         </Reveal>
 
@@ -420,10 +528,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
               { title: 'A teammate pressed the alarm', body: 'See their position and go.' },
               { title: 'You pressed the alarm', body: 'Your entire team gets the alert.' },
             ].map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4"
-              >
+              <div key={i} className="flex items-start gap-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4">
                 <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-raptor-cyan" />
                 <div>
                   <div className="text-sm font-medium text-slate-100">{item.title}</div>
@@ -438,13 +543,13 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
           <div className="mt-6 rounded-xl border border-raptor-line bg-raptor-bg2/40 p-4 text-xs text-slate-400">
             <strong className="text-slate-200">Browser support:</strong> Currently
             optimized for <strong>Chrome on Android</strong>. For full feature parity
-            (background operation, hardened storage), a Google Pixel with GrapheneOS is
-            available in the Full System loadout.
+            (background operation, hardened storage), a Google Pixel with GrapheneOS
+            is available in the Full System loadout.
           </div>
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 8: THE MOVEMENT ─── */}
+      {/* ─── 10. THE MOVEMENT ─── */}
       <Section id="movement" className="bg-raptor-bg/30">
         <Reveal>
           <h2 className="text-2xl font-black leading-tight text-slate-50 sm:text-4xl">
@@ -467,7 +572,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
         </Reveal>
       </Section>
 
-      {/* ─── SECTION 9: ENTER APP ─── */}
+      {/* ─── 11. ENTER APP ─── */}
       <Section id="enter">
         <Reveal>
           <h2 className="mb-4 text-2xl font-bold text-slate-50 sm:text-3xl">
@@ -475,7 +580,6 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
           </h2>
         </Reveal>
 
-        {/* Age + ToS gating */}
         <Reveal delay={150}>
           <div className="space-y-3 rounded-xl border border-raptor-line bg-raptor-bg2/60 p-4">
             <label className="flex items-start gap-3 text-xs text-slate-300">
@@ -499,16 +603,11 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
               />
               <span>
                 I have read and agree to the{' '}
-                <a
-                  href="/privacy.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-raptor-cyan underline underline-offset-2"
-                >
+                <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="text-raptor-cyan underline underline-offset-2">
                   privacy policy
                 </a>{' '}
-                and understand that my location will be visible to vetted members
-                of my community.
+                and understand that my location will be visible to vetted members of
+                my community.
               </span>
             </label>
           </div>
@@ -554,26 +653,13 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
               </div>
             </div>
             <div className="flex flex-wrap gap-4 text-xs">
-              <a
-                href="/privacy.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-raptor-cyan"
-              >
+              <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-raptor-cyan">
                 Privacy
               </a>
-              <a
-                href="/affiliate.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-raptor-cyan"
-              >
+              <a href="/affiliate.html" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-raptor-cyan">
                 Become an Affiliate
               </a>
-              <a
-                href="mailto:DrSutherlandMD@proton.me"
-                className="text-slate-400 hover:text-raptor-cyan"
-              >
+              <a href="mailto:DrSutherlandMD@proton.me" className="text-slate-400 hover:text-raptor-cyan">
                 Contact
               </a>
             </div>
