@@ -1,0 +1,130 @@
+/* src/styles/themes.css
+ * Theme system — swap the whole palette by changing one attribute:
+ *   document.documentElement.setAttribute('data-theme', 'sky-blue')
+ */
+
+/* ═══ THEME: Sky Blue (default) ═══ */
+[data-theme="sky-blue"], :root {
+  /* ─── Threat colors ─── */
+  --threat-friend:  #12b981;      /* bright emerald — matches mockup */
+  --threat-enemy:   #e94b3c;      /* warm coral-red — matches mockup */
+  --threat-unknown: #f5a623;      /* warm amber-gold */
+  --threat-self:    #3cb5e8;      /* bright sky cyan */
+
+  /* ─── Person marker chrome ─── */
+  --marker-bg:      #0c1a28;      /* deep navy circles */
+  --marker-border:  2px;
+  --marker-radius:  50%;
+
+  /* ─── Panel & UI chrome (light! this is the big change) ─── */
+  --panel-bg:       #b0dcef;      /* pale sky blue — bottom bar */
+  --panel-bg-deep:  #a0d4ea;      /* slightly deeper for chat drawer */
+  --panel-border:   #4ab8d4;      /* medium cyan border */
+  --panel-glow:     rgba(74, 184, 212, 0.25);
+
+  /* ─── Accents (dark text colors on light panels) ─── */
+  --accent:         #0e94b8;      /* deep cyan — used for active text */
+  --accent-soft:    rgba(14, 148, 184, 0.15);
+  --accent-glow:    rgba(74, 184, 212, 0.5);
+
+  /* ─── Text (dark on light — flipped from before) ─── */
+  --text-primary:   #0c1a28;      /* dark navy — main text on panels */
+  --text-muted:     #3a5a70;      /* mid navy — secondary text */
+
+  /* ─── Alarm buttons ─── */
+  --alarm-loud-from: #f98a7a;     /* coral top */
+  --alarm-loud-to:   #e94b5f;     /* coral-red bottom */
+  --alarm-silent:    #4db8d8;     /* cyan for silent text/border */
+  --silent-bg:       #0c1a28;     /* dark navy silent button bg */
+  --silent-border:   #4db8d8;
+  --silent-text:     #4db8d8;
+
+  /* ─── Chip / button glass (light) ─── */
+  --chip-bg:        #bfe0ef;
+  --chip-border:    #5baecb;
+  --chip-text:      #0c1a28;
+
+  /* ─── Percentage badge (white pill) ─── */
+  --badge-bg:       #ffffff;
+  --badge-text:     #0c1a28;
+  --badge-border:   rgba(12, 26, 40, 0.15);
+
+  /* ─── Map tint — brighter, cyan-leaning ─── */
+  --map-filter: hue-rotate(180deg) saturate(0.6) brightness(1.05) contrast(0.92);
+  --map-overlay: linear-gradient(180deg, rgba(184, 224, 242, 0.05) 0%, rgba(160, 212, 234, 0.18) 100%);
+
+  /* ─── YOU beacon ─── */
+  --beacon-fill:    #3cb5e8;
+  --beacon-stroke:  #0c1a28;
+  --beacon-label-bg: #0c1a28;
+}
+
+/* ═══ THEME: Desert Sand ═══ */
+[data-theme="desert"] {
+  --threat-friend:  #22c55e;
+  --threat-enemy:   #dc2626;
+  --threat-unknown: #eab308;
+  --threat-self:    #0ea5e9;
+
+  --marker-bg:      rgba(30, 22, 14, 0.9);
+  --panel-bg:       rgba(30, 22, 14, 0.92);
+  --panel-bg-deep:  rgba(30, 22, 14, 0.98);
+  --panel-border:   rgba(234, 88, 12, 0.35);
+  --panel-glow:     rgba(234, 88, 12, 0.15);
+
+  --accent:         #f97316;
+  --accent-soft:    rgba(249, 115, 22, 0.15);
+  --accent-glow:    rgba(249, 115, 22, 0.35);
+
+  --text-primary:   #fef3c7;
+  --text-muted:     #a8a29e;
+
+  --alarm-loud-from: #fbbf24;
+  --alarm-loud-to:   #dc2626;
+  --alarm-silent:    #fdba74;
+
+  --chip-bg:        rgba(41, 33, 22, 0.75);
+  --chip-border:    rgba(234, 88, 12, 0.25);
+
+  --map-filter: hue-rotate(-15deg) saturate(0.6) brightness(1.02);
+  --map-overlay: linear-gradient(180deg, rgba(234, 88, 12, 0.04) 0%, rgba(30, 22, 14, 0.14) 100%);
+
+  --beacon-fill:   #f97316;
+  --beacon-stroke: #1a1206;
+  --beacon-label-bg: #1a1206;
+}
+
+/* ═══ THEME: Tactical Green ═══ */
+[data-theme="tactical"] {
+  --threat-friend:  #4ade80;
+  --threat-enemy:   #f43f5e;
+  --threat-unknown: #facc15;
+  --threat-self:    #22d3ee;
+
+  --marker-bg:      rgba(8, 22, 16, 0.9);
+  --panel-bg:       rgba(8, 22, 16, 0.92);
+  --panel-bg-deep:  rgba(8, 22, 16, 0.98);
+  --panel-border:   rgba(74, 222, 128, 0.35);
+  --panel-glow:     rgba(74, 222, 128, 0.15);
+
+  --accent:         #4ade80;
+  --accent-soft:    rgba(74, 222, 128, 0.15);
+  --accent-glow:    rgba(74, 222, 128, 0.35);
+
+  --text-primary:   #dcfce7;
+  --text-muted:     #86efac;
+
+  --alarm-loud-from: #f43f5e;
+  --alarm-loud-to:   #be123c;
+  --alarm-silent:    #86efac;
+
+  --chip-bg:        rgba(10, 32, 22, 0.75);
+  --chip-border:    rgba(74, 222, 128, 0.25);
+
+  --map-filter: hue-rotate(120deg) saturate(0.5) brightness(0.9);
+  --map-overlay: linear-gradient(180deg, rgba(74, 222, 128, 0.04) 0%, rgba(8, 22, 16, 0.14) 100%);
+
+  --beacon-fill:   #4ade80;
+  --beacon-stroke: #05140c;
+  --beacon-label-bg: #05140c;
+}

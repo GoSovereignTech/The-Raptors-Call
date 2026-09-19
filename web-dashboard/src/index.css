@@ -78,3 +78,46 @@
   border-radius: 9999px;
   box-shadow: 0 0 12px 2px rgba(34, 211, 238, 0.55);
 }
+
+/* themed styles */
+/* ─── Map tint using theme variable ─── */
+.leaflet-tile-pane {
+  filter: var(--map-filter, hue-rotate(180deg) saturate(0.55) brightness(0.95));
+}
+
+/* Soft overlay on top of the map for depth */
+.leaflet-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--map-overlay);
+  z-index: 200;
+}
+
+/* ─── Border defaults ─── */
+* {
+  border-style: solid;
+  border-width: 0;
+}
+
+/* ─── YOU label positioning ─── */
+.raptor-beacon-label {
+  position: absolute;
+  left: 50%;
+  top: 4px;                        /* ← was -20px, now tight above the dot */
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--beacon-label-bg, #0a1424);
+  border: 1px solid var(--beacon-fill, #38bdf8);
+  pointer-events: none;
+  text-shadow: none;
+  z-index: 2;
+}

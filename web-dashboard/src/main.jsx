@@ -6,6 +6,13 @@ import AdminApp from './pages/admin/AdminVettingForm.jsx';
 import './lib/simulation';
 import 'leaflet/dist/leaflet.css'
 import "./index.css"
+import './styles/themes.css'
+
+// ─── Set theme before first paint ───
+document.documentElement.setAttribute(
+  'data-theme',
+  localStorage.getItem('raptor-theme') || 'sky-blue'
+);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

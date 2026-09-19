@@ -175,161 +175,7 @@ function FusionDetailPanelInner({ packet, onClose, onStatusChange }) {
   );
 }
 
-
-
-/*
-// ─── Detailed panel for selected packet ───
-export function FusionDetailPanel({ packet, onClose }) {
-  if (!packet || packet.typ !== 'SNS') return null;
-  const d = packet.d || {};
-  const sensors = decodeSensors(d.src || 0);
-  // In FusionDetailPanel, add:
-
-  const entity = entityFromPacket(packet);
-  const [draftThreat, setDraftThreat] = useState(entity.threat);
-  const [draftReason, setDraftReason] = useState('');
-
-  const saveStatus = () => {
-    if (!draftReason.trim()) {
-      alert('Please enter a reason');
-      return;
-    }
-    onStatusChange?.({
-      entityId: entity.id,
-      threat: draftThreat,
-      reason: draftReason,
-      ts: Date.now(),
-    });
-    setDraftReason('');
-  };
-  return (
-    <div className="absolute bottom-24 left-4 right-4 z-[600] rounded-xl border border-raptor-line bg-raptor-bg/95 p-4 backdrop-blur shadow-xl">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs uppercase tracking-widest text-raptor-cyan">
-            {packet.nid}
-          </span>
-          <span className="rounded-full border border-raptor-line px-2 py-0.5 text-[10px] text-slate-400">
-            {packet.sim ? 'SIM' : 'LIVE'}
-          </span>
-        </div>
-        <button onClick={onClose} className="text-slate-500 hover:text-slate-200">✕</button>
-      </div>
-
-      <div className="mb-3 flex items-center gap-3">
-        <div className="text-2xl font-bold" style={{ color: confidenceColor(d.conf || 0) }}>
-          {d.conf}%
-        </div>
-        <div className="text-xs text-slate-400">
-          Fused confidence
-          <div className="text-slate-600">
-            Magnitude: {d.mag} · Peak: {d.peak_ms}ms
-          </div>
-          {d.accuracy_m && (
-            <div className="text-slate-600">
-              Position accuracy: ±{d.accuracy_m}m
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        {sensors.map((s) => {
-          const Icon = s.icon;
-          const value = d[s.label.toLowerCase()];
-          return (
-            <div key={s.bit} className="flex items-center gap-2 rounded-lg border border-raptor-line/50 px-3 py-2">
-              <Icon className="h-4 w-4" style={{ color: s.color }} />
-              <span className="text-xs font-medium text-slate-200">{s.label}</span>
-              <span className="text-[10px] text-slate-500">{s.desc}</span>
-              {value != null && (
-                <span className="ml-auto font-mono text-xs" style={{ color: s.color }}>
-                  {value}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-3 flex items-center gap-3 text-[10px] text-slate-600">
-        <span>Seq: {packet.seq}</span>
-        <span>Hops: {packet.hops}</span>
-        <span>CH: {packet.chn}</span>
-        <span>ts: {new Date(packet.ts * 1000).toLocaleTimeString()}</span>
-      </div>
-    </div>
-  );
-}
-*/
-/* oldest  
-export function FusionPacketMarker({ packet, onSelect }) {
-  if (!packet || packet.typ !== 'SNS') return null;
-
-  const d = packet.d || {};
-  const conf = d.conf || 0;
-  const color = confidenceColor(conf);
-  const sensors = decodeSensors(d.src || 0);
-  const primary = sensors[0] || { icon: 'pir', color };
-  const sensorCount = sensors.length;
-
-  const icon = L.divIcon({
-    className: 'fusion-packet-marker',
-    html: `
-      <div style="position:relative;width:40px;height:40px;">
-        <div style="position:absolute;inset:0;border-radius:999px;background:${color};opacity:0.3;animation:fusionPulse 2s ease-out infinite;"></div>
-        <div style="
-          position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-          width:36px;height:36px;border-radius:999px;
-          border:2px solid ${color};
-          background:rgba(10,14,28,0.9);
-          box-shadow:0 0 16px ${color}66;
-          display:flex;align-items:center;justify-content:center;
-          color:${primary.color};
-        ">
-          <div style="width:18px;height:18px;">${ICON_SVG[primary.icon] || ICON_SVG.pir}</div>
-        </div>
-        ${sensorCount > 1 ? `
-          <div style="
-            position:absolute;top:-4px;right:-4px;
-            width:16px;height:16px;border-radius:999px;
-            background:${color};color:#040611;
-            font-size:10px;font-weight:700;
-            display:flex;align-items:center;justify-content:center;
-          ">${sensorCount}</div>
-        ` : ''}
-        <div style="
-          position:absolute;top:100%;left:50%;transform:translateX(-50%);
-          margin-top:4px;white-space:nowrap;
-          font-size:10px;font-weight:600;
-          background:rgba(10,14,28,0.9);
-          border:1px solid #1c2540;
-          border-radius:999px;
-          padding:2px 8px;
-          color:${color};
-          backdrop-filter:blur(8px);
-        ">${conf}% ${sensors.map(s => s.label).join('+')}</div>
-      </div>
-      <style>
-        @keyframes fusionPulse {
-          0% { transform: scale(0.8); opacity: 0.5; }
-          100% { transform: scale(1.6); opacity: 0; }
-        }
-      </style>
-    `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-  });
-
-  return (
-    <Marker
-      position={[packet.d.lat, packet.d.lon]}
-      icon={icon}
-      eventHandlers={{ click: () => onSelect?.(packet) }}
-    />
-  );
-}
-*/
+ 
 
 export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
   const map = useMap();
@@ -423,18 +269,17 @@ export function FusionPacketMarker({ packet, onSelect, showVariance = true }) {
             display:flex;align-items:center;justify-content:center;
           ">${sensorCount}</div>
         ` : ''}
-
         <div style="
           position:absolute;top:100%;left:50%;transform:translateX(-50%);
           margin-top:4px;white-space:nowrap;
-          font-size:10px;font-weight:600;
-          background:rgba(10,14,28,0.9);
-          border:1px solid #1c2540;
+          font-size:10px;font-weight:700;
+          background:var(--badge-bg, #ffffff);
+          color:var(--badge-text, #0c1a28);
+          border:1px solid var(--badge-border, rgba(12,26,40,0.15));
           border-radius:999px;
           padding:2px 8px;
-          color:${color};
-          backdrop-filter:blur(8px);
-        "}>${conf}%</div>
+          box-shadow:0 2px 6px rgba(12,26,40,0.15);
+        ">${conf}%</div>
       </div>
       <style>
         @keyframes fusionPulse {

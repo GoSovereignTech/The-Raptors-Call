@@ -21,9 +21,8 @@ import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import '@maplibre/maplibre-gl-leaflet';
-import { PersonMarker, PersonTrail } from '../../components/PersonMarker.jsx';
-
+import '@maplibre/maplibre-gl-leaflet'; 
+import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
 import { movementFromSpeed } from '../../lib/personIcons.js';
 
 const BRAND_NAME = 'The Raptor';
@@ -87,7 +86,7 @@ function InitialRecenter({ lat, lon }) {
 }
 
 function beaconIcon(heading, pulseDuration, alert) {
-  const color = alert ? '#f59e0b' : '#22d3ee';
+  const color = alert ? 'var(--threat-unknown)' : 'var(--beacon-fill)';
   return L.divIcon({
     className: 'raptor-beacon-icon',
     html: `
@@ -96,7 +95,7 @@ function beaconIcon(heading, pulseDuration, alert) {
         <span class="raptor-beacon-ring" style="--raptor-beacon-color:${color}; animation-duration:${pulseDuration}s; animation-delay:${pulseDuration / 2}s"></span>
         <div class="raptor-beacon-dot" style="background:${color}">
           <svg viewBox="0 0 24 24" width="16" height="16" style="transform:rotate(${heading}deg); transition:transform 0.2s linear">
-            <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="#040611" />
+            <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="var(--beacon-stroke)" />
           </svg>
         </div>
         <div class="raptor-beacon-label">You</div>
@@ -104,7 +103,7 @@ function beaconIcon(heading, pulseDuration, alert) {
     iconSize: [48, 48],
     iconAnchor: [24, 24],
   });
-} 
+}
 
 function HeadingMarker({ lat, lon, heading, pulseDuration, alert }) {
   const markerRef = useRef(null);
@@ -344,6 +343,7 @@ function HomeField({ location, onOpenSettings }) {
   const [mapFailed, setMapFailed] = useState(false);
   const lastMag = useRef(null);
   const meshNodeRef = useRef(null);
+  const activeNodesRef = useRef([]);
   // --- NEW STATES FROM MOMMA RAPTOR ---
   const [alarmStatus, setAlarmStatus] = useState('CLEAR');
   const [activeNodes, setActiveNodes] = useState([]);
@@ -356,11 +356,11 @@ function HomeField({ location, onOpenSettings }) {
   const [showRadarOverlay, setShowRadarOverlay] = useState(false);
   const [showChatOverlay, setShowChatOverlay] = useState(false);
   const [showVariance, setShowVariance] = useState(true);
+  const [ghosts, setGhosts] = useState([]);
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
-  // Position history per node for trail rendering
-  const nodeHistoryRef = useRef(new Map()); // nodeId → [{lat, lon, ts}, ...] 
+  // Position history per node for trail rendering 
   // --- TOAST / NUDGE STATE ---
   const [toasts, setToasts] = useState([]);
   
@@ -393,8 +393,12 @@ function HomeField({ location, onOpenSettings }) {
     setSimBase(live.lat, live.lon);
   }, [live.lat, live.lon]);
  
-    // --- UPDATE UI FUNCTION ---
-    const updateUI = (stats) => {
+  useEffect(() => {
+    activeNodesRef.current = activeNodes;
+  }, [activeNodes]);
+
+  // --- UPDATE UI FUNCTION ---
+  const updateUI = (stats) => {
       const nodesOnline = document.getElementById('nodes-online');
       const friendsOnline = document.getElementById('friends-online');
       const relaysOnline = document.getElementById('relays-online');
@@ -441,27 +445,39 @@ function HomeField({ location, onOpenSettings }) {
         }
         else if (packet.typ === 'HBT') {
           const nodeId = packet.nid;
+          const lat = packet.d.lat;
+          const lon = packet.d.lon;
 
-          // Push to trail history
-          const hist = nodeHistoryRef.current.get(nodeId) || [];
-          hist.push({ lat: packet.d.lat, lon: packet.d.lon, ts: packet.ts });
-          if (hist.length > 30) hist.shift(); // keep last 30
-          nodeHistoryRef.current.set(nodeId, hist);
+          // Read from the REF, not the state — avoids stale closure
+          const prev = activeNodesRef.current.find((n) => n.id === nodeId);
 
-          // Derive movement state from packet
-          const movement = packet.d.mot || movementFromSpeed(packet.d.speed);
-          const isSelf = nodeId === 'SIM_N049A' && packet.d.mot; // adjust per your logic
-          // ^ OPTIONAL: mark as self if it's your own tag
+          // If moved meaningfully, leave a ghost at the old position
+          if (prev && (Math.abs(prev.lat - lat) > 0.00005 || Math.abs(prev.lng - lon) > 0.00005)) {
+            const ghost = {
+              id: `ghost-${Date.now()}-${Math.random()}`,
+              lat: prev.lat,
+              lon: prev.lng,
+              movement: prev.movement,
+              threat: prev.threat,
+              isSelf: prev.isSelf,
+              nickname: prev.nickname,
+              ts: Date.now(),
+            };
+            setGhosts((g) => [...g.slice(-50), ghost]);
+          }
 
-          setActiveNodes((prev) => {
-            const existing = prev.findIndex((n) => n.id === nodeId);
+          // Existing activeNodes update — unchanged
+          setActiveNodes((prevNodes) => {
+            const existing = prevNodes.findIndex((n) => n.id === nodeId);
+            const movement = packet.d.mot || 'idle';
+            const isSelf = false; // or whatever your logic was
             const node = {
               id: nodeId,
-              lat: packet.d.lat,
-              lng: packet.d.lon,
+              lat,
+              lng: lon,
               alias: packet.d.nickname || nodeId,
               nickname: packet.d.nickname || null,
-              threat: existing >= 0 ? prev[existing].threat : 'CLEAR',
+              threat: existing >= 0 ? prevNodes[existing].threat : 'CLEAR',
               movement,
               speed: packet.d.speed || 0,
               alarm: packet.d.alarm || 'off',
@@ -469,11 +485,11 @@ function HomeField({ location, onOpenSettings }) {
               unvouchedDots: 0,
             };
             if (existing >= 0) {
-              const next = [...prev];
+              const next = [...prevNodes];
               next[existing] = { ...next[existing], ...node };
               return next;
             }
-            return [...prev, node];
+            return [...prevNodes, node];
           });
         }
         else if (packet.typ === 'CHT') {
@@ -493,7 +509,13 @@ function HomeField({ location, onOpenSettings }) {
     }, []);
 
   
-
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const cutoff = Date.now() - 3000;
+      setGhosts((g) => g.filter((gh) => gh.ts > cutoff));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   // --- USB DEVICE SETUP ---
   useEffect(() => {
@@ -682,6 +704,7 @@ const [leafletMap, setLeafletMap] = useState(null);
         pulseDuration={pulseDuration} 
         onFail={() => setMapFailed(true)}
       >
+       
       <InitialRecenter lat={live.lat} lon={live.lon} />
 
       <OffScreenIndicators
@@ -731,6 +754,14 @@ const [leafletMap, setLeafletMap] = useState(null);
         {showRadarOverlay && (
           <RadarSweepMarker lat={live.lat} lon={live.lon} size={340} />
         )}
+
+         {ghosts.map((g) => (
+          <PersonGhost
+            key={g.id}
+            entity={g}
+            ageSec={(Date.now() - g.ts) / 1000}
+          />
+        ))}
         {/* Fusion packets — as Leaflet markers */}
         {fusionPackets.map((p) => (
           <FusionPacketMarker
@@ -742,14 +773,9 @@ const [leafletMap, setLeafletMap] = useState(null);
         ))}
         {/* Now the markers are children of the MapContainer! */}
         {activeNodes.map((node) => {
-          const trail = nodeHistoryRef.current.get(node.id) || [];
+          
           return (
-            <React.Fragment key={node.id}>
-              <PersonTrail
-                points={trail}
-                entity={node}
-                maxPoints={12}
-              />
+            <React.Fragment key={node.id}> 
               <PersonMarker
                 entity={node}
                 onSelect={setSelectedNode}
@@ -775,7 +801,7 @@ const [leafletMap, setLeafletMap] = useState(null);
             <DemoPilot
               bottomOffset={280}
               onRun={(fn, ...args) => {
-                const target = Sim[fn];
+                const target = window.Sim?.[fn];
                 if (typeof target === 'function') target(...args);
               }}
             /> 
@@ -808,54 +834,84 @@ const [leafletMap, setLeafletMap] = useState(null);
         />
       )}
 
-      <div className="pointer-events-none absolute inset-0 z-[400] bg-gradient-to-b from-raptor-void/70 via-transparent to-raptor-void/80" />
+      <div className="pointer-events-none absolute inset-0 z-[400] bg-gradient-to-b from-raptor-void/20 via-transparent to-raptor-void/45" />
 
-      <div className="absolute left-0 right-0 top-0 z-[500] flex items-center justify-between px-4 py-4">
-        <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur ${
-          dongleConnected 
-            ? 'border-emerald-500/30 bg-emerald-500/10' 
-            : 'border-amber-500/30 bg-amber-500/10'
-        }`}>
-          <RaptorMark className="h-4 w-4" />
-          <span className={`text-xs font-medium ${
-            dongleConnected ? 'text-emerald-300' : 'text-amber-300'
-          }`}>
-            {dongleConnected ? 'Live' : 'Simulation'}
-          </span>
-        </div>
+      <div className="absolute left-0 right-0 top-0 z-[500] flex items-center justify-between gap-1.5 px-2 py-3 sm:px-4 sm:py-4">
 
-        <div className="flex items-center gap-2 rounded-full border border-raptor-line bg-raptor-bg/90 px-3 py-1.5 backdrop-blur text-xs">
-          <span className="text-slate-400">Nodes: <span id="nodes-online" className="text-raptor-cyan font-bold">0</span></span>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-400">Friends: <span id="friends-online" className="text-emerald-400 font-bold">0</span></span>
-        </div>
+  {/* Left: Simulation pill — compress on small */}
+  <div
+    className="flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 backdrop-blur sm:px-3 sm:py-1.5"
+    style={{
+      background: 'var(--panel-bg)',
+      borderColor: dongleConnected ? 'var(--threat-friend)' : 'var(--threat-unknown)',
+    }}
+  >
+    <RaptorMark className="h-3 w-3 sm:h-4 sm:w-4" />
+    <span
+      className="text-[10px] sm:text-xs font-medium"
+      style={{ color: dongleConnected ? 'var(--threat-friend)' : 'var(--threat-unknown)' }}
+    >
+      <span className="hidden sm:inline">{dongleConnected ? 'Live' : 'Simulation'}</span>
+      <span className="sm:hidden">{dongleConnected ? 'LIVE' : 'SIM'}</span>
+    </span>
+  </div>
 
-    
+  {/* Center: Nodes + Friends — compress */}
+    <div
+      className="flex min-w-0 flex-shrink items-center gap-1 rounded-full border px-2 py-1 backdrop-blur text-[10px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+      style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
+    >
+      <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+        <span className="hidden sm:inline">Nodes: </span>
+        <span className="sm:hidden">N:</span>
+        <span id="nodes-online" className="font-bold" style={{ color: 'var(--accent)' }}>0</span>
+      </span>
+      <span style={{ color: 'var(--panel-border)' }}>|</span>
+      <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+        <span className="hidden sm:inline">Friends: </span>
+        <span className="sm:hidden">F:</span>
+        <span id="friends-online" className="font-bold" style={{ color: 'var(--threat-friend)' }}>0</span>
+      </span>
+    </div>
 
-        <div className="flex items-center gap-2">
-            {/* Variance toggle — NEW */}
-            <button
-              onClick={() => setShowVariance((v) => !v)}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur transition ${
-                showVariance
-                  ? 'border-raptor-cyan/50 bg-raptor-cyan/10 text-raptor-cyan'
-                  : 'border-raptor-line bg-raptor-bg/90 text-slate-400'
-              }`}
-              aria-label="Toggle variance circles"
-              title="Toggle variance circles"
-            >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </button>
+  {/* Right: Variance + Settings */}
+  <div className="flex flex-shrink-0 items-center gap-1.5">
+      <button
+        onClick={() => setShowVariance((v) => !v)}
+        className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border backdrop-blur transition"
+        style={{
+          background: showVariance ? 'var(--accent-soft)' : 'var(--panel-bg)',
+          borderColor: showVariance ? 'var(--accent)' : 'var(--panel-border)',
+          color: showVariance ? 'var(--accent)' : 'var(--text-muted)',
+        }}
+        aria-label="Toggle variance circles"
+        title="Toggle variance circles"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" className="sm:hidden">
+          <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="hidden sm:block">
+          <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
 
-            <button onClick={onOpenSettings} className="rounded-full border border-raptor-line bg-raptor-bg/90 p-2 text-slate-300 backdrop-blur hover:text-raptor-cyan">
-              <Settings className="h-4 w-4" />
-            </button>
-          </div>
+      <button
+        onClick={onOpenSettings}
+        className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border backdrop-blur transition"
+        style={{
+          background: 'var(--panel-bg)',
+          borderColor: 'var(--panel-border)',
+          color: 'var(--text-primary)',
+        }}
+        aria-label="Settings"
+      >
+        <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+      </button>
+  </div>
 
-      </div>
+</div>
 
       {mapFailed && (
         <div className="absolute left-4 right-4 top-16 z-[500] flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400 backdrop-blur">
@@ -864,13 +920,15 @@ const [leafletMap, setLeafletMap] = useState(null);
       )}
 
 
-      {/* --- NEW OVERLAY TOOLBAR --- */}
-
- 
- 
-
-     <div className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl border-t border-raptor-line bg-raptor-bg/95 px-4 pb-6 pt-4 backdrop-blur">
-
+      {/* --- NEW OVERLAY TOOLBAR --- */} 
+    <div
+    className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl px-4 pb-6 pt-4 backdrop-blur-xl"
+    style={{
+      background: 'var(--panel-bg)',
+      borderTop: '1px solid var(--panel-border)',
+      boxShadow: `0 -12px 40px ${'var(--panel-glow)'}`,
+    }}
+>
         {/* ─── PANEL 1: overlay toggles + mesh connect ─── */}
         <div className="raptor-panel-row">
           {/* Rewind */}
@@ -1004,17 +1062,19 @@ const [leafletMap, setLeafletMap] = useState(null);
   {toasts.map((t) => (
     <div
       key={t.id}
-      className="pointer-events-auto relative rounded-xl border border-raptor-line bg-raptor-bg/95 px-3 py-2 pr-8 backdrop-blur shadow-lg"
+      className="pointer-events-auto relative rounded-xl border px-3 py-2 pr-8 backdrop-blur shadow-lg"
+      style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
     >
-      <button
-        onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
-        className="absolute right-2 top-2 text-slate-500 hover:text-slate-200 transition-colors"
-        aria-label="Close"
-      >
-        ✕
-      </button>
+    <button
+      onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+      className="absolute right-2 top-2 transition-colors"
+      style={{ color: 'var(--text-muted)' }}
+      aria-label="Close"
+    >
+      ✕
+    </button>
       {t.title && (
-        <div className="mb-0.5 text-xs font-semibold text-raptor-cyan">
+        <div className="mb-0.5 text-xs font-semibold" style={{ color: 'var(--accent)' }}>
           {t.title}
         </div>
       )}
@@ -1035,9 +1095,13 @@ const [leafletMap, setLeafletMap] = useState(null);
 
 {/* ─── CHAT DRAWER ─── */}
 <div
-  className={`absolute right-0 top-0 bottom-0 z-[600] w-[min(340px,88vw)] border-l border-raptor-line bg-raptor-bg/95 backdrop-blur transition-transform duration-300 ${
+  className={`absolute right-0 top-0 bottom-0 z-[600] w-[min(340px,88vw)] border-l backdrop-blur transition-transform duration-300 ${
     showChatOverlay ? 'translate-x-0' : 'translate-x-full'
   }`}
+  style={{
+    background: 'var(--panel-bg-deep)',
+    borderLeftColor: 'var(--panel-border)',
+  }}
 >
   <div className="flex items-center justify-between border-b border-raptor-line px-4 py-3">
     <b className="text-sm text-slate-100">Mesh Chat</b>

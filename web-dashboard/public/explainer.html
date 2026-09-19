@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#122239" />
+<title>The Raptor's Call — Community Safety, Off-Grid</title>
+<meta name="description" content="An off-grid community safety network. Detect threats before they see you. No cell service required. No monthly fees." />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="The Raptor's Call — Community Safety, Off-Grid" />
+<meta property="og:description" content="Detect threats before they see you. Community-vetted. Works without cell service." />
+<meta property="og:image" content="/explainerImages/square-how%20to%20stop-lynchingsGemini_Generated_Image_yuu2n5yuu2n5yuu2.png" />
+
+<style>
+  /* ─── Design tokens ─── */
+  :root {
+    --orange: #f26928;
+    --orange-deep: #e08123;
+    --navy: #122239;
+    --navy-2: #1a2f4a;
+    --navy-3: #0d1a2b;
+    --cream: #f8f5f0;
+    --muted: #94a3b8;
+    --cyan: #22d3ee;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --emerald: #10b981;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--navy);
+    color: var(--cream);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; height: auto; display: block; }
+
+  a { color: var(--orange); text-decoration: none; }
+  a:hover { color: var(--amber); }
+
+  /* ─── Container ─── */
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 22px; }
+
+  /* ─── Sticky nav ─── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(18, 34, 57, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(242, 105, 40, 0.15);
+    padding: 12px 0;
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 22px;
+  }
+  .nav-logo { height: 32px; width: auto; }
+  .nav-cta {
+    padding: 8px 16px;
+    background: var(--orange);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 999px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .nav-cta:hover { background: var(--amber); color: var(--navy); transform: translateY(-1px); }
+
+  /* ─── Section base ─── */
+  section {
+    padding: 64px 0;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--orange);
+    margin-bottom: 12px;
+  }
+
+  h1, h2, h3 { margin: 0; line-height: 1.15; }
+
+  h1 {
+    font-size: clamp(34px, 8vw, 58px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: clamp(24px, 5vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  p { margin: 0 0 16px; font-size: 15px; }
+  p.lead { font-size: 17px; color: rgba(248, 245, 240, 0.82); }
+
+  /* ─── Hero ─── */
+  .hero {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(242, 105, 40, 0.25), transparent 55%),
+      radial-gradient(circle at 80% 90%, rgba(34, 211, 238, 0.10), transparent 50%),
+      var(--navy);
+    padding: 70px 0 90px;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/explainerImages/bg-transp-raptor-logo-500px.png');
+    background-size: 480px;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+
+  .hero-logo {
+    height: 72px;
+    width: auto;
+    margin: 0 auto 24px;
+  }
+
+  .hero h1 {
+    color: var(--cream);
+  }
+  .hero h1 .accent {
+    color: var(--orange);
+  }
+  .hero h1 .rose {
+    color: var(--rose);
+  }
+
+  .hero-tag {
+    margin-top: 22px;
+    font-size: 17px;
+    color: rgba(248, 245, 240, 0.82);
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(242, 105, 40, 0.35);
+    background: rgba(242, 105, 40, 0.08);
+    color: rgba(248, 245, 240, 0.85);
+    letter-spacing: 0.02em;
+  }
+
+  /* ─── Stat cards ─── */
+  .stats {
+    display: grid;
+    gap: 14px;
+  }
+  .stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px;
+    background: rgba(26, 47, 74, 0.55);
+    border: 1px solid rgba(242, 105, 40, 0.18);
+    border-radius: 14px;
+  }
+  .stat-num {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--orange);
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 96px;
+  }
+  .stat-body { flex: 1; }
+  .stat-label { font-size: 14px; color: var(--cream); }
+  .stat-source {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .stat-source a { color: var(--cyan); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ─── Cards ─── */
+  .card {
+    padding: 22px;
+    background: rgba(26, 47, 74, 0.55);
+    border: 1px solid rgba(242, 105, 40, 0.18);
+    border-radius: 14px;
+    margin-bottom: 12px;
+  }
+
+  /* ─── Step numbers ─── */
+  .step {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 22px;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: var(--navy);
+    font-weight: 900;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── CTA button ─── */
+  .cta {
+    display: block;
+    width: 100%;
+    padding: 18px 24px;
+    background: var(--orange);
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 16px;
+    text-align: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 0 8px 24px rgba(242, 105, 40, 0.35);
+    font-family: inherit;
+  }
+  .cta:hover { background: var(--amber); transform: translateY(-2px); }
+
+  .cta-secondary {
+    display: block;
+    width: 100%;
+    padding: 16px 24px;
+    background: transparent;
+    color: var(--cream);
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    border: 1.5px solid rgba(242, 105, 40, 0.4);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+    margin-top: 10px;
+  }
+  .cta-secondary:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ─── Loadout card ─── */
+  .loadout {
+    display: block;
+    padding: 22px;
+    background: linear-gradient(180deg, rgba(26, 47, 74, 0.7), rgba(13, 26, 43, 0.7));
+    border: 1px solid rgba(242, 105, 40, 0.25);
+    border-radius: 16px;
+    margin-bottom: 14px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    color: inherit;
+  }
+  .loadout:hover { border-color: var(--orange); transform: translateY(-2px); color: inherit; }
+  .loadout-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .loadout-id {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .loadout-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--cream);
+  }
+  .loadout-price {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--orange);
+    flex-shrink: 0;
+  }
+  .loadout-tag {
+    font-size: 13px;
+    color: rgba(248, 245, 240, 0.7);
+    margin-bottom: 12px;
+  }
+  .loadout-benefits {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+  .loadout-benefits li {
+    padding-left: 22px;
+    position: relative;
+    margin-bottom: 6px;
+    color: rgba(248, 245, 240, 0.85);
+  }
+  .loadout-benefits li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--emerald);
+    font-weight: 900;
+  }
+
+  /* ─── Images ─── */
+  .img-rounded {
+    border-radius: 18px;
+    border: 1px solid rgba(242, 105, 40, 0.25);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .img-shadow {
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  /* ─── Book cover / mission ─── */
+  .mission {
+    display: grid;
+    gap: 24px;
+    align-items: center;
+  }
+  @media (min-width: 640px) {
+    .mission { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ─── Pull quote ─── */
+  .quote {
+    padding: 22px;
+    background: rgba(242, 105, 40, 0.08);
+    border-left: 4px solid var(--orange);
+    border-radius: 0 14px 14px 0;
+    font-size: 15px;
+    color: rgba(248, 245, 240, 0.92);
+    line-height: 1.65;
+  }
+  .quote-author {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Divider ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242, 105, 40, 0.4), transparent);
+    margin: 0;
+    border: 0;
+  }
+
+  /* ─── Section alt background ─── */
+  .alt { background: rgba(13, 26, 43, 0.6); }
+
+  /* ─── Scroll reveal ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 40px 0 60px;
+    border-top: 1px solid rgba(242, 105, 40, 0.15);
+    background: var(--navy-3);
+    text-align: center;
+  }
+  .footer-logo { height: 40px; margin: 0 auto 18px; }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .footer-note {
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ─── Small screens ─── */
+  @media (max-width: 420px) {
+    section { padding: 48px 0; }
+    .stat-num { font-size: 24px; min-width: 80px; }
+    .loadout-head { flex-direction: column; }
+    .loadout-price { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────────── NAV ───────────── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <img src="/explainerImages/transp-raptor-logo.png" alt="The Raptor's Call" class="nav-logo" />
+    <a href="#join" class="nav-cta">Join the Network</a>
+  </div>
+</nav>
+
+<!-- ───────────── HERO ───────────── -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <img src="/explainerImages/transp-raptor-logo.png" alt="" class="hero-logo reveal" />
+    <h1 class="reveal">
+      <span class="rose">ATTACKED?</span> <span class="rose">SCARED?</span><br />
+      <span class="accent">PRESS THE BUTTON.</span>
+    </h1>
+    <p class="hero-tag reveal">
+      Help arrives in seconds — no cell service required.
+      A vetted community of neighbors, connected off-grid.
+    </p>
+    <div class="hero-badges reveal">
+      <span class="badge">Works offline</span>
+      <span class="badge">No monthly fees</span>
+      <span class="badge">No data sold</span>
+      <span class="badge">Vetted members only</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── THE PROBLEM ───────────── -->
+<section id="problem">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">The Reality</div>
+      <h2>Every year, in America:</h2>
+    </div>
+
+    <div class="stats">
+      <div class="stat reveal">
+        <div class="stat-num">600,000+</div>
+        <div class="stat-body">
+          <div class="stat-label">People reported missing in the US every year.</div>
+          <div class="stat-source">Source: <a href="https://www.fbi.gov/services/cjis/ncic" target="_blank" rel="noopener">NCIC Missing Person File, FBI</a></div>
+        </div>
+      </div>
+
+      <div class="stat reveal">
+        <div class="stat-num">3,004</div>
+        <div class="stat-body">
+          <div class="stat-label">Anti-Black hate crimes reported to the FBI in 2024.</div>
+          <div class="stat-source">Source: <a href="https://www.fbi.gov/services/cjis/ucr/hate-crime" target="_blank" rel="noopener">FBI Hate Crime Statistics, 2024</a></div>
+        </div>
+      </div>
+
+      <div class="stat reveal">
+        <div class="stat-num">70+</div>
+        <div class="stat-body">
+          <div class="stat-label">Suspected modern-day lynchings across 7 Southern states, 2000–2025.</div>
+          <div class="stat-source">Source: "A Crimson Record" report, 2025</div>
+        </div>
+      </div>
+
+      <div class="stat reveal">
+        <div class="stat-num">1 in 3</div>
+        <div class="stat-body">
+          <div class="stat-label">Homicides happen when the victim is alone and unwitnessed.</div>
+          <div class="stat-source">Source: <a href="https://ucr.fbi.gov/" target="_blank" rel="noopener">FBI Uniform Crime Report (aggregate)</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="margin-top:24px;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.08);">
+      <div style="font-weight:700;color:#fda4af;margin-bottom:6px;">In nearly every case, the victim was alone.</div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.85);">
+        No witness. No camera. No ally within reach. The attack was over before anyone could respond.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── THE SOLUTION ───────────── -->
+<section id="solution" class="alt">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">The Solution</div>
+      <h2>Now we have solutions.</h2>
+      <p class="lead">
+        The Raptor's Call is an off-grid community safety network. It connects vetted
+        neighbors on a private mesh that works with no cell service. Sensor nodes
+        and your phone see people around you — through walls, foliage, and darkness —
+        before they see you.
+      </p>
+    </div>
+
+    <div class="img-rounded img-shadow reveal">
+      <img src="/explainerImages/square-how to stop-lynchingsGemini_Generated_Image_yuu2n5yuu2n5yuu2.png"
+           alt="Joyful community safety — rescue confirmed" />
+    </div>
+
+    <div class="quote reveal">
+      "We don't have to be victims. If you feel unsafe, press the button. A loud alarm
+      sounds. The community is alerted. Help comes instantly — and you earn credits
+      for keeping your neighborhood safe."
+      <div class="quote-author">— Dr. Stephen Sutherland, MD</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── HOW IT WORKS ───────────── -->
+<section id="how">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">How It Works</div>
+      <h2>Three things, working together.</h2>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div>
+        <h3>Detect</h3>
+        <p>Sensor nodes and your phone see people through walls, foliage, and darkness — before they see you.</p>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div>
+        <h3>Connect</h3>
+        <p>Everyone vetted in your community is on the same private mesh. Encrypted. Off-grid. No cell towers.</p>
+      </div>
+    </div>
+
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div>
+        <h3>Respond</h3>
+        <p>One person presses the button. Everyone sees the location. Everyone comes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── WHO THIS IS FOR ───────────── -->
+<section id="who" class="alt">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">Who This Is For</div>
+      <h2>You belong here if...</h2>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">→ You want to be active, not passive.</div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.8);">
+        You're not looking for someone else to solve this. You're willing to show up when a neighbor is in danger.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">→ You're willing to be seen by your team.</div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.8);">
+        If your team can't see you, they can't rescue you. Visibility is reciprocal — everyone sees everyone.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">→ You accept the vetting process.</div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.8);">
+        References, background check, in-person verification. It's how we keep abusers out. It's why you can trust who's watching.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">→ You know someone who needs this.</div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.8);">
+        A teen who walks home alone. A parent who works late. A neighbor who lives on a quiet street. You're doing this for them too.
+      </div>
+    </div>
+
+    <p class="reveal" style="margin-top:24px;font-size:13px;color:var(--muted);text-align:center;">
+      If none of these describe you — that's okay. This isn't for everyone.
+    </p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── PRIVACY ───────────── -->
+<section id="privacy">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">Privacy & Trust</div>
+      <h2>Here's exactly how your location is handled.</h2>
+    </div>
+
+    <div class="card reveal" style="border-color:rgba(242,105,40,0.5);background:rgba(242,105,40,0.1);">
+      <div style="font-weight:700;font-size:15px;color:var(--orange);margin-bottom:6px;">
+        There is no hidden mode. This is intentional.
+      </div>
+      <div style="font-size:14px;color:rgba(248,245,240,0.9);">
+        If your team cannot see you, they cannot rescue you. Every member is visible to the team — and the team is visible to every member. Reciprocity is the foundation of trust.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">✓ Only vetted members see you</div>
+      <div style="font-size:13px;color:rgba(248,245,240,0.75);">
+        Before anyone can see your location, they go through in-person verification, references, and a background check. Known abusers are refused.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">✓ No names attached to dots</div>
+      <div style="font-size:13px;color:rgba(248,245,240,0.75);">
+        Your map presence is an anonymous ID. Nobody knows who is who except by your own choice to reveal.
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">✓ No company, no algorithm</div>
+      <div style="font-size:13px;color:rgba(248,245,240,0.75);">
+        This is not a product. There is no central server watching you. Your data stays on your device and inside the community.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── LOADOUTS ───────────── -->
+<section id="loadouts" class="alt">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">Choose Your Loadout</div>
+      <h2>The dashboard is free. The Key makes it real.</h2>
+      <p class="lead">
+        Start with what fits your situation. Every loadout is priced to sustain the mission — no hidden fees, no subscription traps.
+      </p>
+    </div>
+
+    <div class="img-rounded reveal" style="background:rgba(242,105,40,0.06);padding:24px;text-align:center;">
+      <img src="/explainerImages/the-raptors-key.jpeg"
+           alt="The Raptor's Key — 3-port USB-C mesh interface" style="max-width:340px;margin:0 auto;" />
+      <div style="margin-top:14px;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--orange);font-weight:700;">
+        The Raptor's Key
+      </div>
+    </div>
+
+    <a class="loadout reveal" href="https://sparklesnovel.gumroad.com/l/personalAlarm" target="_blank" rel="noopener">
+      <div class="loadout-head">
+        <div>
+          <div class="loadout-id">Loadout #1</div>
+          <div class="loadout-name">Personal Alarm & Off-Grid Beacon Tag</div>
+        </div>
+        <div class="loadout-price">$149</div>
+      </div>
+      <div class="loadout-tag">Wearable panic button + GPS beacon. Works with zero cell signal.</div>
+      <ul class="loadout-benefits">
+        <li>Instant alarm to your entire team</li>
+        <li>Silent mode for discreet alerts</li>
+        <li>Disguised as jewelry — necklace, bracelet, hairpin, waist beads</li>
+        <li>Rechargeable via solar</li>
+      </ul>
+    </a>
+
+    <a class="loadout reveal" href="https://sparklesnovel.gumroad.com/l/teamwork" target="_blank" rel="noopener">
+      <div class="loadout-head">
+        <div>
+          <div class="loadout-id">Loadout #2</div>
+          <div class="loadout-name">The Raptor's Key — Off-Grid Mesh Interface</div>
+        </div>
+        <div class="loadout-price">$129</div>
+      </div>
+      <div class="loadout-tag">Three-port USB-C interface. Turns any phone into a mesh + radar station.</div>
+      <ul class="loadout-benefits">
+        <li>Accepts the mesh node, radar module, and charging</li>
+        <li>Detects people through walls and foliage</li>
+        <li>Encrypted team messaging — no monthly fees</li>
+        <li>This is what unlocks real-world detection</li>
+      </ul>
+    </a>
+
+    <a class="loadout reveal" href="https://sparklesnovel.gumroad.com/l/l_3_relays" target="_blank" rel="noopener">
+      <div class="loadout-head">
+        <div>
+          <div class="loadout-id">Loadout #3</div>
+          <div class="loadout-name">Raptor-Relay Tree Canopy Solar Node</div>
+        </div>
+        <div class="loadout-price">$149</div>
+      </div>
+      <div class="loadout-tag">Solar-powered repeater that extends neighborhood range indefinitely.</div>
+      <ul class="loadout-benefits">
+        <li>Extends mesh coverage by miles</li>
+        <li>Runs indefinitely on solar</li>
+        <li>Weatherproof — mounts in tree canopy</li>
+        <li>Relays traffic without seeing your data</li>
+      </ul>
+    </a>
+
+    <p class="reveal" style="margin-top:20px;font-size:13px;color:var(--muted);text-align:center;">
+      More loadouts available at <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">sparklesnovel.gumroad.com</a>
+    </p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ───────────── CTA ───────────── -->
+<section id="join">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;">
+      <div class="eyebrow">Get Started</div>
+      <h2>Ready to see it?</h2>
+      <p class="lead" style="max-width:500px;margin:0 auto 32px;">
+        Try the free dashboard. Watch the demo. Buy the gear when you're ready to make it real.
+      </p>
+    </div>
+
+    <a class="cta reveal" href="https://theraptors.netlify.app" target="_blank" rel="noopener">
+      Open the Live Dashboard
+    </a>
+    <a class="cta-secondary reveal" href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">
+      Browse Loadouts on Gumroad
+    </a>
+    <a class="cta-secondary reveal" href="mailto:DrSutherlandMD@proton.me?subject=Group%20Demo%20Request">
+      Book Dr. Sutherland for a Group Demo
+    </a>
+  </div>
+</section>
+
+<!-- ───────────── FOOTER ───────────── -->
+<footer>
+  <div class="wrap">
+    <img src="/explainerImages/transp-raptor-logo-500px.png" alt="" class="footer-logo" />
+    <div class="footer-links">
+      <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+      <a href="/affiliate.html" target="_blank" rel="noopener">Become an Affiliate</a>
+      <a href="mailto:DrSutherlandMD@proton.me">Contact</a>
+    </div>
+    <p class="footer-note">
+      The Raptor's Call — an off-grid community safety network. Chrome on Android recommended for full detection features. No data sold. No subscription fees.
+    </p>
+  </div>
+</footer>
+
+<!-- ───────────── SCROLL REVEAL ───────────── -->
+<script>
+  (function () {
+    const els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      // Fallback — just show everything
+      els.forEach((el) => el.classList.add('visible'));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    els.forEach((el) => observer.observe(el));
+  })();
+</script>
+
+</body>
+</html>

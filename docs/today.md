@@ -352,3 +352,29 @@ const saveStatus = () => {
 
 what is the difference between draftThreat and draftStatus 
 and how is that represented on screen 
+
+===============
+september 19 
+
+Thanks all done - 
+Question:  about the 3 mock nodes. I am hoping they this appear when it goes from sim mode to live mode please confirm ----
+--- 
+requesting rewind slider solution 
+Fix 3 — Rewind Slider (When You're Ready)
+This is bigger. When you have an hour, we build:
+
+A historyRef that stores every HBT with timestamp
+
+A slider at the bottom of the screen (0 to 100%) that scrubs through time
+
+When isRewinding is true, hide live markers and render a "historic frame" — all person icons that existed at that timestamp
+
+A play/pause button to auto-scrub
+
+Simplest version for now — when Rewind is on, render all stored positions with a timeline slider below the map:
+
+text
+◀◀ ——●———————— ▶▶  T-00:42
+I'll write this when you're back from the library. It's about 60 lines.
+
+-----------

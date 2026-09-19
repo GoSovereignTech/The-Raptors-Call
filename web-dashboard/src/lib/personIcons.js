@@ -57,31 +57,27 @@ export function movementFromSpeed(mps) {
 }
 
 // Threat level → color. `self` and abduction-pattern override.
+// Threat level → color. Values are CSS variables so themes can override them.
 export const THREAT_COLORS = {
-  friend: '#10b981',
-  enemy: '#f43f5e',
-  unknown: '#eab308',
-  self: '#22d3ee',
+  friend:  'var(--threat-friend)',
+  enemy:   'var(--threat-enemy)',
+  unknown: 'var(--threat-unknown)',
+  self:    'var(--threat-self)',
 };
 
 export function colorForEntity(entity) {
-  // Self
   if (entity.isSelf) {
-    // Abduction pattern: self moving at car/plane speed unexpectedly
     if (entity.movement === 'car' || entity.movement === 'plane') {
       return THREAT_COLORS.enemy;
     }
     return THREAT_COLORS.self;
   }
-  // Enemies
   if (entity.threat === 'enemy' || entity.threat === 'CONFIRMED_OPPOSITION' || entity.threat === 'threat') {
     return THREAT_COLORS.enemy;
   }
-  // Friends
   if (entity.threat === 'friend' || entity.threat === 'CLEAR') {
     return THREAT_COLORS.friend;
   }
-  // Unknown / stranger
   return THREAT_COLORS.unknown;
 }
 

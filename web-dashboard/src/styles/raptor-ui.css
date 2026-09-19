@@ -29,42 +29,41 @@
 .raptor-chiprow::-webkit-scrollbar {
   display: none;
 }
-
 .raptor-chip {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--bg2);
-  border: 1px solid var(--line);
-  color: #cbd5e1;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text, #0c1a28);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
-  font-family: inherit;
+  box-shadow: 0 2px 6px rgba(12, 26, 40, 0.08);
 }
 
+.raptor-chip:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.raptor-chip.active {
+  border-color: var(--accent);
+  background: #a8d4e6;
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset, 0 4px 12px var(--accent-glow);
+}
+
+/*  i left .raptor-chip svg from */
 .raptor-chip svg {
   width: 14px;
   height: 14px;
   flex: 0 0 auto;
 }
-
-.raptor-chip:hover {
-  border-color: rgba(34, 211, 238, 0.3);
-  color: #e2e8f0;
-}
-
-.raptor-chip.active {
-  border-color: rgba(34, 211, 238, 0.5);
-  background: rgba(34, 211, 238, 0.12);
-  color: var(--cyan);
-  box-shadow: 0 0 12px -4px rgba(34, 211, 238, 0.4);
-}
-
 /* ============================================================
    SPEED GROUP (0.5x / 1x / 2x / 5x)
    ============================================================ */
@@ -129,26 +128,42 @@
   height: 16px;
 }
 
-/* Loud alarm — red/orange gradient with glow */
+/* .raptor-btn-loud   */
+
 .raptor-btn-loud {
-  background: linear-gradient(135deg, #fb923c, var(--threat));
+  background: linear-gradient(135deg, var(--alarm-loud-from), var(--alarm-loud-to));
   color: #fff;
-  box-shadow: 0 0 22px -4px rgba(244, 63, 94, 0.55);
+  box-shadow: 0 8px 20px -6px var(--alarm-loud-to),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              inset 0 -2px 0 rgba(0, 0, 0, 0.15);
 }
 .raptor-btn-loud:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 0 28px -4px rgba(244, 63, 94, 0.7);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -6px var(--alarm-loud-to),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.raptor-btn-loud:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px -4px var(--alarm-loud-to),
+              inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Silent alarm — amber outline */
 .raptor-btn-silent {
-  background: transparent;
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  color: var(--amber);
+  background: var(--silent-bg, #0c1a28);
+  border: 1.5px solid var(--silent-border, #4db8d8);
+  color: var(--silent-text, #4db8d8);
+  box-shadow: 0 4px 12px -4px rgba(12, 26, 40, 0.4);
 }
 .raptor-btn-silent:hover {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.7);
+  background: #0f2233;
+  border-color: #6ec9e6;
+  color: #6ec9e6;
+  transform: translateY(-1px);
+}
+.raptor-btn-silent:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Stop button — full width, red outline */
@@ -335,36 +350,46 @@
 /* NEW - Panel 1: chip row + connect button */
 .raptor-panel-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;              /* ← Never wrap */
+  gap: 6px;
   align-items: center;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   border-bottom: 1px solid rgba(28, 37, 64, 0.6);
+  overflow: hidden;
 }
 
 .raptor-panel-row .raptor-chip {
-  flex: 0 0 auto;
-  min-width: 80px;
+  flex: 1 1 0;                    /* ← Equal share */
+  min-width: 0;                   /* ← Allow shrink */
   justify-content: center;
+  padding: 8px 6px;
+  font-size: 11px;
+  gap: 4px;
 }
 
-/* Connect Meshtastic chip — pushed to the right on wide screens */
-.raptor-panel-row .raptor-chip-connect {
-  min-width: 160px;
-  margin-left: auto;
+.raptor-panel-row .raptor-chip svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
-.raptor-panel-row .raptor-chip-connect.connected {
-  border-color: rgba(16, 185, 129, 0.5);
-  background: rgba(16, 185, 129, 0.12);
-  color: #6ee7b7;
+.raptor-panel-row .raptor-chip span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* On narrow screens, connect chip drops to its own row */
-@media (max-width: 480px) {
-  .raptor-panel-row .raptor-chip-connect {
-    margin-left: 0;
-    flex: 1 0 100%;
+/* Very small screens — icons only, hide labels */
+@media (max-width: 360px) {
+  .raptor-panel-row .raptor-chip span {
+    display: none;
+  }
+  .raptor-panel-row .raptor-chip {
+    padding: 10px 4px;
+  }
+  .raptor-panel-row .raptor-chip svg {
+    width: 16px;
+    height: 16px;
   }
 }
