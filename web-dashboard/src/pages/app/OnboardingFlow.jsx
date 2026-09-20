@@ -13,6 +13,7 @@ import SplashPage from '../../components/SplashPage.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
 import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
+import { EntityDetailPanel } from '../../components/EntityDetailPanel.jsx';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
 import { registerSimHandler, registerClearHandler, setSimBase } from '../../lib/simulation.js';
@@ -24,6 +25,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '@maplibre/maplibre-gl-leaflet'; 
 import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
 import { movementFromSpeed } from '../../lib/personIcons.js';
+
+import { useMemo } from 'react';
+import { enrichEntity, sortEntities, setProfileDb } from '../../lib/entityProfiles.js';
+import { saveProfile } from '../../lib/entityProfiles.js';
+
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -351,7 +357,12 @@ function HomeField({ location, onOpenSettings }) {
   const [initialAlarmLocation, setInitialAlarmLocation] = useState(null);
   const [nodeThreatDescription, setNodeThreatDescription] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
-    // --- OVERLAY STATES ---
+
+  // -- state for personal detail.
+  const [detailEntity, setDetailEntity] = useState(null);
+  const [detailCategory, setDetailCategory] = useState('friend');
+  const [highlightedId, setHighlightedId] = useState(null);
+  // --- OVERLAY STATES ---
   const [showMeshOverlay, setShowMeshOverlay] = useState(false);
   const [showRadarOverlay, setShowRadarOverlay] = useState(false);
   const [showChatOverlay, setShowChatOverlay] = useState(false);
@@ -397,8 +408,62 @@ function HomeField({ location, onOpenSettings }) {
     activeNodesRef.current = activeNodes;
   }, [activeNodes]);
 
+
+  // -- start  of the block 
+  // After your other hooks:
+
+const allEntities = useMemo(() => {
+  const friends = activeNodes
+    .filter((n) => !n.isSelf)
+    .map((n) => ({ ...enrichEntity(n), _type: 'node' }));
+  const fusions = fusionPackets.map((p) => ({
+    id: p.id,
+    nid: p.nid,
+    lat: p.d?.lat,
+    lng: p.d?.lon,
+    threat: p.d?.conf >= 80 ? 'threat' : 'unknown',
+    movement: p.d?.mot,
+    alarm: p.d?.mode === 'SCR' ? 'loud' : p.d?.mode === 'SIL' ? 'silent' : 'off',
+    _type: 'fusion',
+    _packet: p,
+  }));
+  return sortEntities([...friends, ...fusions], { lat: live.lat, lon: live.lon });
+}, [activeNodes, fusionPackets, live.lat, live.lon]);
+
+const navigateCategory = (direction) => {
+  const current = detailEntity;
+  if (!current) return;
+  const inCategory = allEntities.filter((e) => {
+    const cat = e.threat === 'enemy' || e.threat === 'threat' ? 'enemy'
+      : e.threat === 'friend' || e.threat === 'CLEAR' ? 'friend'
+      : 'unknown';
+    return cat === detailCategory;
+  });
+  const idx = inCategory.findIndex((e) => e.id === current.id);
+  const next = inCategory[idx + direction];
+  if (next) {
+    setDetailEntity(next);
+    setHighlightedId(next.id);
+    if (leafletMap) {
+      leafletMap.flyTo([next.lat, next.lng ?? next.lon], Math.max(leafletMap.getZoom(), 16), { duration: 0.6 });
+    }
+  }
+};
+
+const openDetail = (entity) => {
+  setDetailEntity(entity);
+  setHighlightedId(entity.id);
+  // Auto-detect category
+  const cat = entity.threat === 'enemy' || entity.threat === 'threat' ? 'enemy'
+    : entity.threat === 'friend' || entity.threat === 'CLEAR' ? 'friend'
+    : 'unknown';
+  setDetailCategory(cat);
+};
+
+// -- end of the block 
+
   // --- UPDATE UI FUNCTION ---
-  const updateUI = (stats) => {
+    const updateUI = (stats) => {
       const nodesOnline = document.getElementById('nodes-online');
       const friendsOnline = document.getElementById('friends-online');
       const relaysOnline = document.getElementById('relays-online');
@@ -777,8 +842,10 @@ const [leafletMap, setLeafletMap] = useState(null);
           return (
             <React.Fragment key={node.id}> 
               <PersonMarker
+                key={node.id}
                 entity={node}
-                onSelect={setSelectedNode}
+                onSelect={openDetail}
+                highlighted={node.id === highlightedId}
               />
             </React.Fragment>
           );
@@ -812,27 +879,42 @@ const [leafletMap, setLeafletMap] = useState(null);
      
       {/* Detail panel is OUTSIDE LiveMap — it's a floating panel, not a marker */}
       
-      {selectedFusion && (
-        <FusionDetailPanel
-          packet={selectedFusion}
-          onClose={() => setSelectedFusion(null)}
-          onStatusChange={(change) => {
-            console.log('[STATUS CHANGE]', change);
-            // Update the entity's threat level in fusionPackets
-            setFusionPackets((prev) =>
-              prev.map((p) =>
-                p.id === change.entityId
-                  ? { ...p, d: { ...p.d, threat: change.threat, threatReason: change.reason } }
-                  : p
-              )
-            );
-            showToast(`Status set to ${change.threat}. Reason: ${change.reason}`, {
-              title: 'Status saved',
-              duration: 4000,
-            });
-          }}
-        />
-      )}
+      {detailEntity && (
+  <EntityDetailPanel
+    entity={detailEntity}
+    allEntities={allEntities}
+    activeCategory={detailCategory}
+    onCategoryChange={(cat) => {
+      setDetailCategory(cat);
+      // Auto-select first entity in that category
+      const first = allEntities.find((e) => {
+        const c = e.threat === 'enemy' || e.threat === 'threat' ? 'enemy'
+          : e.threat === 'friend' || e.threat === 'CLEAR' ? 'friend'
+          : 'unknown';
+        return c === cat;
+      });
+      if (first) {
+        setDetailEntity(first);
+        setHighlightedId(first.id);
+        if (leafletMap) leafletMap.flyTo([first.lat, first.lng ?? first.lon], 16, { duration: 0.6 });
+      }
+    }}
+    onNavigate={navigateCategory}
+    onCenter={(e) => {
+      if (leafletMap) leafletMap.flyTo([e.lat, e.lng ?? e.lon], 17, { duration: 0.6 });
+    }}
+    onClose={() => {
+      setDetailEntity(null);
+      setHighlightedId(null);
+    }}
+    onStatusChange={(change) => {
+      setActiveNodes((prev) =>
+        prev.map((n) => (n.id === change.entityId ? { ...n, threat: change.threat, threatReason: change.reason } : n))
+      );
+      showToast(`Reclassified as ${change.threat}`, { title: 'Status saved' });
+    }}
+  />
+)}
 
       <div className="pointer-events-none absolute inset-0 z-[400] bg-gradient-to-b from-raptor-void/20 via-transparent to-raptor-void/45" />
 
@@ -857,22 +939,28 @@ const [leafletMap, setLeafletMap] = useState(null);
   </div>
 
   {/* Center: Nodes + Friends — compress */}
-    <div
-      className="flex min-w-0 flex-shrink items-center gap-1 rounded-full border px-2 py-1 backdrop-blur text-[10px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
-      style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
-    >
-      <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
-        <span className="hidden sm:inline">Nodes: </span>
-        <span className="sm:hidden">N:</span>
-        <span id="nodes-online" className="font-bold" style={{ color: 'var(--accent)' }}>0</span>
-      </span>
-      <span style={{ color: 'var(--panel-border)' }}>|</span>
-      <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
-        <span className="hidden sm:inline">Friends: </span>
-        <span className="sm:hidden">F:</span>
-        <span id="friends-online" className="font-bold" style={{ color: 'var(--threat-friend)' }}>0</span>
-      </span>
-    </div>
+   
+      <button
+        onClick={() => {
+          const first = allEntities.find((e) => e.threat === 'friend' || e.threat === 'CLEAR');
+          if (first) openDetail(first);
+        }}
+        className="flex min-w-0 flex-shrink items-center gap-1 rounded-full border px-2 py-1 backdrop-blur text-[10px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+        style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
+      >
+        <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+          <span className="hidden sm:inline">Nodes: </span>
+          <span className="sm:hidden">N:</span>
+          <span id="nodes-online" className="font-bold" style={{ color: 'var(--accent)' }}>0</span>
+        </span>
+        <span style={{ color: 'var(--panel-border)' }}>|</span>
+        <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+          <span className="hidden sm:inline">Friends: </span>
+          <span className="sm:hidden">F:</span>
+          <span id="friends-online" className="font-bold" style={{ color: 'var(--threat-friend)' }}>0</span>
+        </span>
+      </button>
+ 
 
   {/* Right: Variance + Settings */}
   <div className="flex flex-shrink-0 items-center gap-1.5">
@@ -1103,16 +1191,19 @@ const [leafletMap, setLeafletMap] = useState(null);
     borderLeftColor: 'var(--panel-border)',
   }}
 >
-  <div className="flex items-center justify-between border-b border-raptor-line px-4 py-3">
-    <b className="text-sm text-slate-100">Mesh Chat</b>
-    <button
-      onClick={() => setShowChatOverlay(false)}
-      className="text-slate-400 hover:text-slate-100"
-      aria-label="Close chat"
+   <div
+      className="flex items-center justify-between border-b px-4 py-3"
+      style={{ background: 'var(--chat-header-bg)', borderColor: 'var(--panel-border)' }}
     >
-      ✕
-    </button>
-  </div>
+      <b className="text-sm" style={{ color: 'var(--chat-header-text)' }}>Mesh Chat</b>
+      <button
+        onClick={() => setShowChatOverlay(false)}
+        style={{ color: 'var(--chat-header-text)', opacity: 0.7 }}
+        aria-label="Close chat"
+      >
+        ✕
+      </button>
+    </div>
   <div className="flex h-[calc(100%-56px)] flex-col">
     <div className="flex-1 space-y-2 overflow-y-auto p-3">
 
@@ -1123,25 +1214,35 @@ const [leafletMap, setLeafletMap] = useState(null);
           </div>
         ) : (
           chatMessages.map((m) => (
-            <div key={m.id} className="rounded-lg bg-raptor-bg2 px-3 py-2 text-xs">
-              <div className="mb-0.5 text-[10px] font-semibold text-raptor-cyan">
+            <div
+              key={m.id}
+              className="rounded-lg px-3 py-2 text-xs"
+              style={{ background: 'var(--chat-bubble-bg)', color: 'var(--chat-bubble-text)' }}
+            >
+              <div className="mb-0.5 text-[10px] font-semibold" style={{ color: 'var(--accent)' }}>
                 {m.from} · {new Date(m.ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
-              <div className="text-slate-200">{m.text}</div>
+              <div>{m.text}</div>
             </div>
           ))
         )}
       </div>
     </div>
-    <div className="flex gap-2 border-t border-raptor-line p-3">
+    <div className="flex gap-2 border-t p-3" style={{ borderColor: 'var(--panel-border)' }}>
       <input
         type="text"
         placeholder="Message the mesh…"
         maxLength={140}
-        className="flex-1 rounded-lg border border-raptor-line bg-raptor-bg2 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-raptor-cyan"
+        className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none"
+        style={{
+          background: 'var(--chat-input-bg)',
+          color: 'var(--chat-input-text)',
+          borderColor: 'var(--panel-border)',
+        }}
       />
       <button
-        className="rounded-lg bg-raptor-cyan px-4 text-sm font-bold text-raptor-void"
+        className="rounded-lg px-4 text-sm font-bold"
+        style={{ background: 'var(--chat-send-bg)', color: 'var(--chat-send-text)' }}
         onClick={() => showNudge('chat')}
       >
         Send

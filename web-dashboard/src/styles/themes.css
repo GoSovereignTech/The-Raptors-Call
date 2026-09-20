@@ -57,6 +57,27 @@
   --beacon-fill:    #3cb5e8;
   --beacon-stroke:  #0c1a28;
   --beacon-label-bg: #0c1a28;
+
+  /* added */ 
+  /* Person icon outline (replaces solid marker background) */
+--marker-outline: #0c1a28;
+--marker-outline-width: 1.5px;
+
+/* Demo caption (theme-aware) */
+--caption-bg: #0c1a28;
+--caption-border: #f59e0b;
+--caption-text: #fef3c7;
+--caption-accent: #f59e0b;
+
+/* Chat drawer */
+--chat-header-bg: #0c1a28;
+--chat-header-text: #e0f2fe;
+--chat-bubble-bg: #0c1a28;
+--chat-bubble-text: #e0f2fe;
+--chat-input-bg: #0c1a28;
+--chat-input-text: #e0f2fe;
+--chat-send-bg: #38bdf8;
+--chat-send-text: #0c1a28;
 }
 
 /* ═══ THEME: Desert Sand ═══ */
@@ -92,6 +113,22 @@
   --beacon-fill:   #f97316;
   --beacon-stroke: #1a1206;
   --beacon-label-bg: #1a1206;
+
+  /* added */
+    --marker-outline: #1a1206;
+  --caption-bg: #1a1206;
+  --caption-border: #f97316;
+  --caption-text: #fef3c7;
+  --caption-accent: #f97316;
+  --chat-header-bg: #1a1206;
+  --chat-header-text: #fef3c7;
+  --chat-bubble-bg: #1a1206;
+  --chat-bubble-text: #fef3c7;
+  --chat-input-bg: #1a1206;
+  --chat-input-text: #fef3c7;
+  --chat-send-bg: #f97316;
+  --chat-send-text: #1a1206;
+  
 }
 
 /* ═══ THEME: Tactical Green ═══ */
@@ -127,4 +164,19 @@
   --beacon-fill:   #4ade80;
   --beacon-stroke: #05140c;
   --beacon-label-bg: #05140c;
+
+  /* added */
+    --marker-outline: #05140c;
+    --caption-bg: #05140c;
+    --caption-border: #4ade80;
+    --caption-text: #dcfce7;
+    --caption-accent: #4ade80;
+    --chat-header-bg: #05140c;
+    --chat-header-text: #dcfce7;
+    --chat-bubble-bg: #05140c;
+    --chat-bubble-text: #dcfce7;
+    --chat-input-bg: #05140c;
+    --chat-input-text: #dcfce7;
+    --chat-send-bg: #4ade80;
+    --chat-send-text: #05140c;
 }

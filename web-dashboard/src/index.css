@@ -19,9 +19,7 @@
 .leaflet-control-attribution a {
   color: #22d3ee !important;
 }
-.leaflet-tile-pane {
-  filter: saturate(0.85) brightness(0.9);
-}
+ 
 
 /* Pulsing "you are here" beacon used on the live map marker. */
 .raptor-beacon-icon {

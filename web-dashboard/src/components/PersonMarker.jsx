@@ -12,15 +12,13 @@ import {
  
 
 // ─── The main marker ───
-export function PersonMarker({ entity, onSelect }) {
+export function PersonMarker({ entity, onSelect, highlighted = false }) {
   const color = colorForEntity(entity);
   const movement = entity.movement || movementFromSpeed(entity.speed) || 'idle';
   const svg = MOVEMENT_SVG[movement] || MOVEMENT_SVG.idle;
-  const size = entity.isSelf ? 48 : 40;
-  const innerSize = Math.round(size * 0.72);
+  const size = entity.isSelf ? 44 : 36;
   const half = size / 2;
 
-  // ─── Badge for enemy/unknown (colorblind-safe signal) ───
   const isEnemy = entity.threat === 'enemy'
     || entity.threat === 'CONFIRMED_OPPOSITION'
     || entity.threat === 'threat';
@@ -30,57 +28,55 @@ export function PersonMarker({ entity, onSelect }) {
     && entity.threat !== 'CLEAR';
 
   const badge = isEnemy
-    ? `<div style="position:absolute;top:-4px;left:-4px;width:16px;height:16px;border-radius:50%;background:var(--threat-enemy);color:#040b14;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid var(--beacon-stroke);">!</div>`
+    ? `<div style="position:absolute;top:-3px;left:-3px;width:14px;height:14px;border-radius:50%;background:var(--threat-enemy);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);">!</div>`
     : isUnknown
-    ? `<div style="position:absolute;top:-4px;left:-4px;width:16px;height:16px;border-radius:50%;background:var(--threat-unknown);color:#040b14;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid var(--beacon-stroke);">?</div>`
+    ? `<div style="position:absolute;top:-3px;left:-3px;width:14px;height:14px;border-radius:50%;background:var(--threat-unknown);color:#0c1a28;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);">?</div>`
     : '';
 
   const alarmBadge = entity.alarm && entity.alarm !== 'off'
-    ? `<div style="position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:var(--threat-enemy);color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--beacon-stroke);animation:personAlarmPulse 1s ease-in-out infinite;">
-         <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+    ? `<div style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--threat-enemy);color:#fff;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);animation:personAlarmPulse 1s ease-in-out infinite;">
+         <svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor">
            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
            <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
          </svg>
        </div>`
     : '';
 
-  const nicknameLabel = entity.nickname
-  ? `<div style="position:absolute;top:100%;left:50%;
-      transform:translateX(-50%);margin-top:2px;
-      white-space:nowrap;font-size:9px;
-      font-weight:600;
-      color:var(--badge-text, #0c1a28);
-      background:var(--badge-bg, #ffffff);
-      padding:1px 6px;border-radius:8px;
-      border:1px solid var(--badge-border, rgba(12,26,40,0.15));">${entity.nickname}</div>`
-  : '';
+  const highlightRing = highlighted
+    ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${size + 16}px;height:${size + 16}px;border-radius:50%;border:2px solid ${color};animation:highlightPulse 1.5s ease-in-out infinite;pointer-events:none;"></div>`
+    : '';
 
   const icon = L.divIcon({
     className: 'person-marker',
     html: `
       <div style="position:relative;width:${size}px;height:${size}px;">
+        ${highlightRing}
         <div style="
           position:absolute;inset:0;
-          border-radius:50%;
-          background:var(--marker-bg);
-          border:2px solid ${color};
-          box-shadow:0 0 14px ${color}, 0 4px 12px rgba(0,0,0,0.4);
-        "></div>
-        <div style="
-          position:absolute;top:50%;left:50%;
-          transform:translate(-50%,-50%);
-          width:${innerSize}px;height:${innerSize}px;
           display:flex;align-items:center;justify-content:center;
           color:${color};
+          filter:
+            drop-shadow(1px 0 0 var(--marker-outline))
+            drop-shadow(-1px 0 0 var(--marker-outline))
+            drop-shadow(0 1px 0 var(--marker-outline))
+            drop-shadow(0 -1px 0 var(--marker-outline))
+            drop-shadow(1px 1px 0 var(--marker-outline))
+            drop-shadow(-1px -1px 0 var(--marker-outline))
+            drop-shadow(1px -1px 0 var(--marker-outline))
+            drop-shadow(-1px 1px 0 var(--marker-outline))
+            drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         ">${svg}</div>
         ${badge}
         ${alarmBadge}
-        ${nicknameLabel}
       </div>
       <style>
         @keyframes personAlarmPulse {
           0%,100% { transform:scale(1); }
           50% { transform:scale(1.25); }
+        }
+        @keyframes highlightPulse {
+          0%,100% { transform:translate(-50%,-50%) scale(0.95); opacity:0.8; }
+          50% { transform:translate(-50%,-50%) scale(1.15); opacity:0.2; }
         }
         .person-marker svg { width:100%; height:100%; }
       </style>
@@ -109,27 +105,24 @@ export function PersonGhost({ entity, ageSec }) {
   const half = size / 2;
 
   const icon = L.divIcon({
-    className: 'person-ghost',
-    html: `
-      <div style="
-        width:${size}px;height:${size}px;
-        border-radius:50%;
-        background:var(--marker-bg);
-        border:1.5px solid ${color};
-        opacity:${opacity.toFixed(2)};
-        display:flex;align-items:center;justify-content:center;
-        color:${color};
-        box-shadow:0 0 6px ${color};
-      ">
-        <div style="width:70%;height:70%;display:flex;align-items:center;justify-content:center;">
-          ${svg}
-        </div>
-      </div>
-      <style>.person-ghost svg { width:100%; height:100%; }</style>
-    `,
-    iconSize: [size, size],
-    iconAnchor: [half, half],
-  });
+  className: 'person-ghost',
+  html: `
+    <div style="
+      width:${size}px;height:${size}px;
+      display:flex;align-items:center;justify-content:center;
+      color:${color};
+      opacity:${opacity.toFixed(2)};
+      filter:
+        drop-shadow(1px 0 0 var(--marker-outline))
+        drop-shadow(-1px 0 0 var(--marker-outline))
+        drop-shadow(0 1px 0 var(--marker-outline))
+        drop-shadow(0 -1px 0 var(--marker-outline));
+    ">${svg}</div>
+    <style>.person-ghost svg { width:100%; height:100%; }</style>
+  `,
+  iconSize: [size, size],
+  iconAnchor: [half, half],
+});
 
   return (
     <Marker

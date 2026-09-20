@@ -73,10 +73,14 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
       {/* Advance button — repositioned on small screens via inline style */}
       <button
         onClick={advance}
-        className="absolute right-2 sm:right-4 z-[560] flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/20 backdrop-blur text-amber-300 shadow-lg transition hover:bg-amber-500/40 active:scale-95"
-        style={{ bottom: `${bottomOffset}px` }}
+        className="absolute right-2 sm:right-4 z-[560] flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border backdrop-blur transition active:scale-95"
+        style={{
+          bottom: `${bottomOffset}px`,
+          background: 'var(--caption-bg)',
+          borderColor: 'var(--caption-border)',
+          color: 'var(--caption-accent)',
+        }}
         aria-label="Advance demo"
-        title="Advance demo step"
       >
         <Play className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
@@ -87,16 +91,19 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          className="absolute left-2 right-14 sm:right-16 z-[560] cursor-grab active:cursor-grabbing rounded-md border border-amber-500/40 bg-raptor-bg/90 backdrop-blur px-2.5 py-1.5 shadow-lg text-[11px] sm:text-xs text-amber-100 select-none touch-none"
+          className="absolute left-2 right-14 sm:right-16 z-[560] cursor-grab active:cursor-grabbing rounded-md border px-2.5 py-1.5 shadow-lg text-[11px] sm:text-xs select-none touch-none"
           style={{
             bottom: `${bottomOffset}px`,
             transform: `translate(${captionPos.x}px, ${captionPos.y}px)`,
+            background: 'var(--caption-bg)',
+            borderColor: 'var(--caption-border)',
+            color: 'var(--caption-text)',
           }}
         >
-          <span className="font-bold text-amber-500 mr-1.5">
+          <span className="font-bold mr-1.5" style={{ color: 'var(--caption-accent)' }}>
             {index + 1}/{QUEUE.length}
           </span>
-          <span className="text-amber-100">{caption}</span>
+          <span>{caption}</span>
         </div>
       )}
     </>

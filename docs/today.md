@@ -378,3 +378,5 @@ text
 I'll write this when you're back from the library. It's about 60 lines.
 
 -----------
+sunday september 20, 2026 
+i started at CREATE TABLE IF NOT EXISTS friend_profiles

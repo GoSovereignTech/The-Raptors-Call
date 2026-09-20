@@ -36,6 +36,21 @@ async function createTables(db) {
         )
     `);
 
+     db.exec(`
+        CREATE TABLE IF NOT EXISTS friend_profiles (
+            user_guid TEXT PRIMARY KEY,
+            mesh_node_id TEXT UNIQUE,
+            nickname TEXT,
+            full_name TEXT,
+            role TEXT DEFAULT 'protector',
+            picture_blob TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_friend_profiles_node ON friend_profiles(mesh_node_id);
+    `);
+
     // Hobbies
     db.exec(`
         CREATE TABLE IF NOT EXISTS hobbies (
