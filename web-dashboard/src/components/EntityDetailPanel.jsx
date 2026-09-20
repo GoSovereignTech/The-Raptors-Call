@@ -9,9 +9,9 @@ import {
 } from 'lucide-react';
 
 const CATEGORY_META = {
-  friend:  { key: 'friend',  label: 'Friends',  color: 'var(--threat-friend)',  icon: Users },
-  unknown: { key: 'unknown', label: 'Unknown',  color: 'var(--threat-unknown)', icon: AlertTriangle },
-  enemy:   { key: 'enemy',   label: 'Enemies',  color: 'var(--threat-enemy)',   icon: XCircle },
+  friend:  { key: 'friend',  label: 'Friends',  singular: 'Friend',  color: 'var(--threat-friend)',  icon: Users },
+  unknown: { key: 'unknown', label: 'Unknown',  singular: 'Unknown', color: 'var(--threat-unknown)', icon: AlertTriangle },
+  enemy:   { key: 'enemy',   label: 'Enemies',  singular: 'Enemy',   color: 'var(--threat-enemy)',   icon: XCircle },
 };
 
 function classifyEntity(entity) {
@@ -236,7 +236,7 @@ export function EntityDetailPanel({
                   borderColor: cat.color,
                 }}
               >
-                {cat.label.replace(/s$/, '')}
+               {cat.singular}
               </button>
             );
           })}

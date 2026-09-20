@@ -167,14 +167,23 @@
 
   /* added */
     --marker-outline: #05140c;
-    --caption-bg: #05140c;
-    --caption-border: #4ade80;
-    --caption-text: #dcfce7;
-    --caption-accent: #4ade80;
-    --chat-header-bg: #05140c;
-    --chat-header-text: #dcfce7;
-    --chat-bubble-bg: #05140c;
-    --chat-bubble-text: #dcfce7;
+
+
+/* Sky-blue specific fixes */
+    --caption-bg: #f0f9fc;           /* light — replaces the dark navy */
+    --caption-border: #4ab8d4;
+    --caption-text: #0c1a28;         /* dark text on light bg */
+    --caption-accent: #0e94b8;       /* deep cyan step number */
+
+    --chat-bubble-bg: #a8d4e6;       /* light blue bubble */
+    --chat-bubble-text: #0c1a28;
+    --chat-header-bg: #0c1a28;       /* dark navy header stays */
+    --chat-header-text: #e0f2fe;     /* light text on dark header */
+
+    --danger-bg: #ffe0dd;            /* cancel alert panel bg */
+    --danger-text: #c81e3f;          /* readable red */
+    --danger-border: #e94b3c;
+
     --chat-input-bg: #05140c;
     --chat-input-text: #dcfce7;
     --chat-send-bg: #4ade80;

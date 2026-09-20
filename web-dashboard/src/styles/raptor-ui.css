@@ -169,9 +169,9 @@
 /* Stop button — full width, red outline */
 .raptor-btn-stop {
   width: 100%;
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.45);
-  color: #fda4af;
+  background: var(--danger-bg, #ffe0dd);
+  border: 1.5px solid var(--danger-border, #e94b3c);
+  color: var(--danger-text, #c81e3f);
   padding: 13px;
   border-radius: 12px;
   font-weight: 700;
@@ -181,12 +181,14 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  font-family: inherit;
   transition: all 0.15s ease;
 }
+
+.raptor-btn-stop:focus,
+.raptor-btn-stop:active,
 .raptor-btn-stop:hover {
-  background: rgba(244, 63, 94, 0.25);
-  border-color: rgba(244, 63, 94, 0.7);
+  background: #ffd0cc;
+  border-color: #c81e3f;
 }
 .raptor-btn-stop svg {
   width: 16px;

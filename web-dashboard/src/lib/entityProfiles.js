@@ -7,13 +7,18 @@ export function setProfileDb(db) {
   _db = db;
 }
 
+function normalizeNodeId(id) {
+  return id?.replace(/^SIM_/, '') || '';
+}
+
 export function getProfile(nodeId) {
   if (!_db || !nodeId) return null;
+  const normalized = normalizeNodeId(nodeId);
   try {
     const stmt = _db.prepare(
       'SELECT * FROM friend_profiles WHERE mesh_node_id = ? LIMIT 1'
     );
-    stmt.bind([nodeId]);
+    stmt.bind([normalized]);
     if (stmt.step()) {
       const row = stmt.getAsObject();
       stmt.free();
@@ -28,6 +33,7 @@ export function getProfile(nodeId) {
 
 export function saveProfile(profile) {
   if (!_db) return false;
+  const normalized = normalizeNodeId(profile.mesh_node_id);
   try {
     _db.run(
       `INSERT INTO friend_profiles (user_guid, mesh_node_id, nickname, full_name, role, picture_blob, updated_at)
@@ -41,6 +47,7 @@ export function saveProfile(profile) {
       [
         profile.user_guid || null,
         profile.mesh_node_id,
+        normalized,    
         profile.nickname || null,
         profile.full_name || null,
         profile.role || 'protector',

@@ -13,6 +13,13 @@ document.documentElement.setAttribute(
   'data-theme',
   localStorage.getItem('raptor-theme') || 'sky-blue'
 );
+/* What to do right now (no hardware): 
+demo solution. */ 
+if (!localStorage.getItem('raptor:user-guid')) {
+  const localGuid = crypto.randomUUID();
+  localStorage.setItem('raptor:user-guid', localGuid);
+  console.log('[Dev] Generated local GUID:', localGuid);
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

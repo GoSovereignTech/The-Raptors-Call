@@ -29,7 +29,7 @@ import { movementFromSpeed } from '../../lib/personIcons.js';
 import { useMemo } from 'react';
 import { enrichEntity, sortEntities, setProfileDb } from '../../lib/entityProfiles.js';
 import { saveProfile } from '../../lib/entityProfiles.js';
-
+import { SettingsPage } from '../../components/SettingsPage.jsx';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
@@ -368,6 +368,7 @@ function HomeField({ location, onOpenSettings }) {
   const [showChatOverlay, setShowChatOverlay] = useState(false);
   const [showVariance, setShowVariance] = useState(true);
   const [ghosts, setGhosts] = useState([]);
+  const [leafletMap, setLeafletMap] = useState(null);
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
@@ -677,7 +678,7 @@ const openDetail = (entity) => {
     const stats = { total: 3, friends: 2, relays: 1, sensors: 0 };
     updateUI(stats);
   };
-const [leafletMap, setLeafletMap] = useState(null);
+
   const engageEmergencyState = (type) => {
     setAlarmStatus(type);
     const logCoordinates = { lat: live.lat, lon: live.lon };
@@ -800,15 +801,7 @@ const [leafletMap, setLeafletMap] = useState(null);
           if (marker.type === 'node') setSelectedNode(marker.data);
         }}
       />
-{/*}
-      <DemoPilot onRun={(fn, arg) => {
-        const fnRef = Sim[fn];
-        if (typeof fnRef !== 'function') return;
-        if (Array.isArray(arg)) fnRef(...arg);
-        else if (arg !== undefined) fnRef(arg);
-        else fnRef();
-      }} />
-*/}
+ 
        <MapInstanceGetter onMap={setLeafletMap} />
        {/* 
        TODO: I need to figure out how to get thia to show raster OpenFreeMap
@@ -855,15 +848,20 @@ const [leafletMap, setLeafletMap] = useState(null);
       {/* Radar sweep overlay — appears centered when toggled */} 
       {leafletMap && (
         <> 
-          <button
-            onClick={() => {
-              leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
-            }}
-            className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border border-raptor-line bg-raptor-bg/95 backdrop-blur shadow-lg transition hover:border-raptor-cyan hover:text-raptor-cyan"
-            aria-label="Return to my position"
-          >
-            <Crosshair className="h-5 w-5" />
-          </button>
+        <button
+          onClick={() => {
+            leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
+          }}
+          className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
+          style={{
+            background: 'var(--panel-bg)',
+            borderColor: 'var(--panel-border)',
+            color: 'var(--accent)',
+          }}
+          aria-label="Return to my position"
+        >
+          <Crosshair className="h-5 w-5" />
+        </button>
                {/* Demo pilot — above Crosshair */}
             <DemoPilot
               bottomOffset={280}
@@ -1256,7 +1254,7 @@ const [leafletMap, setLeafletMap] = useState(null);
 }
 
 export default function App() {
-  const [view, setView] = useState('splash'); // 'splash' | 'setup' | 'home' | 'demo'
+  const [view, setView] = useState('splash'); // 'splash' | 'setup' | 'home' | 'settings'
   const [location, setLocation] = useState(null);
 
   // Check for stored location on mount
@@ -1287,7 +1285,14 @@ export default function App() {
       />
     );
   }
-
+  if (view === 'settings') {
+    return <SettingsPage
+      userGuid={localStorage.getItem('raptor:user-guid') || null}
+      meshNodeId={localStorage.getItem('raptor:mesh-node-id') || null}
+      onBack={() => setView('home')}
+      onSaved={() => { /* no-op for now */ }}
+    />;
+  }
   if (view === 'setup') {
     return <LocationSetup onLocated={(loc) => {
       setLocation(loc);
@@ -1295,5 +1300,5 @@ export default function App() {
     }} />;
   }
 
-  return <HomeField location={location} onOpenSettings={() => setView('setup')} />;
+  return <HomeField location={location} onOpenSettings={() => setView('settings')} />
 }
