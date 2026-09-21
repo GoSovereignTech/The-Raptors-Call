@@ -57,6 +57,10 @@
   color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent) inset, 0 4px 12px var(--accent-glow);
 }
+[data-theme="sky-blue"]  .raptor-chip.active{
+  background: #7ed0e6;
+
+}
 
 /*  i left .raptor-chip svg from */
 .raptor-chip svg {
@@ -357,7 +361,7 @@
   align-items: center;
   padding-bottom: 10px;
   margin-bottom: 10px;
-  border-bottom: 1px solid rgba(28, 37, 64, 0.6);
+  border-bottom: 1px solid rgba(28, 37, 64, 0.1);
   overflow: hidden;
 }
 

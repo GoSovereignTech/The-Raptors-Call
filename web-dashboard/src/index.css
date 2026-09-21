@@ -45,6 +45,7 @@
   animation-timing-function: ease-out;
   animation-iteration-count: infinite;
 }
+/*
 .raptor-beacon-label {
   position: absolute;
   left: 50%;
@@ -59,6 +60,7 @@
   pointer-events: none;
   text-shadow: 0 0 4px rgba(4, 6, 17, 0.95), 0 0 6px rgba(4, 6, 17, 0.7);
 }
+  */
 @keyframes raptor-beacon-ring {
   0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.55; }
   100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
@@ -100,10 +102,13 @@
 }
 
 /* ─── YOU label positioning ─── */
-.raptor-beacon-label {
+.raptor-beacon-label { 
+  text-shadow: 0 0 4px rgba(4, 6, 17, 0.95), 0 0 6px rgba(4, 6, 17, 0.7);
+
+
   position: absolute;
   left: 50%;
-  top: 4px;                        /* ← was -20px, now tight above the dot */
+  top: -5px;                        /* ← was -20px, now tight above the dot */
   transform: translateX(-50%);
   color: #fff;
   font-family: inherit;
@@ -117,5 +122,6 @@
   border: 1px solid var(--beacon-fill, #38bdf8);
   pointer-events: none;
   text-shadow: none;
+  opacity: 0.8;
   z-index: 2;
 }

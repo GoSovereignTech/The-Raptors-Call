@@ -10,14 +10,13 @@
   --threat-enemy:   #e94b3c;      /* warm coral-red — matches mockup */
   --threat-unknown: #f5a623;      /* warm amber-gold */
   --threat-self:    #3cb5e8;      /* bright sky cyan */
-
   /* ─── Person marker chrome ─── */
   --marker-bg:      #0c1a28;      /* deep navy circles */
   --marker-border:  2px;
   --marker-radius:  50%;
 
   /* ─── Panel & UI chrome (light! this is the big change) ─── */
-  --panel-bg:       #b0dcef;      /* pale sky blue — bottom bar */
+  --panel-bg:       #99d7ee;      /* pale sky blue — bottom bar */
   --panel-bg-deep:  #a0d4ea;      /* slightly deeper for chat drawer */
   --panel-border:   #4ab8d4;      /* medium cyan border */
   --panel-glow:     rgba(74, 184, 212, 0.25);
@@ -32,16 +31,16 @@
   --text-muted:     #3a5a70;      /* mid navy — secondary text */
 
   /* ─── Alarm buttons ─── */
-  --alarm-loud-from: #f98a7a;     /* coral top */
-  --alarm-loud-to:   #e94b5f;     /* coral-red bottom */
+  --alarm-loud-from: #fc833e;/* #f98a7a;    coral top */
+  --alarm-loud-to:   #f65054; /* #e94b5f;   coral-red bottom */
   --alarm-silent:    #4db8d8;     /* cyan for silent text/border */
   --silent-bg:       #0c1a28;     /* dark navy silent button bg */
   --silent-border:   #4db8d8;
   --silent-text:     #4db8d8;
 
   /* ─── Chip / button glass (light) ─── */
-  --chip-bg:        #bfe0ef;
-  --chip-border:    #5baecb;
+  --chip-bg:        transparent;
+  --chip-border:   #5baecb; /* #1d96ab;  */
   --chip-text:      #0c1a28;
 
   /* ─── Percentage badge (white pill) ─── */
@@ -64,10 +63,10 @@
 --marker-outline-width: 1.5px;
 
 /* Demo caption (theme-aware) */
---caption-bg: #0c1a28;
---caption-border: #f59e0b;
---caption-text: #fef3c7;
---caption-accent: #f59e0b;
+--caption-bg: #99d7ee; 
+--caption-border: #5baecb;
+--caption-text:  #0c1a28;
+--caption-accent: #0c1a28;
 
 /* Chat drawer */
 --chat-header-bg: #0c1a28;

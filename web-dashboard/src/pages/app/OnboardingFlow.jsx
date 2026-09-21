@@ -852,7 +852,7 @@ const openDetail = (entity) => {
           onClick={() => {
             leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
           }}
-          className="absolute bottom-[220px] right-4 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
+          className="absolute bottom-[220px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
           style={{
             background: 'var(--panel-bg)',
             borderColor: 'var(--panel-border)',
@@ -923,13 +923,13 @@ const openDetail = (entity) => {
     className="flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 backdrop-blur sm:px-3 sm:py-1.5"
     style={{
       background: 'var(--panel-bg)',
-      borderColor: dongleConnected ? 'var(--threat-friend)' : 'var(--threat-unknown)',
+      borderColor: dongleConnected ? 'var(--threat-friend)' : 'var(--panel-border)',
     }}
   >
     <RaptorMark className="h-3 w-3 sm:h-4 sm:w-4" />
     <span
       className="text-[10px] sm:text-xs font-medium"
-      style={{ color: dongleConnected ? 'var(--threat-friend)' : 'var(--threat-unknown)' }}
+      style={{ color: dongleConnected ? 'var(--threat-friend)' : 'var(--text-muted)' }}
     >
       <span className="hidden sm:inline">{dongleConnected ? 'Live' : 'Simulation'}</span>
       <span className="sm:hidden">{dongleConnected ? 'LIVE' : 'SIM'}</span>
