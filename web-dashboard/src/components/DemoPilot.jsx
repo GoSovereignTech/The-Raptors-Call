@@ -13,9 +13,10 @@ const QUEUE = [
   { fn: 'fusionTriple',     arg: null,        caption: 'PIR + Thermal + Seismic agree — confirmed human.' },
   { fn: 'fusionStationary', arg: null,        caption: 'Another node: someone stopped moving. Hiding.' },
   { fn: 'fusionFootsteps',  arg: null,        caption: 'Seismic only — quiet footsteps, low confidence.' },
+  { fn: 'emergency',        arg: ['SCR'],     caption: 'PIN PULLED — loud siren, GPS broadcast to team.' },
   { fn: 'chat',             arg: ['Team is 2 minutes out.', 'Team A'], caption: 'Team coordinates over mesh chat.' },
   { fn: 'chat',             arg: ['Overwatch has eyes. Flagging contact.', 'Overwatch'], caption: 'Overwatch reports visual.' },
-  { fn: 'emergency',        arg: ['SCR'],     caption: 'PIN PULLED — loud siren, GPS broadcast to team.' },
+ 
   { fn: 'clearAll',         arg: null,        caption: 'Situation resolved. Map cleared.' },
 ];
 
@@ -86,19 +87,36 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
       </button>
 
       {/* Draggable caption */}
+          {/*  prev.
+               style={{
+              bottom: `${bottomOffset}px`,
+              transform: `translate(${captionPos.x}px, ${captionPos.y}px)`,
+              background: 'var(--caption-bg)',
+              borderColor: 'var(--caption-border)',
+              color: 'var(--caption-text)',
+            }}
+
+          */}  
+
       {caption && (
         <div
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           className="absolute left-2 right-14 sm:right-16 z-[560] cursor-grab active:cursor-grabbing rounded-md border px-2.5 py-1.5 shadow-lg text-[11px] sm:text-xs select-none touch-none"
+ 
           style={{
-            bottom: `${bottomOffset}px`,
-            transform: `translate(${captionPos.x}px, ${captionPos.y}px)`,
+            bottom: `150px`,
+            left: `auto`,
+            width: `auto`,
+            maxWidth: `250px`,
+            minWidth: `150px`,
+            right: `12px`,
+            transform: `unset`,
             background: 'var(--caption-bg)',
             borderColor: 'var(--caption-border)',
             color: 'var(--caption-text)',
-          }}
+          }} 
         >
           <span className="font-bold mr-1.5" style={{ color: 'var(--caption-accent)' }}>
             {index + 1}/{QUEUE.length}
