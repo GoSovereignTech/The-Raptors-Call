@@ -41,7 +41,6 @@ async function createTables(db) {
             user_guid TEXT PRIMARY KEY,
             mesh_node_id TEXT UNIQUE,
             nickname TEXT,
-            full_name TEXT,
             role TEXT DEFAULT 'protector',
             picture_blob TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

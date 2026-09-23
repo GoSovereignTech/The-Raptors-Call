@@ -36,11 +36,10 @@ export function saveProfile(profile) {
   const normalized = normalizeNodeId(profile.mesh_node_id);
   try {
     _db.run(
-      `INSERT INTO friend_profiles (user_guid, mesh_node_id, nickname, full_name, role, picture_blob, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `INSERT INTO friend_profiles (user_guid, mesh_node_id, nickname, role, picture_blob, updated_at)
+       VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
        ON CONFLICT(mesh_node_id) DO UPDATE SET
          nickname = excluded.nickname,
-         full_name = excluded.full_name,
          role = excluded.role,
          picture_blob = excluded.picture_blob,
          updated_at = CURRENT_TIMESTAMP`,
@@ -48,8 +47,7 @@ export function saveProfile(profile) {
         profile.user_guid || null,
         profile.mesh_node_id,
         normalized,    
-        profile.nickname || null,
-        profile.full_name || null,
+        profile.nickname || null, 
         profile.role || 'protector',
         profile.picture_blob || null,
       ]
@@ -69,7 +67,7 @@ export function enrichEntity(entity) {
   return {
     ...entity,
     nickname: profile.nickname || entity.nickname,
-    full_name: profile.full_name,
+   // full_name: profile.full_name,
     role: profile.role,
     picture_blob: profile.picture_blob,
   };

@@ -937,13 +937,12 @@ const openDetail = (entity) => {
   </div>
 
   {/* Center: Nodes + Friends — compress */}
-   
-      <button
+     <button
         onClick={() => {
           const first = allEntities.find((e) => e.threat === 'friend' || e.threat === 'CLEAR');
           if (first) openDetail(first);
         }}
-        className="flex min-w-0 flex-shrink items-center gap-1 rounded-full border px-2 py-1 backdrop-blur text-[10px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+        className="flex min-w-0 flex-shrink items-center gap-1 rounded-full border px-2 py-1 backdrop-blur text-[12px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
         style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
       >
         <span className="whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>

@@ -181,7 +181,7 @@ export default function App() {
   }
 
   function submitIntake() {
-    if (!form.fullName.trim() || !form.consentAcknowledged) return;
+    if (!form.consentAcknowledged) return;
     const next = [...candidates, { ...form, submittedAt: new Date().toISOString() }];
     persist(next);
     setForm(emptyCandidate());
@@ -296,6 +296,18 @@ export default function App() {
             <h2 className="mb-4 text-lg font-semibold text-slate-100">New member intake</h2>
 
             <div className="space-y-4">
+              <SectionCard eyebrow="01 · Identity & verification" title="Basic details" description="Collected in person or by video call.">
+              {/* 
+                ⚠️ PRIVACY WARNING: 
+                This data is for admin vetting ONLY. 
+                It is stored in your secure, offline admin database. 
+                It is NEVER pushed to the mesh network or synced to user devices. 
+              */}
+              <Field label="Full legal name"><TextInput value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></Field>
+              {/* ... rest of the fields ... */}
+            </SectionCard>
+
+
               <SectionCard eyebrow="01 · Identity & verification" title="Basic details" description="Collected in person or by video call.">
                 <Field label="Full legal name"><TextInput value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></Field>
                 <div className="grid gap-4 sm:grid-cols-2">
