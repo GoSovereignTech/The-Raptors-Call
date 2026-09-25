@@ -380,3 +380,50 @@ I'll write this when you're back from the library. It's about 60 lines.
 -----------
 sunday september 20, 2026 
 i started at CREATE TABLE IF NOT EXISTS friend_profiles
+-----------
+thursday sept 24, 2026 
+Add to app 
+1. geopolitical awareness status &  training 
+2. pictures representing different states 
+3. old tricks c ointe training 
+4. comm sec training 
+5. $ 300 billion in discretionary spending.
+6. the need to own our own business, comes and issues with iphone etc 
+promotional videos
+kickstarter
+
+ 
+--------------
+I am fundraising for communities facing high crime rates.  The Kickstarter  proceeds go toward purchasing my community watch app which consist of my web app and electronic attachments to their cellphone. The app and electronics attachments will enhance the  community watch services by enabling them to monitor a wider field of vision and communicate with each other - even if celltowers and wifi are down.I created the web app and electronic attachments 
+ the proceeds will enable me to purchase for groups of 10+ people - in various high crime neighborhoods.
+ or purchasers can purchase devices for them selves or gift it to the communities. my web app is called The Rapters Call. 
+
+--------- 
+My web app comes in 2 configurations/
+Configuration #1. The personal alarm-mestastic tag. The user can wear it disguised as anythng bracelet, etc. when the user triggers the loud or silent alarm, everyone on the raptors netwok will be notified with her gps location. This would activate her neighbors to her aid. 
+
+Configuration #2. The smartphne and the meshtastic and radar dongle 
+Allows the same functionality plus a map to see everyone on the  network with their permission. this allows for faster reaction from the neighborhood watch team . 
+A quick press of the app's alarm button or the personal alarm button (silent alarm) or pullpin will bring their neighborhood watch to their ad. 
+
+Event #1. 
+Trinity Durham and Iyanna Warr, both 20-year-old mothers and friends, were shot and killed in an apartment at Louisville's Family Scholar House on August 23, 2026 1am. They were killed by an unregistered guest with a gun.  There were hundreds of people in apartments nearby.  My app or personal alarm (loud or silent ) would have brought all the helpers to her door before the ladies were shot and killed.
+
+Event #2. 
+Tasia Fortune's body was discovered behind an abandoned home in the 500 block of Road of Remembrance in Jackson, Mississippi. There were a least 100 neighbors in their homes nearby. If Tsaia  had my personal alarm-mestastic tag - all the neighbors having on the  RAPTORS CALL Network    would have been notified of her  emergency. Her position would have been shared on their map/dashboard. Her neighbors would have come to her aid before the shooting.
+
+ Event #3. 
+ Nineteen-year-old DaCara Thompson of Prince George's County, Maryland, was killed in August 2025, and 35-year-old Hugo Hernandez-Mendez of Bowie has been charged and indicted for her murde
+
+ DaCara Thompson brought her cellphone with her when she entered the suspect's SUV.When family members and police located her abandoned white Ford Edge in Hyattsville, they found her purse, wallet, credit cards, driver's license, house keys, and $60 in cash still locked inside the car. The only items missing from her vehicle were her cellphone and her key fob.According to police court documents, investigators tracked her cellphone records, which showed that her phone remained with her in the suspect's vehicle until it was permanently deactivated or shut off at 5:03 a.m. that morning.
+
+ The Raptots Call Web app and program could have saved her via 2 methods:
+ 1. She could have opened the cellphone  and tapped the silent alarm or loud alarm 
+ 2. the personal alarm-meshtaastic tag could have been designed as jewelry, necklace, bracelet / she 
+ 3. the app and the personal alarm would recognize an unexpected route
+ the community defense group would have intecepted her before reached her destination.
+
+ Therefore in each of these events the nearby neighborhood watch team would have intercepted them before the murder took place.
+ 
+
+ explainer2.html accomplished. 
