@@ -427,3 +427,16 @@ Tasia Fortune's body was discovered behind an abandoned home in the 500 block of
  
 
  explainer2.html accomplished. 
+
+
+ ![
+  
+ ](community.jpeg) ![
+  
+ ](Gemini_Generated_Image_1escb21escb21esc.jpeg) ![
+  
+ ](stop-the-lynchings.dxfz.jpeg) ![
+  
+ ](the-raptors-key.jpeg) ![
+  
+ ](Gemini_Generated_Image_5zlcef5zlcef5zlc.png)
