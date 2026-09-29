@@ -72,7 +72,7 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
   };
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-6 p-4 pb-20" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--panel-bg)'   }}>
+    <div className="settings-page mx-auto w-full max-w-md space-y-6 p-4 pb-20" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--panel-bg)'   }}>
       <button onClick={onBack} className="text-sm flex items-center gap-1" style={{ color: 'var(--accent)' }}>
         ← Back to map
       </button>
@@ -81,8 +81,13 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
         <User className="h-5 w-5" /> Profile & Settings
       </h1>
 
+      {/* ─── THEME SWITCHER ─── */}
+      <div className="border-t pt-4" style={{ borderColor: 'var(--panel-border)' }}>
+        <ThemeSwitcher />
+      </div>
+      
       {/* ─── IDENTITY CARD ─── */}
-      <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
+      <div className="rounded-xl border p-4 space-y-4" style={{color: 'var(--card-text)', borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
         <div className="flex items-center gap-4">
           <div
             className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2"
@@ -98,19 +103,19 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
             <button
               onClick={() => fileRef.current?.click()}
               className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors"
-              style={{ borderColor: 'var(--panel-border)', color: 'var(--panel-bg)' }}
+              style={{ borderColor: 'var(--panel-border)' }}
             >
               <Upload className="h-3.5 w-3.5" /> Upload photo
             </button>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
-            <p className="mt-1 text-[10px]" style={{ color: 'var(--panel-bg)'}}>
+            <p className="mt-1 text-[10px]" >
               Max {MAX_IMAGE_KB} KB. Shown to your vetted team only.
             </p>
           </div>
         </div>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold" style={{ color: 'var(--panel-bg)'}}>Nickname (broadcast to team)</span>
+          <span className="mb-1 block text-xs font-semibold">Nickname (broadcast to team)</span>
           <input
             type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={20}
             placeholder="Your Nickname"
@@ -121,7 +126,7 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
  
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold"  style={{ color: 'var(--panel-bg)'}}>Role</span>
+          <span className="mb-1 block text-xs font-semibold">Role</span>
           <select
             value={role} onChange={(e) => setRole(e.target.value)}
             className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--accent)]"
@@ -137,14 +142,14 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
       </div>
 
       {/* ─── PRIVACY & VISIBILITY CARD ─── */}
-      <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
+      <div className="rounded-xl border p-4 space-y-4" style={{color: 'var(--card-text)', borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
         <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: 'var(--panel-border)' }}>
           <Shield className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-          <h2 className="text-sm font-bold"  style={{ color: 'var(--panel-bg)'}}>Privacy & Visibility</h2>
+          <h2 className="text-sm font-bold" >Privacy & Visibility</h2>
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs"  style={{ color: 'var(--panel-bg)'}}>
+          <p className="text-xs" >
             Choose how your icon appears to your vetted team. Threat detection and alarms always run in the background.
           </p>
 
@@ -156,7 +161,7 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
                 onChange={() => setVisibility('always')} className="mt-1" />
               <div>
                 <div className="text-sm font-semibold flex items-center gap-1.5"><Eye className="h-3.5 w-3.5" /> Always Visible</div>
-                <div className="text-[11px]"  style={{ color: 'var(--panel-bg)'}}>Team sees your exact location at all times. Best for active defenders.</div>
+                <div className="text-[11px]">Team sees your exact location at all times. Best for active defenders.</div>
               </div>
             </label>
 
@@ -165,8 +170,8 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
               <input type="radio" name="visibility" value="home_hidden" checked={visibility === 'home_hidden' && !isMinor} 
                 onChange={() => setVisibility('home_hidden')} className="mt-1" />
               <div>
-                <div className="text-sm font-semibold flex items-center gap-1.5"  style={{ color: 'var(--panel-bg)'}}><EyeOff className="h-3.5 w-3.5" /> Hide my Icon at My Home</div>
-                <div className="text-[11px]"  style={{ color: 'var(--panel-bg)'}}>Icon disappears within your chosen radius of home. Reappears on alarm.</div>
+                <div className="text-sm font-semibold flex items-center gap-1.5"  ><EyeOff className="h-3.5 w-3.5" /> Hide my Icon at My Home</div>
+                <div className="text-[11px]"  >Icon disappears within your chosen radius of home. Reappears on alarm.</div>
               </div>
             </label>
 
@@ -174,13 +179,13 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
             {visibility === 'home_hidden' && !isMinor && (
               <div className="ml-7 mt-2 space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span  style={{ color: 'var(--panel-bg)'}}>Home Radius</span>
+                  <span>Home Radius</span>
                   <span className="font-mono font-bold" style={{ color: 'var(--accent)' }}>{homeRadius}m</span>
                 </div>
                 <input type="range" min="50" max="200" step="50" value={homeRadius} 
                   onChange={(e) => setHomeRadius(Number(e.target.value))}
                   className="w-full accent-[var(--accent)]" />
-                <div className="flex justify-between text-[10px]"  style={{ color: 'var(--panel-bg)'}}>
+                <div className="flex justify-between text-[10px]">
                   <span>50m</span><span>100m</span><span>150m</span><span>200m</span>
                 </div>
               </div>
@@ -191,8 +196,8 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
               <input type="radio" name="visibility" value="ghost" checked={visibility === 'ghost' || isMinor} 
                 onChange={() => setVisibility('ghost')} disabled={isMinor} className="mt-1" />
               <div>
-                <div className="text-sm font-semibold flex items-center gap-1.5"  style={{ color: 'var(--panel-bg)'}}><Lock className="h-3.5 w-3.5" /> Ghost Mode</div>
-                <div className="text-[11px]"  style={{ color: 'var(--panel-bg)'}}>Always hidden. Alarm and threat detection still work. Best for high-risk individuals.</div>
+                <div className="text-sm font-semibold flex items-center gap-1.5" ><Lock className="h-3.5 w-3.5" /> Ghost Mode</div>
+                <div className="text-[11px]"  >Always hidden. Alarm and threat detection still work. Best for high-risk individuals.</div>
               </div>
             </label>
           </div>
@@ -201,11 +206,11 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
         {/* Minor Toggle */}
         <div className="border-t pt-3" style={{ borderColor: 'var(--panel-border)' }}>
           <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2"  style={{ color: 'var(--panel-bg)'}}>
+            <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <div>
                 <div className="text-sm font-semibold">Minor Account (Under 18)</div>
-                <div className="text-[11px]"  style={{ color: 'var(--panel-bg)'}}>Forces Ghost Mode. Alarm only.</div>
+                <div className="text-[11px]">Forces Ghost Mode. Alarm only.</div>
               </div>
             </div>
             <input type="checkbox" checked={isMinor} onChange={(e) => {
@@ -217,18 +222,18 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
       </div>
 
       {/* ─── SAFETY PREFERENCES CARD ─── */}
-      <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
+      <div className="rounded-xl border p-4 space-y-4" style={{color: 'var(--card-text)', borderColor: 'var(--panel-border)', background: 'var(--marker-bg)' }}>
         <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: 'var(--panel-border)' }}>
-          <Users className="h-4 w-4"  style={{ color: 'var(--panel-bg)'}}/>
-          <h2 className="text-sm font-bold"  style={{ color: 'var(--panel-bg)'}}>Team Safety</h2>
+          <Users className="h-4 w-4" />
+          <h2 className="text-sm font-bold" >Team Safety</h2>
         </div>
 
         <label className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+            <CheckCircle2 className="h-4 w-4" />
             <div>
-              <div className="text-sm font-semibold"  style={{ color: 'var(--panel-bg)'}}>Allow "On Behalf Of" Alarms</div>
-              <div className="text-[11px]"  style={{ color: 'var(--panel-bg)'}}>Teammates can trigger an alarm for you if they see you in danger.</div>
+              <div className="text-sm font-semibold" >Allow "On Behalf Of" Alarms</div>
+              <div className="text-[11px]"  npm run dev>Teammates can trigger an alarm for you if they see you in danger.</div>
             </div>
           </div>
           <input type="checkbox" checked={allowOnBehalf} onChange={(e) => setAllowOnBehalf(e.target.checked)} 
@@ -251,10 +256,7 @@ export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, on
         {saved ? 'Saved ✓' : 'Save profile'}
       </button>
 
-      {/* ─── THEME SWITCHER ─── */}
-      <div className="border-t pt-4" style={{ borderColor: 'var(--panel-border)' }}>
-        <ThemeSwitcher />
-      </div>
+
     </div>
   );
 }

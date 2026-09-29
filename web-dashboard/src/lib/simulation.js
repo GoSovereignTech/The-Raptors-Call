@@ -8,6 +8,89 @@ const SIM_LON = -76.6216;
 let SIM_BASE_LAT = 39.2838;
 let SIM_BASE_LON = -76.6216;
 
+// ─── Multi-character path simulators ───
+// Each step is [deltaLat, deltaLon]. Base is SIM_BASE_LAT/LON.
+// intervalMs is the delay between HBT packets — shorter = smoother movement.
+
+async function _emitPath(nid, path, {
+  intervalMs = 1400,
+  mot = 'walk',
+  nickname = null,
+  bat = 90,
+  entityType = 'friend',   // 'friend' | 'stranger' | 'enemy' | 'unknown'
+} = {}) {
+  for (let i = 0; i < path.length; i++) {
+    const [dLat, dLon] = path[i];
+    const packet = envelope('HBT', {
+      bat,
+      lat: SIM_BASE_LAT + dLat,
+      lon: SIM_BASE_LON + dLon,
+      mot,
+      nickname,
+      entityType,
+    }, { nid, cap: CAP.GPS | CAP.MOTION, team_id: 1 });
+    if (simHandler) simHandler(packet);
+    if (i < path.length - 1) {
+      await new Promise((r) => setTimeout(r, intervalMs));
+    }
+  }
+}
+
+export const SimSequences = {
+  // ─── FRIENDS ───
+  maya: () => _emitPath('SIM_MAYA_01', [
+    [0.0003, 0.0005], [0.0006, 0.0009], [0.0009, 0.0013],
+    [0.0012, 0.0017], [0.0015, 0.0021], [0.0018, 0.0025],
+  ], { intervalMs: 1400, mot: 'walk', nickname: 'Maya', entityType: 'friend' }),
+
+  marcus: () => _emitPath('SIM_MARCUS_02', [
+    [-0.0020, 0.0000], [-0.0014, 0.0005], [-0.0008, 0.0010],
+    [-0.0002, 0.0015], [0.0004, 0.0020], [0.0010, 0.0025],
+  ], { intervalMs: 900, mot: 'run', nickname: 'Marcus', entityType: 'friend' }),
+
+  tanisha: () => _emitPath('SIM_TANISHA_03', [
+    [0.0030, -0.0030], [0.0020, -0.0018], [0.0010, -0.0006],
+    [0.0000, 0.0006], [-0.0010, 0.0018], [-0.0020, 0.0030],
+  ], { intervalMs: 700, mot: 'car', nickname: 'Tanisha', entityType: 'friend' }),
+
+  // ─── STRANGER — unknown person, slow approach, no name ───
+  stranger: () => _emitPath('SIM_STRANGER_04', [
+    [0.0006, -0.0006], [0.0005, -0.0005], [0.0004, -0.0004],
+    [0.0003, -0.0003], [0.0002, -0.0002], [0.0001, -0.0001],
+  ], { intervalMs: 1200, mot: 'walk', nickname: null, entityType: 'stranger' }),
+
+  // ─── ENEMY — fast approach, from a distance, no name ───
+  enemy: () => _emitPath('SIM_ENEMY_05', [
+    [0.0050, -0.0050], [0.0038, -0.0038], [0.0026, -0.0026],
+    [0.0014, -0.0014], [0.0005, -0.0005], [0.0001, -0.0001],
+  ], { intervalMs: 700, mot: 'car', nickname: null, entityType: 'enemy' }),
+
+  // ─── SCENARIO: Ambush setup ───
+  // Maya walks. A stranger approaches. An enemy cuts her off.
+  ambushSetup: async () => {
+    await Promise.all([
+      SimSequences.maya(),
+    ]);
+  },
+
+  // ─── SCENARIO: All friends ───
+  allThree: async () => {
+    await Promise.all([
+      SimSequences.maya(),
+      SimSequences.marcus(),
+      SimSequences.tanisha(),
+    ]);
+  },
+
+  // ─── SCENARIO: Stranger → Enemy escalation ───
+  escalation: async () => {
+    await SimSequences.stranger();
+    await new Promise((r) => setTimeout(r, 2000));
+    await SimSequences.enemy();
+  },
+};
+
+
 export function setSimBase(lat, lon) {
   if (typeof lat === 'number' && typeof lon === 'number' &&
       !isNaN(lat) && !isNaN(lon)) {
@@ -315,6 +398,12 @@ export function registerSimHandler(handler) {
 // Functions that DO NOT emit packets — should not be wrapped
 const NON_PACKET_FNS = new Set(['clearAll']);
 
+// In simulation.js, above the Proxy
+
+Simulations.sequence = (name) => {
+  const fn = SimSequences[name];
+  if (typeof fn === 'function') fn();
+};
 const _originalSim = Simulations;
 export const Sim = new Proxy(_originalSim, {
   get(target, prop) {
@@ -328,7 +417,13 @@ export const Sim = new Proxy(_originalSim, {
     };
   },
 });
-
+/*
+// Register the sequence dispatcher so DemoPilot can call Sim.sequence('maya')
+Simulations.sequence = (name) => {
+  const fn = SimSequences[name];
+  if (typeof fn === 'function') fn();
+};
+*/
 // Console exposure uses the wrapped version
 if (typeof window !== 'undefined') {
   window.Sim = Sim;
@@ -341,6 +436,11 @@ if (typeof window !== 'undefined') {
   console.log('  Sim.fusionFootsteps()');
   console.log('  Sim.fusionFullForest()');
   console.log('  Sim.emergency("SCR")');
+
+
+ 
+  window.Sim.sequence = SimSequences;
+ 
 }
 /* 
 

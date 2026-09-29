@@ -6,50 +6,52 @@
 /* ═══ THEME: Sky Blue (default) ═══ */
 [data-theme="sky-blue"], :root {
   /* ─── Threat colors ─── */
-  --threat-friend:  #12b981;      /* bright emerald — matches mockup */
-  --threat-enemy:   #e94b3c;      /* warm coral-red — matches mockup */
-  --threat-unknown: #f5a623;      /* warm amber-gold */
-  --threat-self:    #3cb5e8;      /* bright sky cyan */
-  /* ─── Person marker chrome ─── */
-  --marker-bg:      #0c1a28;      /* deep navy circles */
-  --marker-border:  2px;
-  --marker-radius:  50%;
+  --threat-friend:  #12b981;
+  --threat-enemy:   #e94b3c;
+  --threat-unknown: #f5a623;
+  --threat-self:    #3cb5e8;
 
-  /* ─── Panel & UI chrome (light! this is the big change) ─── */
-  --panel-bg:       #99d7ee;      /* pale sky blue — bottom bar */
-  --panel-bg-deep:  #a0d4ea;      /* slightly deeper for chat drawer */
-  --panel-border:   #4ab8d4;      /* medium cyan border */
+  /* ─── Person marker chrome ─── */
+  --marker-bg:      #0c1a28;
+  --marker-outline: #0c1a28;
+  --marker-outline-width: 1.5px;
+
+  /* ─── Panel & UI chrome ─── */
+  --panel-bg:       #99d7ee;
+  --panel-bg-deep:  #a0d4ea;
+  --panel-border:   #4ab8d4;
   --panel-glow:     rgba(74, 184, 212, 0.25);
 
-  /* ─── Accents (dark text colors on light panels) ─── */
-  --accent:         #0e94b8;      /* deep cyan — used for active text */
+  /* ─── Accents ─── */
+  --accent:         #0e94b8;
   --accent-soft:    rgba(14, 148, 184, 0.15);
   --accent-glow:    rgba(74, 184, 212, 0.5);
 
-  /* ─── Text (dark on light — flipped from before) ─── */
-  --text-primary:   #0c1a28;      /* dark navy — main text on panels */
-  --text-muted:     #3a5a70;      /* mid navy — secondary text */
+  /* ─── Text ─── */
+  --text-primary:   #0c1a28;      /* DARK — text on light panels */
+  --text-muted:     #3a5a70;
+  --card-text:      #e0f2fe;      /* LIGHT — text on dark cards */
 
   /* ─── Alarm buttons ─── */
-  --alarm-loud-from: #fc833e;/* #f98a7a;    coral top */
-  --alarm-loud-to:   #f65054; /* #e94b5f;   coral-red bottom */
-  --alarm-silent:    #4db8d8;     /* cyan for silent text/border */
-  --silent-bg:       #0c1a28;     /* dark navy silent button bg */
+  --alarm-loud-from: #fc833e;
+  --alarm-loud-to:   #f65054;
+  --alarm-silent:    #4db8d8;
+  --silent-bg:       #0c1a28;
   --silent-border:   #4db8d8;
   --silent-text:     #4db8d8;
 
   /* ─── Chip / button glass (light) ─── */
   --chip-bg:        transparent;
-  --chip-border:   #5baecb; /* #1d96ab;  */
+  --chip-border:    #5baecb;
   --chip-text:      #0c1a28;
 
-  /* ─── Percentage badge (white pill) ─── */
+  /* ─── Percentage badge ─── */
   --badge-bg:       #ffffff;
   --badge-text:     #0c1a28;
   --badge-border:   rgba(12, 26, 40, 0.15);
 
-  /* ─── Map tint — brighter, cyan-leaning ─── */
-  --map-filter: hue-rotate(180deg) saturate(0.6) brightness(1.05) contrast(0.92);
+  /* ─── Map tint ─── */
+  --map-filter: invert(0.92) hue-rotate(180deg) saturate(0.65) brightness(1.05) contrast(1.05);
   --map-overlay: linear-gradient(180deg, rgba(184, 224, 242, 0.05) 0%, rgba(160, 212, 234, 0.18) 100%);
 
   /* ─── YOU beacon ─── */
@@ -57,26 +59,26 @@
   --beacon-stroke:  #0c1a28;
   --beacon-label-bg: #0c1a28;
 
-  /* added */ 
-  /* Person icon outline (replaces solid marker background) */
---marker-outline: #0c1a28;
---marker-outline-width: 1.5px;
+  /* ─── Demo caption ─── */
+  --caption-bg: #99d7ee;
+  --caption-border: #5baecb;
+  --caption-text:  #0c1a28;
+  --caption-accent: #0c1a28;
 
-/* Demo caption (theme-aware) */
---caption-bg: #99d7ee; 
---caption-border: #5baecb;
---caption-text:  #0c1a28;
---caption-accent: #0c1a28;
+  /* ─── Chat drawer ─── */
+  --chat-header-bg: #0c1a28;
+  --chat-header-text: #e0f2fe;
+  --chat-bubble-bg: #0c1a28;
+  --chat-bubble-text: #e0f2fe;
+  --chat-input-bg: #0c1a28;
+  --chat-input-text: #e0f2fe;
+  --chat-send-bg: #38bdf8;
+  --chat-send-text: #0c1a28;
 
-/* Chat drawer */
---chat-header-bg: #0c1a28;
---chat-header-text: #e0f2fe;
---chat-bubble-bg: #0c1a28;
---chat-bubble-text: #e0f2fe;
---chat-input-bg: #0c1a28;
---chat-input-text: #e0f2fe;
---chat-send-bg: #38bdf8;
---chat-send-text: #0c1a28;
+  /* ─── Danger (cancel alert) ─── */
+  --danger-bg: #ffe0dd;
+  --danger-text: #c81e3f;
+  --danger-border: #e94b3c;
 }
 
 /* ═══ THEME: Desert Sand ═══ */
@@ -87,6 +89,8 @@
   --threat-self:    #0ea5e9;
 
   --marker-bg:      rgba(30, 22, 14, 0.9);
+  --marker-outline: #1a1206;
+
   --panel-bg:       rgba(30, 22, 14, 0.92);
   --panel-bg-deep:  rgba(30, 22, 14, 0.98);
   --panel-border:   rgba(234, 88, 12, 0.35);
@@ -98,13 +102,22 @@
 
   --text-primary:   #fef3c7;
   --text-muted:     #a8a29e;
+  --card-text:      #fef3c7;
 
   --alarm-loud-from: #fbbf24;
   --alarm-loud-to:   #dc2626;
   --alarm-silent:    #fdba74;
+  --silent-bg:       rgba(30, 22, 14, 0.9);
+  --silent-border:   #f97316;
+  --silent-text:     #f97316;
 
   --chip-bg:        rgba(41, 33, 22, 0.75);
   --chip-border:    rgba(234, 88, 12, 0.25);
+  --chip-text:      #fef3c7;      /* FIX: light text on dark chip */
+
+  --badge-bg:       #fef3c7;
+  --badge-text:     #1a1206;
+  --badge-border:   rgba(254, 243, 199, 0.2);
 
   --map-filter: hue-rotate(-15deg) saturate(0.6) brightness(1.02);
   --map-overlay: linear-gradient(180deg, rgba(234, 88, 12, 0.04) 0%, rgba(30, 22, 14, 0.14) 100%);
@@ -113,12 +126,11 @@
   --beacon-stroke: #1a1206;
   --beacon-label-bg: #1a1206;
 
-  /* added */
-    --marker-outline: #1a1206;
   --caption-bg: #1a1206;
   --caption-border: #f97316;
   --caption-text: #fef3c7;
   --caption-accent: #f97316;
+
   --chat-header-bg: #1a1206;
   --chat-header-text: #fef3c7;
   --chat-bubble-bg: #1a1206;
@@ -127,7 +139,10 @@
   --chat-input-text: #fef3c7;
   --chat-send-bg: #f97316;
   --chat-send-text: #1a1206;
-  
+
+  --danger-bg: #3a1a15;
+  --danger-text: #fca5a5;
+  --danger-border: #dc2626;
 }
 
 /* ═══ THEME: Tactical Green ═══ */
@@ -138,6 +153,8 @@
   --threat-self:    #22d3ee;
 
   --marker-bg:      rgba(8, 22, 16, 0.9);
+  --marker-outline: #05140c;
+
   --panel-bg:       rgba(8, 22, 16, 0.92);
   --panel-bg-deep:  rgba(8, 22, 16, 0.98);
   --panel-border:   rgba(74, 222, 128, 0.35);
@@ -149,13 +166,22 @@
 
   --text-primary:   #dcfce7;
   --text-muted:     #86efac;
+  --card-text:      #dcfce7;
 
-  --alarm-loud-from: #f43f5e;
-  --alarm-loud-to:   #be123c;
-  --alarm-silent:    #86efac;
+  --alarm-loud-from: #1cad17;
+  --alarm-loud-to:   #034805;
+  --alarm-silent:    #73da99;
+  --silent-bg:       transparent;
+  --silent-border:   #1cad17;
+  --silent-text:     #1cad17;
 
   --chip-bg:        rgba(10, 32, 22, 0.75);
   --chip-border:    rgba(74, 222, 128, 0.25);
+  --chip-text:      #dcfce7;      /* FIX: light text on dark chip */
+
+  --badge-bg:       #dcfce7;
+  --badge-text:     #05140c;
+  --badge-border:   rgba(220, 252, 231, 0.2);
 
   --map-filter: hue-rotate(120deg) saturate(0.5) brightness(0.9);
   --map-overlay: linear-gradient(180deg, rgba(74, 222, 128, 0.04) 0%, rgba(8, 22, 16, 0.14) 100%);
@@ -164,27 +190,21 @@
   --beacon-stroke: #05140c;
   --beacon-label-bg: #05140c;
 
-  /* added */
-    --marker-outline: #05140c;
+  --caption-bg: #05140c;
+  --caption-border: #4ade80;
+  --caption-text: #dcfce7;
+  --caption-accent: #4ade80;
 
+  --chat-header-bg: #05140c;
+  --chat-header-text: #dcfce7;
+  --chat-bubble-bg: #05140c;
+  --chat-bubble-text: #dcfce7;
+  --chat-input-bg: #05140c;
+  --chat-input-text: #dcfce7;
+  --chat-send-bg: #4ade80;
+  --chat-send-text: #05140c;
 
-/* Sky-blue specific fixes */
-    --caption-bg: #f0f9fc;           /* light — replaces the dark navy */
-    --caption-border: #4ab8d4;
-    --caption-text: #0c1a28;         /* dark text on light bg */
-    --caption-accent: #0e94b8;       /* deep cyan step number */
-
-    --chat-bubble-bg: #a8d4e6;       /* light blue bubble */
-    --chat-bubble-text: #0c1a28;
-    --chat-header-bg: #0c1a28;       /* dark navy header stays */
-    --chat-header-text: #e0f2fe;     /* light text on dark header */
-
-    --danger-bg: #ffe0dd;            /* cancel alert panel bg */
-    --danger-text: #c81e3f;          /* readable red */
-    --danger-border: #e94b3c;
-
-    --chat-input-bg: #05140c;
-    --chat-input-text: #dcfce7;
-    --chat-send-bg: #4ade80;
-    --chat-send-text: #05140c;
+  --danger-bg: #1a0808;
+  --danger-text: #fca5a5;
+  --danger-border: #f43f5e;
 }

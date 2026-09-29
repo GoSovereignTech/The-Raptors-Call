@@ -3,10 +3,16 @@ import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import OnboardingFlow from './pages/app/OnboardingFlow.jsx';
 import AdminApp from './pages/admin/AdminVettingForm.jsx'; 
+
 import './lib/simulation';
+import { setWorkerUrl } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+
+
 import 'leaflet/dist/leaflet.css'
 import "./index.css"
 import './styles/themes.css'
+setWorkerUrl(maplibreWorkerUrl);
 
 // ─── Set theme before first paint ───
 document.documentElement.setAttribute(

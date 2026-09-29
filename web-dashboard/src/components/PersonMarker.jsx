@@ -3,6 +3,7 @@
 // Use for any entity that represents a human (self, friend, unknown, enemy).
 
 import { Marker } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import {
   MOVEMENT_SVG,
@@ -12,20 +13,44 @@ import {
  
 
 // ─── The main marker ───
+// src/components/PersonMarker.jsx
+ 
 export function PersonMarker({ entity, onSelect, highlighted = false }) {
+  const markerRef = useRef(null);
+
+  // Immutable initial position — react-leaflet never updates the marker
+  // directly; our animation loop drives all movement.
+  const initialPositionRef = useRef([
+    entity.lat,
+    entity.lon ?? entity.lng,
+  ]);
+
+  const fromPosRef = useRef({
+    lat: entity.lat,
+    lng: entity.lon ?? entity.lng,
+  });
+  const toPosRef = useRef({
+    lat: entity.lat,
+    lng: entity.lon ?? entity.lng,
+  });
+  const animStartRef = useRef(0);
+  const animDurRef = useRef(600);
+
   const color = colorForEntity(entity);
   const movement = entity.movement || movementFromSpeed(entity.speed) || 'idle';
   const svg = MOVEMENT_SVG[movement] || MOVEMENT_SVG.idle;
   const size = entity.isSelf ? 44 : 36;
   const half = size / 2;
 
-  const isEnemy = entity.threat === 'enemy'
-    || entity.threat === 'CONFIRMED_OPPOSITION'
-    || entity.threat === 'threat';
-  const isUnknown = !isEnemy
-    && !entity.isSelf
-    && entity.threat !== 'friend'
-    && entity.threat !== 'CLEAR';
+  const isEnemy =
+    entity.threat === 'enemy' ||
+    entity.threat === 'CONFIRMED_OPPOSITION' ||
+    entity.threat === 'threat';
+  const isUnknown =
+    !isEnemy &&
+    !entity.isSelf &&
+    entity.threat !== 'friend' &&
+    entity.threat !== 'CLEAR';
 
   const badge = isEnemy
     ? `<div style="position:absolute;top:-3px;left:-3px;width:14px;height:14px;border-radius:50%;background:var(--threat-enemy);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);">!</div>`
@@ -33,14 +58,15 @@ export function PersonMarker({ entity, onSelect, highlighted = false }) {
     ? `<div style="position:absolute;top:-3px;left:-3px;width:14px;height:14px;border-radius:50%;background:var(--threat-unknown);color:#0c1a28;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);">?</div>`
     : '';
 
-  const alarmBadge = entity.alarm && entity.alarm !== 'off'
-    ? `<div style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--threat-enemy);color:#fff;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);animation:personAlarmPulse 1s ease-in-out infinite;">
+  const alarmBadge =
+    entity.alarm && entity.alarm !== 'off'
+      ? `<div style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--threat-enemy);color:#fff;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--marker-outline);animation:personAlarmPulse 1s ease-in-out infinite;">
          <svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor">
            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
            <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
          </svg>
        </div>`
-    : '';
+      : '';
 
   const highlightRing = highlighted
     ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${size + 16}px;height:${size + 16}px;border-radius:50%;border:2px solid ${color};animation:highlightPulse 1.5s ease-in-out infinite;pointer-events:none;"></div>`
@@ -85,9 +111,57 @@ export function PersonMarker({ entity, onSelect, highlighted = false }) {
     iconAnchor: [half, half],
   });
 
+  // ─── Detect new target position and start animation ───
+  useEffect(() => {
+    const newLat = entity.lat;
+    const newLng = entity.lon ?? entity.lng;
+    if (newLat == null || newLng == null) return;
+    if (!markerRef.current) return;
+
+    const current = markerRef.current.getLatLng();
+    const dLat = Math.abs(newLat - current.lat);
+    const dLng = Math.abs(newLng - current.lng);
+
+    // Ignore micro-jitter (< ~5m at this latitude)
+    if (dLat < 0.00005 && dLng < 0.00005) return;
+
+    fromPosRef.current = { lat: current.lat, lng: current.lng };
+    toPosRef.current = { lat: newLat, lng: newLng };
+    animStartRef.current = performance.now();
+
+    const distance = Math.hypot(newLat - current.lat, newLng - current.lng);
+    animDurRef.current = Math.min(2000, Math.max(350, distance * 800000));
+  }, [entity.lat, entity.lon, entity.lng]);
+
+  // ─── Animation loop drives setLatLng directly ───
+  useEffect(() => {
+    let raf;
+    const tick = (t) => {
+      if (markerRef.current) {
+        const elapsed = t - animStartRef.current;
+        const p = animDurRef.current > 0
+          ? Math.min(1, elapsed / animDurRef.current)
+          : 1;
+        // Ease-out cubic
+        const eased = 1 - Math.pow(1 - p, 3);
+        const lat = fromPosRef.current.lat +
+          (toPosRef.current.lat - fromPosRef.current.lat) * eased;
+        const lng = fromPosRef.current.lng +
+          (toPosRef.current.lng - fromPosRef.current.lng) * eased;
+        try {
+          markerRef.current.setLatLng([lat, lng]);
+        } catch (e) {}
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <Marker
-      position={[entity.lat, entity.lon ?? entity.lng]}
+      ref={markerRef}
+      position={initialPositionRef.current}   // ← NEVER changes after mount
       icon={icon}
       eventHandlers={{ click: () => onSelect?.(entity) }}
     />

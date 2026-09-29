@@ -5,7 +5,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play } from 'lucide-react';
 
+
+
+
 const QUEUE = [
+{ fn: 'sequence', arg: ['maya'], caption: 'Maya walks her usual route — normal pace.' },
+{ fn: 'sequence', arg: ['marcus'], caption: 'Marcus is running. Pattern break flagged.' },
+{ fn: 'sequence', arg: ['allThree'], caption: 'Three teammates moving simultaneously.' },
   { fn: 'heartbeat',        arg: null,        caption: 'Check-in: team member at rest, all normal.' },
   { fn: 'gpsWalking',       arg: null,        caption: 'She starts walking home — normal pace, usual route.' },
   { fn: 'gpsRunning',       arg: null,        caption: 'Speed jumps to running. Pattern break flagged.' },
@@ -19,6 +25,8 @@ const QUEUE = [
  
   { fn: 'clearAll',         arg: null,        caption: 'Situation resolved. Map cleared.' },
 ];
+
+
 
 export function DemoPilot({ onRun, bottomOffset = 320 }) {
   const [index, setIndex] = useState(-1);

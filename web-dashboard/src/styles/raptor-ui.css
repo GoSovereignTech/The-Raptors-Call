@@ -59,7 +59,42 @@
 }
 [data-theme="sky-blue"]  .raptor-chip.active{
   background: #7ed0e6;
+}
+[data-theme="desert"]  .raptor-chip {
+  color: var(--caption-border);
+}
+[data-theme="desert"]  .raptor-btn-silent {
+  
+  border-color: #f9731696;
+  color: var(--caption-border);
+  background: transparent;
+  box-shadow: 0 4px 12px -4px rgba(12, 26, 40, 0.4);
 
+  
+}
+[data-theme="desert"]  .raptor-btn-silent:focus,
+[data-theme="desert"]  .raptor-btn-silent:active,
+[data-theme="desert"]  .raptor-btn-silent.active,
+[data-theme="desert"]  .raptor-btn-silent:hover {
+  background: transparent;
+  box-shadow: 0 8px 20px -6px var(--alarm-loud-to), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+  border-color: var(--caption-border); 
+  color: var(--caption-border);
+  transform: translateY(-1px); 
+} 
+
+[data-theme="tactical"]  .raptor-btn-silent:focus,
+[data-theme="tactical"]  .raptor-btn-silent:active,
+[data-theme="tactical"]  .raptor-btn-silent.active,
+[data-theme="tactical"]  .raptor-btn-silent:hover {
+  background: #0f2233;
+  border-color: #6ec9e6;
+  color: #6ec9e6;
+  transform: translateY(-1px);
+}
+.raptor-btn-silent:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /*  i left .raptor-chip svg from */

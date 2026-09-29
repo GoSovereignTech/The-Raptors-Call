@@ -1,5 +1,11 @@
-import React from 'react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { UnconfirmedMarker } from '../../components/UnconfirmedMarker.jsx';
+import {
+  findNearestPlausiblePerson,
+  resolveMovement,
+  generateEntityId,
+} from '../../lib/entityMatcher.js';
+
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Crosshair } from 'lucide-react';
@@ -26,22 +32,31 @@ import '@maplibre/maplibre-gl-leaflet';
 import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
 import { movementFromSpeed } from '../../lib/personIcons.js';
 
-import { useMemo } from 'react';
 import { enrichEntity, sortEntities, setProfileDb } from '../../lib/entityProfiles.js';
 import { saveProfile } from '../../lib/entityProfiles.js';
 import { SettingsPage } from '../../components/SettingsPage.jsx';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
-
+ 
+const NODE_COLORS = {
+  sensor: '#4b5563',   // dark grey
+  relay:  '#9ca3af',   // light grey
+  bridge: '#1f2937',   // near black
+};
 
 function VectorBaseMap() {
   const map = useMap();
   useEffect(() => {
-    const gl = L.maplibreGL({
-      style: 'https://tiles.openfreemap.org/styles/dark'
-    }).addTo(map);
-    return () => { map.removeLayer(gl); };
+    let gl;
+    try {
+      gl = L.maplibreGL({
+        style: 'https://tiles.openfreemap.org/styles/liberty'
+      }).addTo(map);
+    } catch (e) {
+      console.warn('[VectorBaseMap] maplibre failed:', e);
+    }
+    return () => { if (gl) map.removeLayer(gl); };
   }, [map]);
   return null;
 }
@@ -124,24 +139,85 @@ function HeadingMarker({ lat, lon, heading, pulseDuration, alert }) {
 
 
 // NEW -- Radar rendered as a Leaflet marker so it moves with the map
-function RadarSweepMarker({ lat, lon, size = 340 }) {
-  const icon = L.divIcon({
-    className: 'raptor-radar-icon',
-    html: `<div class="raptor-radar-sweep" style="width:${size}px;height:${size}px"></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2], // center on the lat/lon point
-  });
+const RadarSweepMarker = React.memo(function RadarSweepMarker({
+  lat,
+  lon,
+  radiusMeters = 30,   // tune this: 10 = accurate to sensor, 30 = visible
+  minPx = 40,
+  maxPx = 900,
+}) {
+  const markerRef = useRef(null);
+  const map = useMap();
+  const [scale, setScale] = useState(1);
+
+  // Compute pixel diameter for the target radius at current zoom
+  const computeScale = useCallback(() => {
+    const zoom = map.getZoom();
+    const metersPerPixel =
+      156543.03392 * Math.cos((lat * Math.PI) / 180) / Math.pow(2, zoom);
+    const rawDiameter = (radiusMeters * 2) / metersPerPixel;
+    const clampedDiameter = Math.max(minPx, Math.min(maxPx, rawDiameter));
+    // Base HTML size is 400px; scale to reach clampedDiameter
+    return clampedDiameter / 400;
+  }, [map, lat, radiusMeters, minPx, maxPx]);
+
+  // Recompute on zoom/pan
+  useEffect(() => {
+    setScale(computeScale());
+    const onMove = () => setScale(computeScale());
+    map.on('zoomend', onMove);
+    map.on('moveend', onMove);
+    return () => {
+      map.off('zoomend', onMove);
+      map.off('moveend', onMove);
+    };
+  }, [map, computeScale]);
+
+  // Apply scale to the inner element WITHOUT touching the icon HTML,
+  // so the CSS rotation animation never restarts.
+  useEffect(() => {
+    if (!markerRef.current) return;
+    const el = markerRef.current.getElement();
+    if (!el) return;
+    const inner = el.querySelector('.raptor-radar-scaler');
+    if (inner) inner.style.transform = `scale(${scale})`;
+  }, [scale]);
+
+  // Icon built ONCE — never regenerated, so no animation restart
+  const icon = useMemo(
+    () =>
+      L.divIcon({
+        className: 'raptor-radar-icon',
+        html: `
+          <div class="raptor-radar-scaler" style="
+            width:400px;height:400px;
+            transform-origin:center center;
+            transition:transform 0.15s ease-out;
+          ">
+            <div class="raptor-radar-sweep" style="width:400px;height:400px"></div>
+          </div>
+        `,
+        iconSize: [400, 400],
+        iconAnchor: [200, 200],
+      }),
+    []
+  );
+
+  useEffect(() => {
+    if (markerRef.current) markerRef.current.setLatLng([lat, lon]);
+  }, [lat, lon]);
+
   return (
     <Marker
+      ref={markerRef}
       position={[lat, lon]}
       icon={icon}
       interactive={false}
       keyboard={false}
-      zIndexOffset={-100} // sit behind the beacon and node markers
+      zIndexOffset={-100}
     />
   );
-}
-
+});
 
 
 function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
@@ -155,15 +231,17 @@ function LiveMap({ lat, lon, heading, pulseDuration, onFail, children }) {
       className="absolute inset-0 h-full w-full"
       style={{ background: '#0a0e1c' }}
     >
+      {/* 
       <TileLayer
         url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenTopoMap"
         eventHandlers={{ tileerror: () => onFail() }}
       />
  
-
-      {/* 
+      */}
+      
         <VectorBaseMap />
+      {/*
         <TileLayer
             url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
             attribution="&copy; OpenFreeMap &copy; OpenMapTiles &copy; OpenStreetMap contributors"
@@ -352,10 +430,8 @@ function HomeField({ location, onOpenSettings }) {
   const activeNodesRef = useRef([]);
   // --- NEW STATES FROM MOMMA RAPTOR ---
   const [alarmStatus, setAlarmStatus] = useState('CLEAR');
-  const [activeNodes, setActiveNodes] = useState([]);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [initialAlarmLocation, setInitialAlarmLocation] = useState(null);
-  const [nodeThreatDescription, setNodeThreatDescription] = useState('');
+  const [activeNodes, setActiveNodes] = useState([]); 
+  const [initialAlarmLocation, setInitialAlarmLocation] = useState(null); 
   const [chatMessages, setChatMessages] = useState([]);
 
   // -- state for personal detail.
@@ -379,6 +455,9 @@ function HomeField({ location, onOpenSettings }) {
   const [selectedFusion, setSelectedFusion] = useState(null);
   const [fusionPackets, setFusionPackets] = useState([]);
 
+  /* states for person icon smooth movement */
+  const [unconfirmedMarkers, setUnconfirmedMarkers] = useState([]);
+  const entityHistoryRef = useRef(new Map());   // entityId → [{lat, lng, ts, movement}, ...]
 
   const showToast = (text, opts = {}) => {
     const id = Date.now() + Math.random();
@@ -398,9 +477,46 @@ function HomeField({ location, onOpenSettings }) {
       duration: 8000,
     });
   };
+
+  const SHOW_GHOSTS = false; 
   
   const [isRewinding, setIsRewinding] = useState(false);
   
+  // two helper callbacks inside HomeFields
+  // ─── Record a position update into history for this entity ───
+  const recordHistory = (entity) => {
+    const hist = entityHistoryRef.current.get(entity.id) || [];
+    hist.push({
+      lat: entity.lat,
+      lng: entity.lng ?? entity.lon,
+      ts: entity.lastUpdate || Math.floor(Date.now() / 1000),
+      movement: entity.movement,
+    });
+    if (hist.length > 500) hist.shift();
+    entityHistoryRef.current.set(entity.id, hist);
+  };
+
+  // ─── Move an existing entity to a new position ───
+  // Records previous position in history, then updates the entity.
+  // PersonMarker's useEffect picks up the lat/lng change and interpolates.
+  const moveEntity = (entityId, lat, lng, mot, speed) => {
+    setActiveNodes((prev) =>
+      prev.map((n) => {
+        if (n.id !== entityId) return n;
+        recordHistory(n);  // save old position BEFORE updating
+        return {
+          ...n,
+          lat,
+          lng,
+          movement: resolveMovement(mot, speed, n.movement),
+          speed: speed != null ? speed : n.speed,
+          lastUpdate: Math.floor(Date.now() / 1000),
+        };
+      })
+    );
+  };
+
+
   useEffect(() => {
     setSimBase(live.lat, live.lon);
   }, [live.lat, live.lon]);
@@ -475,17 +591,29 @@ const openDetail = (entity) => {
       if (relaysOnline) relaysOnline.textContent = stats.relays;
       if (sensorsOnline) sensorsOnline.textContent = stats.sensors;
     };
+    
+    useEffect(() => {
+      const interval = setInterval(() => {
+        const cutoff = Date.now() - 30000;
+        setUnconfirmedMarkers((prev) => prev.filter((m) => m.createdAt > cutoff));
+      }, 1000);
+      return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
       registerClearHandler(() => {
+        setActiveNodes((prev) => prev.filter((n) => n.isInfrastructure));
         setFusionPackets([]);
+        setUnconfirmedMarkers([]);
         setChatMessages([]);
-        // setActiveNodes([]);
-        // DO NOT clear activeNodes — infrastructure stays visible
+        setGhosts([]);
         setSelectedFusion(null);
-        setSelectedNode(null);
+       
+        setDetailEntity(null);
+        setHighlightedId(null);
         setAlarmStatus('CLEAR');
         stopSiren();
+        // Leave entityHistoryRef intact so Rewind can still see cleared entities
       });
     }, []);
     
@@ -496,83 +624,135 @@ const openDetail = (entity) => {
     }
     // ─── Sim → Map bridge ───
     useEffect(() => {
-      registerSimHandler((packet) => {
-        console.log('[SIM IN]', packet.typ, packet.nid, packet.d);
+    registerSimHandler((packet) => {
+      const now = packet.ts || Math.floor(Date.now() / 1000);
 
-        // Route by packet type
-        if (packet.typ === 'SNS') {
-          // Add to fusion packets → renders as FusionPacketMarker on map
-          setFusionPackets((prev) => [...prev.slice(-50), packet]);
-        }
-        else if (packet.typ === 'ALM') {
-          // Trigger alarm UI
-          setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
-          if (packet.d.mode === 'SCR') playSiren();
-        }
-        else if (packet.typ === 'HBT') {
-          const nodeId = packet.nid;
-          const lat = packet.d.lat;
-          const lon = packet.d.lon;
+      // ─── SNS: sensor trigger ───
+      if (packet.typ === 'SNS') {
+        const conf = packet.d?.conf || 0;
+        const lat = packet.d?.lat;
+        const lng = packet.d?.lon;
+        if (lat == null || lng == null) return;
 
-          // Read from the REF, not the state — avoids stale closure
-          const prev = activeNodesRef.current.find((n) => n.id === nodeId);
-
-          // If moved meaningfully, leave a ghost at the old position
-          if (prev && (Math.abs(prev.lat - lat) > 0.00005 || Math.abs(prev.lng - lon) > 0.00005)) {
-            const ghost = {
-              id: `ghost-${Date.now()}-${Math.random()}`,
-              lat: prev.lat,
-              lon: prev.lng,
-              movement: prev.movement,
-              threat: prev.threat,
-              isSelf: prev.isSelf,
-              nickname: prev.nickname,
-              ts: Date.now(),
-            };
-            setGhosts((g) => [...g.slice(-50), ghost]);
-          }
-
-          // Existing activeNodes update — unchanged
-          setActiveNodes((prevNodes) => {
-            const existing = prevNodes.findIndex((n) => n.id === nodeId);
-            const movement = packet.d.mot || 'idle';
-            const isSelf = false; // or whatever your logic was
-            const node = {
-              id: nodeId,
-              lat,
-              lng: lon,
-              alias: packet.d.nickname || nodeId,
-              nickname: packet.d.nickname || null,
-              threat: existing >= 0 ? prevNodes[existing].threat : 'CLEAR',
-              movement,
-              speed: packet.d.speed || 0,
-              alarm: packet.d.alarm || 'off',
-              isSelf,
-              unvouchedDots: 0,
-            };
-            if (existing >= 0) {
-              const next = [...prevNodes];
-              next[existing] = { ...next[existing], ...node };
-              return next;
-            }
-            return [...prevNodes, node];
-          });
-        }
-        else if (packet.typ === 'CHT') {
-          setChatMessages((prev) => [
-            ...prev.slice(-50),
+        // Low confidence → small unconfirmed circle, no person
+        if (conf < 80) {
+          setUnconfirmedMarkers((prev) => [
+            ...prev.slice(-40),
             {
-              id: packet.id,
-              from: packet.d.from || 'Unknown',
-              text: packet.d.txt,
-              ts: packet.ts,
+              id: generateEntityId('UNC'),
+              lat,
+              lng,
+              conf,
+              packet,
+              createdAt: Date.now(),
             },
           ]);
-          // Optional: auto-open drawer on first incoming message
-          if (chatMessages.length === 0) setShowChatOverlay(true);
+          return;
         }
-      });
-    }, []);
+
+        // High confidence → try to match an existing friend
+        const candidate = findNearestPlausiblePerson(
+          { lat, lng, ts: now },
+          activeNodesRef.current
+        );
+
+        if (candidate) {
+          // Move that friend's icon to the trigger position
+          moveEntity(candidate.id, lat, lng, null, null);
+        } else {
+          // No friend nearby → brand-new unknown person
+          setActiveNodes((prev) => [
+            ...prev,
+            {
+              id: generateEntityId('UNK'),
+              lat,
+              lng,
+              alias: 'Unknown',
+              nickname: null,
+              threat: 'unknown',
+              movement: 'idle',
+              speed: 0,
+              alarm: 'off',
+              isSelf: false,
+              isInfrastructure: false,
+              fromSensor: true,
+              lastUpdate: now,
+            },
+          ]);
+        }
+        return;
+      }
+
+      // ─── ALM: emergency alarm ───
+      if (packet.typ === 'ALM') {
+        setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
+        if (packet.d.mode === 'SCR') playSiren();
+        return;
+      }
+
+      // ─── HBT: heartbeat / GPS update ───
+      if (packet.typ === 'HBT') {
+        const nodeId = packet.nid;
+        const lat = packet.d.lat;
+        const lng = packet.d.lon;
+        if (lat == null || lng == null || !nodeId) return;
+
+        // Capture mesh node ID once for the Settings page
+        if (!localStorage.getItem('raptor:mesh-node-id')) {
+          localStorage.setItem('raptor:mesh-node-id', nodeId);
+        }
+
+        const existing = activeNodesRef.current.find((n) => n.id === nodeId);
+
+        if (existing) {
+          // Known friend → move the icon
+          moveEntity(nodeId, lat, lng, packet.d.mot, packet.d.speed);
+        } else {
+          // New entity — determine threat from payload or default to friend
+          const typeMap = {
+            friend: 'CLEAR',
+            stranger: 'unknown',
+            unknown: 'unknown',
+            enemy: 'CONFIRMED_OPPOSITION',
+          };
+          const threat = typeMap[packet.d.entityType] || 'CLEAR';
+
+          setActiveNodes((prev) => [
+            ...prev,
+            {
+              id: nodeId,
+              lat,
+              lng,
+              alias: packet.d.nickname || nodeId,
+              nickname: packet.d.nickname || null,
+              threat,
+              movement: resolveMovement(packet.d.mot, packet.d.speed, 'idle'),
+              speed: packet.d.speed || 0,
+              alarm: packet.d.alarm || 'off',
+              isSelf: false,
+              isInfrastructure: false,
+              lastUpdate: now,
+            },
+          ]);
+        }
+        return;
+      }
+
+      // ─── CHT: chat ───
+      if (packet.typ === 'CHT') {
+        setChatMessages((prev) => [
+          ...prev.slice(-50),
+          {
+            id: packet.id,
+            from: packet.d.from || 'Unknown',
+            text: packet.d.txt,
+            ts: packet.ts,
+          },
+        ]);
+        if (chatMessages.length === 0) setShowChatOverlay(true);
+      }
+    });
+  }, []);
 
   
   useEffect(() => {
@@ -669,12 +849,11 @@ const openDetail = (entity) => {
   const simulateIncomingFieldMeshNodes = (baseCoord) => {
     if (!baseCoord) return;
     const mockNodes = [
-      { id: 'RAPTOR_NODE_01', lat: baseCoord.lat + 0.003, lng: baseCoord.lon + 0.002, alias: 'North Ridge Relay', threat: 'CLEAR', unvouchedDots: 0 },
-      { id: 'RAPTOR_NODE_02', lat: baseCoord.lat - 0.002, lng: baseCoord.lon - 0.004, alias: 'South Exit Choke', threat: 'CLEAR', unvouchedDots: 0 },
-      { id: 'RAPTOR_NODE_03', lat: baseCoord.lat + 0.001, lng: baseCoord.lon - 0.002, alias: 'West Treeline Perimeter', threat: 'PENDING', unvouchedDots: 3 }
+      { id: 'RAPTOR_NODE_01', lat: baseCoord.lat + 0.003, lng: baseCoord.lon + 0.002, alias: 'North Ridge Relay', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
+      { id: 'RAPTOR_NODE_02', lat: baseCoord.lat - 0.002, lng: baseCoord.lon - 0.004, alias: 'South Exit Choke', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
+      { id: 'RAPTOR_NODE_03', lat: baseCoord.lat + 0.001, lng: baseCoord.lon - 0.002, alias: 'West Treeline Perimeter', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'sensor' },
     ];
     setActiveNodes(mockNodes);
-       // Update UI with simulation stats
     const stats = { total: 3, friends: 2, relays: 1, sensors: 0 };
     updateUI(stats);
   };
@@ -722,7 +901,7 @@ const openDetail = (entity) => {
   const cancelEmergencyState = () => {
     setAlarmStatus('CLEAR');
     setActiveNodes([]);
-    setSelectedNode(null);
+   
     setInitialAlarmLocation(null);
     stopSiren();
   };
@@ -761,7 +940,7 @@ const openDetail = (entity) => {
   const pulseDuration = 2.4 - activity * 1.4;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-raptor-void">
+    <div className="map-page relative min-h-screen overflow-hidden bg-raptor-void">
       {/* 1. The Map */}
       <LiveMap 
         lat={live.lat} 
@@ -775,42 +954,41 @@ const openDetail = (entity) => {
 
       <OffScreenIndicators
         markers={[
-          // Fusion packets
-          ...fusionPackets.map((p) => ({
-            id: p.id,
-            lat: p.d?.lat,
-            lng: p.d?.lon,
-            threat: p.d?.conf >= 80 ? 'threat' : 'stranger',
-            data: p,
-            type: 'fusion',
+          ...unconfirmedMarkers.map((m) => ({
+            id: m.id,
+            lat: m.lat,
+            lng: m.lng,
+            threat: 'stranger',
+            data: m,
+            type: 'unconfirmed',
           })),
-          // Active nodes
-          ...activeNodes.map((n) => ({
-            id: n.id,
-            lat: n.lat,
-            lng: n.lng,
-            threat: n.threat === 'CONFIRMED_OPPOSITION' ? 'threat' : 'CLEAR',
-            data: n,
-            type: 'node',
-          })),
+          ...activeNodes
+            .filter((n) => !n.isInfrastructure)
+            .map((n) => ({
+              id: n.id,
+              lat: n.lat,
+              lng: n.lng,
+              threat: n.threat === 'CONFIRMED_OPPOSITION' ? 'threat' : 'CLEAR',
+              data: n,
+              type: 'node',
+            })),
         ]}
         onZoneClick={(marker) => {
           if (!leafletMap) return;
           leafletMap.flyTo([marker.lat, marker.lng], 16, { duration: 0.8 });
-          if (marker.type === 'fusion') setSelectedFusion(marker.data);
-          if (marker.type === 'node') setSelectedNode(marker.data);
+          setDetailEntity(marker.data);
         }}
       />
  
        <MapInstanceGetter onMap={setLeafletMap} />
-       {/* 
-       TODO: I need to figure out how to get thia to show raster OpenFreeMap
-       <VectorBaseMap />
-        */}
+          {/* 
+            TODO: I need to figure out how to get thia to show raster OpenFreeMap
+            <VectorBaseMap />
+          */}
 
         {/* Radar sweep — appears centered on your position */}
         {showRadarOverlay && (
-          <RadarSweepMarker lat={live.lat} lon={live.lon} size={340} />
+          <RadarSweepMarker lat={live.lat} lon={live.lon} size={50} />
         )}
 
          {ghosts.map((g) => (
@@ -821,28 +999,60 @@ const openDetail = (entity) => {
           />
         ))}
         {/* Fusion packets — as Leaflet markers */}
-        {fusionPackets.map((p) => (
-          <FusionPacketMarker
-            key={`${p.id}-${showVariance ? 'v' : 'nv'}`}   // ← key changes with toggle
-            packet={p}
-            onSelect={setSelectedFusion}
-            showVariance={showVariance} 
-          />
-        ))}
-        {/* Now the markers are children of the MapContainer! */}
-        {activeNodes.map((node) => {
-          
-          return (
-            <React.Fragment key={node.id}> 
-              <PersonMarker
-                key={node.id}
-                entity={node}
-                onSelect={openDetail}
-                highlighted={node.id === highlightedId}
-              />
-            </React.Fragment>
-          );
+        {/* Unconfirmed low-confidence triggers — small fading circles */}
+{unconfirmedMarkers.map((m) => (
+  <UnconfirmedMarker
+    key={m.id}
+    entity={m}
+    onSelect={(e) => {
+      setSelectedFusion(e.packet);
+      setDetailEntity(e);
+    }}
+  />
+))}
+ 
+{/* Infrastructure nodes — small relay dots */}
+{activeNodes
+  .filter((n) => n.isInfrastructure)
+  .map((node) => {
+    const nodeColor = NODE_COLORS[node.nodeType] || NODE_COLORS.relay;
+    const nodeLetter = (node.nodeType || 'relay').charAt(0).toUpperCase();
+
+    return (
+      <Marker
+        key={node.id}
+        position={[node.lat, node.lng]}
+        icon={L.divIcon({
+          className: 'mesh-node-marker',
+          html: `<div style="
+            background-color: ${nodeColor};
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 900; color: #fff;
+            font-family: -apple-system, system-ui, sans-serif;
+          ">${nodeLetter}</div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
         })}
+        eventHandlers={{ click: () => openDetail(node) }}
+      />
+    );
+  })}
+
+  {/* Persons — self, friends, unknowns, enemies — each is ONE moving icon */}
+  {activeNodes
+    .filter((n) => !n.isInfrastructure)
+    .map((node) => (
+      <PersonMarker
+        key={node.id}
+        entity={node}
+        onSelect={openDetail}
+        highlighted={node.id === highlightedId}
+      />
+    ))}
       </LiveMap>
       
       {/* Radar sweep overlay — appears centered when toggled */} 
@@ -1117,27 +1327,7 @@ const openDetail = (entity) => {
         </svg>
         <span>Cancel Alert (PIN)</span>
       </button>
-      {selectedNode && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-          <p className="text-xs text-amber-300">Node {selectedNode.id} selected.</p>
-          <input
-            placeholder="Enter threat notes..."
-            value={nodeThreatDescription}
-            onChange={(e) => setNodeThreatDescription(e.target.value)}
-            className="mt-2 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white outline-none"
-          />
-          <button
-            onClick={() => {
-              setActiveNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, threat: 'CONFIRMED_OPPOSITION' } : n));
-              setSelectedNode(null);
-              setNodeThreatDescription('');
-            }}
-            className="mt-2 w-full rounded bg-rose-600 py-1 text-xs font-bold text-white"
-          >
-                        CONFIRM OPPOSITION
-          </button>
-        </div>
-      )}
+       
     </div>
   )}
 </div>

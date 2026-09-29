@@ -374,7 +374,7 @@ A play/pause button to auto-scrub
 Simplest version for now — when Rewind is on, render all stored positions with a timeline slider below the map:
 
 text
-◀◀ ——●———————— ▶▶  T-00:42
+cc
 I'll write this when you're back from the library. It's about 60 lines.
 
 -----------
@@ -440,3 +440,15 @@ Tasia Fortune's body was discovered behind an abandoned home in the 500 block of
  ](the-raptors-key.jpeg) ![
   
  ](Gemini_Generated_Image_5zlcef5zlcef5zlc.png)
+
+ September 27, 2025
+
+Marketing 
+ 1. DM 
+ 2. Email 
+ 3. Video
+Development 
+ 4. Map switch 
+ 5. Map ccolor 
+ 6. person icon easing
+ 7. jsonloveli gmail
