@@ -9,21 +9,59 @@ import { Play } from 'lucide-react';
 
 
 const QUEUE = [
-{ fn: 'sequence', arg: ['maya'], caption: 'Maya walks her usual route — normal pace.' },
-{ fn: 'sequence', arg: ['marcus'], caption: 'Marcus is running. Pattern break flagged.' },
-{ fn: 'sequence', arg: ['allThree'], caption: 'Three teammates moving simultaneously.' },
-  { fn: 'heartbeat',        arg: null,        caption: 'Check-in: team member at rest, all normal.' },
-  { fn: 'gpsWalking',       arg: null,        caption: 'She starts walking home — normal pace, usual route.' },
-  { fn: 'gpsRunning',       arg: null,        caption: 'Speed jumps to running. Pattern break flagged.' },
-  { fn: 'fusionMoving',     arg: null,        caption: 'Nearby node: motion + thermal — someone is with her.' },
-  { fn: 'fusionTriple',     arg: null,        caption: 'PIR + Thermal + Seismic agree — confirmed human.' },
-  { fn: 'fusionStationary', arg: null,        caption: 'Another node: someone stopped moving. Hiding.' },
-  { fn: 'fusionFootsteps',  arg: null,        caption: 'Seismic only — quiet footsteps, low confidence.' },
-  { fn: 'emergency',        arg: ['SCR'],     caption: 'PIN PULLED — loud siren, GPS broadcast to team.' },
-  { fn: 'chat',             arg: ['Team is 2 minutes out.', 'Team A'], caption: 'Team coordinates over mesh chat.' },
-  { fn: 'chat',             arg: ['Overwatch has eyes. Flagging contact.', 'Overwatch'], caption: 'Overwatch reports visual.' },
- 
-  { fn: 'clearAll',         arg: null,        caption: 'Situation resolved. Map cleared.' },
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 1 — ROUTINE
+  // ═══════════════════════════════════════════════════════════
+  { fn: 'clearAll', arg: null,
+    caption: 'Setup — clean map. Three relay nodes online.' },
+
+  { fn: 'sequence', arg: ['tasia'],
+    caption: 'Phase 1 — Tasia walks her usual evening route home.' },
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 2 — DANGER APPEARS
+  // ═══════════════════════════════════════════════════════════
+  { fn: 'sequence', arg: ['potasia'],
+    caption: 'Phase 2 — An unknown vehicle idles near her route. Pattern flagged.' },
+
+  { fn: 'sequence', arg: ['trickster'],
+    caption: 'APP: Second vehicle circling the block. Two unknowns coordinating.' },
+
+  { fn: 'chat', arg: ['Overwatch: suspicious vehicle parked at corner 4 min.', 'Overwatch'],
+    caption: 'Overwatch reports visual. Team placed on standby.' },
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 3 — ABDUCTION TRIGGERED
+  // ═══════════════════════════════════════════════════════════
+  { fn: 'emergency', arg: ['SCR'],
+    caption: 'Phase 3 — PIN PULLED. Siren active. GPS broadcast to team.' },
+
+  { fn: 'sequence', arg: ['rescueTasia1'],
+    caption: 'Rescue A — inbound by car. ETA 40 seconds.' },
+
+  { fn: 'sequence', arg: ['rescueTasia2'],
+    caption: 'Rescue B — closing from the north. Intercepting route.' },
+
+  { fn: 'sequence', arg: ['rescueTasia3'],
+    caption: 'Rescue C — on foot, converging from the east.' },
+
+  { fn: 'sequence', arg: ['rescueTasia4'],
+    caption: 'Rescue D — sprinting from the north across the field.' },
+
+  { fn: 'sequence', arg: ['rescueTasia5'],
+    caption: 'Rescue E — approaching from the south on foot.' },
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 4 — RESCUE COMPLETE
+  // ═══════════════════════════════════════════════════════════
+  { fn: 'chat', arg: ['Target vehicle exiting. 5 friendly contacts on scene.', 'Rescue A'],
+    caption: 'Attacker flees. Team controls the location.' },
+
+  { fn: 'chat', arg: ['Tasia is safe. Clear.', 'Rescue B'],
+    caption: 'RESCUED — Tasia recovered within 90 seconds of the pin pull.' },
+
+  { fn: 'clearAll', arg: null,
+    caption: 'Map cleared. Report filed. Evidence preserved.' },
 ];
 
 

@@ -5,7 +5,7 @@ import {
   resolveMovement,
   generateEntityId,
 } from '../../lib/entityMatcher.js';
-
+import { PointSampler } from '../../components/PointSampler.jsx';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Crosshair } from 'lucide-react';
@@ -38,6 +38,7 @@ import { SettingsPage } from '../../components/SettingsPage.jsx';
 
 const BRAND_NAME = 'The Raptor';
 const BRAND_TAGLINE = 'Scream Network';
+const SHOW_DEV_TOOL = 0; 
  
 const NODE_COLORS = {
   sensor: '#4b5563',   // dark grey
@@ -989,6 +990,9 @@ const openDetail = (entity) => {
         {/* Radar sweep — appears centered on your position */}
         {showRadarOverlay && (
           <RadarSweepMarker lat={live.lat} lon={live.lon} size={50} />
+        )}
+        {SHOW_DEV_TOOL && (
+          <PointSampler baseLat={live.lat} baseLon={live.lon} />
         )}
 
          {ghosts.map((g) => (
