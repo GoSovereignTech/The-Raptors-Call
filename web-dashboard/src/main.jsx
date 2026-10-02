@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import OnboardingFlow from './pages/app/OnboardingFlow.jsx';
 import AdminApp from './pages/admin/AdminVettingForm.jsx'; 
-
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import AdminLogin from './pages/admin/AdminLogin.jsx';
+import ProximityAdmin from './pages/admin/ProximityAdmin.jsx';
 import './lib/simulation';
 import { setWorkerUrl } from 'maplibre-gl';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
@@ -32,7 +34,25 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<OnboardingFlow />} />
-        <Route path="/admin" element={<AdminApp />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminApp />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/proximity"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ProximityAdmin />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

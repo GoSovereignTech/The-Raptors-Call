@@ -1,7 +1,7 @@
 // src/lib/simulation.js
 // Console-triggerable simulations with 5-sensor fusion support.
 // Payload shape matches real dongle output — drop-in compatible.
-
+import { msg } from './messageCenter.js';
 const SIM_PREFIX = 'SIM_';
 const SIM_LAT = 39.2838;
 const SIM_LON = -76.6216;
@@ -17,8 +17,14 @@ async function _emitPath(nid, path, {
   mot = 'walk',
   nickname = null,
   bat = 90,
-  entityType = 'friend',   // 'friend' | 'stranger' | 'enemy' | 'unknown'
+  entityType = 'friend',
+  caption = null,          // ← new
+  captionPriority = 'event',
+  captionTitle = null,
 } = {}) {
+  if (caption) {
+    msg[captionPriority]?.(caption, { title: captionTitle || nickname || nid });
+  }
   for (let i = 0; i < path.length; i++) {
     const [dLat, dLon] = path[i];
     const packet = envelope('HBT', {
@@ -66,10 +72,13 @@ async function _emitPath(nid, path, {
        community tech network system - the Raptors Network aka the Raptors call 
 
        This is her normal pattern every morning and every evening.
-  Sim.sequence.tasia(); // she walks to school by herself and walks home.
+  
+Sim.clearAll();
+Sim.sequence.tasia(); // she walks to school by herself and walks home.
  
      unbeknownst to her she had a stalker 
-  Sim.sequence.potasia();
+Sim.clearAll();
+Sim.sequence.potasia();
      this is what the stalker intended to do.
 
      Sim.clearAll();
@@ -90,8 +99,9 @@ async function _emitPath(nid, path, {
     
        She was in danger - her friends saw the same thing on their dashboard and drove 
          or ran to where she was. Instead of being killed she was rescued
-  Sim.emergency('SCR');
-  Sim.sequence.ambushSetupRescue();
+Sim.clearAll();
+Sim.emergency('SCR');
+Sim.sequence.ambushSetupRescue();
     That's how the app works
     it detects people around you - before they even see you.
     it looks for patterns of vulnerability & stalkers 
@@ -141,51 +151,232 @@ async function _emitPath(nid, path, {
 
   */
 export const SimSequences = {
-  // --- DACARA 
-   dacaraWalkThenDrive:() => _emitPath('SIM_DACRARA_01',
-    [[-0.002363,0.001142],[-0.001233,0.000026]],
-     { intervalMs: 1400, mot: 'walk', 
-      nickname: 'Dacara', entityType: 'friend' }
-  ),
-    dacaraDriveRescue1:() => _emitPath('SIM_DACRARA_01',
-    [ 
-      [-0.001233,0.000026],
-      [-0.002363,0.001142],[-0.001233,0.000026],
-      [-0.001516,0.000154],[-0.00115,-0.000189],
-      [-0.000751,-0.000639],
-      [-0.000386,-0.001069],[-0.000086,-0.001519] 
-    ], { intervalMs: 1400, mot: 'car', 
-      nickname: 'Dacara Friends1', entityType: 'enemy' }
-  ),
-      dacaraDriveRescue2:() => _emitPath('SIM_DACRARA_FRIEND_02',
-    [ [0.001593,-0.003645],[0.000629,-0.003237],
-       [0.000463,-0.002078],[0.00028,-0.001499],
-       [-0.000268,-0.000727],[-0.000833,-0.000147], 
-    ], { intervalMs: 1400, mot: 'car', 
-      nickname: 'Dacara Friends 2', entityType: 'friend' }
-  ),
+  // ═══════════════════════════════════════════════════════════
+// DACARA SCENE — abduction + rescue
+// ═══════════════════════════════════════════════════════════
 
-      dacaraDriveRescue3:() => _emitPath('SIM_DACRARA_FRIEND_03',
-      [[0.003707,-0.000742],[0.003076,-0.001086],[0.002677,-0.001193],
-      [0.001696,-0.001322],[0.000799,-0.001644],[0.000134,-0.001901]], 
-      { intervalMs: 1400, mot: 'car', 
-      nickname: 'Dacara Friends 3', entityType: 'friend' }
-  ),
-        dacaraDriveRescue4:() => _emitPath('SIM_DACRARA_FRIEND_04',
-        [[-0.002325,-0.002094],[-0.001877,-0.002416],
-        [-0.000996,-0.002845],[-0.000231,-0.003124],
-        [0.00035,-0.003424],[0.000267,-0.002867],
-        [0.000267,-0.002373]], { intervalMs: 1400, mot: 'car', 
-      nickname: 'Dacara Friends 4', entityType: 'friend' }
-  ),
-       dacaraDriveRescue5:() => _emitPath('SIM_DACRARA_FRIEND_04',
-    [[0.000134,0.002305],[-0.000198,0.001618],
-    [-0.000431,0.001039],
-    [-0.000697,0.000674],[-0.000863,0.000266],
-    [-0.000996,-0.000034]], { intervalMs: 1400, mot: 'car', 
-      nickname: 'Dacara Friends 4', entityType: 'friend' }
-  ),
+// ─── Phase 1: Dacara walks her Friday routine ───
+dacaraWalk: () => _emitPath('SIM_DACARA_01', [
+  [-0.002000, 0.001200],   // start — southwest of base
+  [-0.001600, 0.000900],
+  [-0.001200, 0.000600],
+  [-0.000800, 0.000200],   // pickup point (curb)
+], {
+  intervalMs: 1400, mot: 'walk',
+  nickname: 'Dacara', entityType: 'friend',
+  caption: 'Dacara walks her usual Friday route to the bus stop.',
+  captionTitle: 'ROUTINE',
+}),
+
+// ─── Phase 2: Enemy car drives up, she gets in ───
+dacaraEnemyCar: () => _emitPath('SIM_ENEMY_CAR_01', [
+  [-0.000800, 0.000200],   // arrives at curb
+  [-0.000400,-0.000200],
+  [ 0.000000,-0.000700],
+  [ 0.000400,-0.001200],
+  [ 0.000800,-0.001600],
+  [ 0.001200,-0.002000],   // final position — ambush point
+], {
+  intervalMs: 1400, mot: 'car',
+  nickname: 'Unmarked vehicle', entityType: 'enemy',
+  caption: 'Unknown vehicle pulls to the curb. Dacara gets in willingly.',
+  captionPriority: 'risk',
+  captionTitle: 'RISK DETECTED',
+}),
+
+// ─── Phase 3: Dacara's tag continues broadcasting from inside the car ───
+// Same physical path, offset by ~5m so both icons are visible
+dacaraTagInCar: () => _emitPath('SIM_DACARA_01', [
+  [-0.000770, 0.000230],   // she's inside — offset slightly from car
+  [-0.000370,-0.000170],
+  [ 0.000030,-0.000670],
+  [ 0.000430,-0.001170],
+  [ 0.000830,-0.001570],
+  [ 0.001230,-0.001970],
+], {
+  intervalMs: 1400, mot: 'car',
+  nickname: 'Dacara', entityType: 'friend',
+  caption: 'She notices the car is not heading toward her destination.',
+  captionPriority: 'risk',
+  captionTitle: 'APP',
+}),
+
+// ─── Phase 4: Rescue team — 4 responders ───
+// Friend A: drives from NE, blocks the road AHEAD of the car
+dacaraFriendA: () => _emitPath('SIM_DACARA_FRIEND_A', [
+  [ 0.003500,-0.003000],   // start — offscreen NE
+  [ 0.002800,-0.002700],
+  [ 0.002000,-0.002400],
+  [ 0.001600,-0.002300],
+  [ 0.001400,-0.002200],   // parked in front of enemy car
+], {
+  intervalMs: 900, mot: 'car',
+  nickname: 'Team A', entityType: 'friend',
+  caption: 'Team A: "I am on the way. Blocking the road ahead."',
+  captionPriority: 'action',
+  captionTitle: 'RESCUE IN PROGRESS',
+}),
+
+// Friend B: drives from W, cuts off BEHIND the enemy car
+dacaraFriendB: () => _emitPath('SIM_DACARA_FRIEND_B', [
+  [-0.003000, 0.001000],   // start — offscreen west
+  [-0.002200, 0.000600],
+  [-0.001400, 0.000200],
+  [-0.000600,-0.000200],
+  [ 0.000000,-0.000800],
+  [ 0.000400,-0.001300],   // parked behind enemy car
+], {
+  intervalMs: 900, mot: 'car',
+  nickname: 'Team B', entityType: 'friend',
+  caption: 'Team B: "Pulling up behind them now."',
+  captionPriority: 'action',
+  captionTitle: 'RESCUE IN PROGRESS',
+}),
+
+// Friend C: on foot from the north side
+dacaraFriendC: () => _emitPath('SIM_DACARA_FRIEND_C', [
+  [ 0.001800, 0.000800],
+  [ 0.001500, 0.000400],
+  [ 0.001400, 0.000000],
+  [ 0.001300,-0.000600],
+  [ 0.001200,-0.001200],
+  [ 0.001300,-0.001600],   // flanking position
+], {
+  intervalMs: 900, mot: 'run',
+  nickname: 'Team C', entityType: 'friend',
+  caption: 'Team C: "Approaching on foot from the north."',
+  captionPriority: 'action',
+  captionTitle: 'RESCUE IN PROGRESS',
+}),
+
+// Friend D: on foot from the south, arrives last
+dacaraFriendD: () => _emitPath('SIM_DACARA_FRIEND_D', [
+  [-0.000500, 0.002800],   // start — offscreen south
+  [-0.000200, 0.002000],
+  [ 0.000200, 0.001200],
+  [ 0.000600, 0.000400],
+  [ 0.000900,-0.000400],
+  [ 0.001100,-0.001000],
+  [ 0.001200,-0.001400],   // arrives on scene
+], {
+  intervalMs: 1000, mot: 'run',
+  nickname: 'Team D', entityType: 'friend',
+  caption: 'Team D: "Four of us on scene. Vehicle is boxed in."',
+  captionPriority: 'resolved',
+  captionTitle: 'RESCUE SUCCESSFUL',
+}),
+
+// ═══════════════════════════════════════════════════════════
+// DACARA — full abduction + rescue scene
+// dacaraFullScene();
+// ═══════════════════════════════════════════════════════════
+dacaraFullScene: async () => {
+  // ─── PHASE 1: Routine ───
+  msg.alarm('Test alarm notification', { title: 'TEST' });
+  msg.offer(
+    'I noticed you walk alone every Friday at this time. 3 teammates are nearby — want company?',
+    { title: 'APP' }
+  );
+  await SimSequences.dacaraWalk();
+  await new Promise((r) => setTimeout(r, 800));
+
+  // ─── PHASE 2: Pickup ───
+  const enemyCar = SimSequences.dacaraEnemyCar();
+  await new Promise((r) => setTimeout(r, 2800));
+
+  // ─── PHASE 3: She's in the car ───
+  const dacaraTag = SimSequences.dacaraTagInCar();
+  await new Promise((r) => setTimeout(r, 2800));
+
+  // ─── PHASE 4: Pin pulled — alarm fires ───
+  // msg.alarm('PIN PULLED — GPS broadcast to all teammates.', { title: 'ALARM' });
+  Sim.emergency('SCR');
+  await new Promise((r) => setTimeout(r, 400));
+
+  // ─── PHASE 5: All responders converge ───
+  await Promise.all([
+    SimSequences.dacaraFriendA(),
+    SimSequences.dacaraFriendB(),
+    SimSequences.dacaraFriendC(),
+    SimSequences.dacaraFriendD(),
+    enemyCar,
+    dacaraTag,
+  ]);
+
+  // ─── PHASE 6: Resolution ───
+  await new Promise((r) => setTimeout(r, 800));
+  msg.resolved(
+    'All units on scene. Vehicle boxed front and rear. Dacara is safe.',
+    { title: 'RESCUED' }
+  );
+  Simulations.chat('Mission accomplished. She is safe.', 'Team A');
+},
+
+// demos 
+  maya: () => _emitPath('SIM_MAYA_01', [
+    [0.0003, 0.0005], [0.0006, 0.0009], [0.0009, 0.0013],
+    [0.0012, 0.0017], [0.0015, 0.0021], [0.0018, 0.0025],
+  ], { intervalMs: 1400, mot: 'walk', nickname: 'Maya', entityType: 'friend' }),
+
+  marcus: () => _emitPath('SIM_MARCUS_02', [
+    [-0.0020, 0.0000], [-0.0014, 0.0005], [-0.0008, 0.0010],
+    [-0.0002, 0.0015], [0.0004, 0.0020], [0.0010, 0.0025],
+  ], { intervalMs: 900, mot: 'run', nickname: 'Marcus', entityType: 'friend' }),
+
+  tanisha: () => _emitPath('SIM_TANISHA_03', [
+    [0.0030, -0.0030], [0.0020, -0.0018], [0.0010, -0.0006],
+    [0.0000, 0.0006], [-0.0010, 0.0018], [-0.0020, 0.0030],
+  ], { intervalMs: 700, mot: 'car', nickname: 'Tanisha', entityType: 'friend' }),
+
+  // ─── STRANGER — unknown person, slow approach, no name ───
+  stranger: () => _emitPath('SIM_STRANGER_04', [
+    [0.0006, -0.0006], [0.0005, -0.0005], [0.0004, -0.0004],
+    [0.0003, -0.0003], [0.0002, -0.0002], [0.0001, -0.0001],
+  ], { intervalMs: 1200, mot: 'walk', nickname: null, entityType: 'stranger' }),
+
+  // ─── ENEMY — fast approach, from a distance, no name ───
+  enemy: () => _emitPath('SIM_ENEMY_05', [
+    [0.0050, -0.0050], [0.0038, -0.0038], [0.0026, -0.0026],
+    [0.0014, -0.0014], [0.0005, -0.0005], [0.0001, -0.0001],
+  ], { intervalMs: 700, mot: 'car', nickname: null, entityType: 'enemy' }),
+
+
+
+
+
+
   // ─── FRIENDS ───
+
+  // tasias normal pathway 
+  tasia:() => _emitPath('SIM_TASIA_01',
+    [
+      [-0.000457,0.000413],[-0.000141,0.001292],[0.000191,0.002022],
+      [0.000407,0.002494],[0.00059,0.002945],
+      [0.000623,0.003309],[0.000241,0.003588],
+      [-0.000175,0.003717],[-0.000524,0.003738]
+    ], { intervalMs: 1400, mot: 'walk', 
+     nickname: 'TASIA', entityType: 'friend' }
+  ),
+  // a stalker is lingering 
+  potasia: ()=> _emitPath('SIM_POTASIA_01',
+    [
+    [0.001029,0.003691],[0.001029,0.003591],
+    [0.001029,0.003691],[0.001029,0.003691],
+    [0.001029,0.003691],[0.001029,0.003691],
+    [0.001029,0.003691],[-0.000001,0.003906],
+    ],
+    { intervalMs: 1400, mot: 'walk', 
+     nickname: 'TASIA ENEMY', entityType: 'enemy' }
+  ),
+  // ─── SCENARIO: Ambush setup ───
+  //  this i swha rrhe stalker was planning. 
+  // as she approaches he was planningto follow her A stranger approaches. An enemy cuts her off.
+  ambushSetup: async () => {
+    await Promise.all([
+      SimSequences.tasia(),
+      SimSequences.potasia(),
+    ]);
+  },
   rescueTasia1:() => _emitPath('SIM_TASIA_FRIEND_01',
     [ [0.001593,-0.003645],[0.000629,-0.003237],
        [0.000463,-0.002078],[0.00028,-0.001499],
@@ -237,70 +428,8 @@ export const SimSequences = {
     [0.00054,0.003608],[0.000091,0.003651]
   ], { intervalMs: 1400, mot: 'walk', 
       nickname: 'TASIA Friend 5', entityType: 'friend' }
-  ),
-  tasia:() => _emitPath('SIM_TASIA_01',
-    [
-      [-0.000457,0.000413],[-0.000141,0.001292],[0.000191,0.002022],
-      [0.000407,0.002494],[0.00059,0.002945],
-      [0.000623,0.003309],[0.000241,0.003588],
-      [-0.000175,0.003717],[-0.000524,0.003738]
-    ], { intervalMs: 1400, mot: 'walk', 
-     nickname: 'TASIA', entityType: 'friend' }
-  ),
-  potasia: ()=> _emitPath('SIM_POTASIA_01',
-    [
-    [0.001029,0.003691],[0.001029,0.003591],
-    [0.001029,0.003691],[0.001029,0.003691],
-    [0.001029,0.003691],[0.001029,0.003691],
-    [0.001029,0.003691],[-0.000001,0.003906],
-    ],
-    { intervalMs: 1400, mot: 'walk', 
-     nickname: 'TASIA ENEMY', entityType: 'enemy' }
-  ),
-  trickster: () => _emitPath('SIM_TRICK_01', 
-    [
-      [0.000572,-0.003182],[0.000306,-0.001723],[0.001054,-0.001444],
-      [0.003181,-0.000844],[0.003929,-0.0005],[0.004211,-0.000243],
-      [0.00456,0.001324],  [0.00446,0.002675],[0.004111,0.002933],
-      [0.003613,0.003298], [0.003264,0.003255],[0.002782,0.003469],
-      [0.002416,0.003362], [0.002184,0.00319],[0.001818,0.002954],
-      [0.000655,0.002096]
-  ], { intervalMs: 2400, mot: 'car', nickname: 'trickster', entityType: 'enemy' }),
-  maya: () => _emitPath('SIM_MAYA_01', [
-    [0.0003, 0.0005], [0.0006, 0.0009], [0.0009, 0.0013],
-    [0.0012, 0.0017], [0.0015, 0.0021], [0.0018, 0.0025],
-  ], { intervalMs: 1400, mot: 'walk', nickname: 'Maya', entityType: 'friend' }),
-
-  marcus: () => _emitPath('SIM_MARCUS_02', [
-    [-0.0020, 0.0000], [-0.0014, 0.0005], [-0.0008, 0.0010],
-    [-0.0002, 0.0015], [0.0004, 0.0020], [0.0010, 0.0025],
-  ], { intervalMs: 900, mot: 'run', nickname: 'Marcus', entityType: 'friend' }),
-
-  tanisha: () => _emitPath('SIM_TANISHA_03', [
-    [0.0030, -0.0030], [0.0020, -0.0018], [0.0010, -0.0006],
-    [0.0000, 0.0006], [-0.0010, 0.0018], [-0.0020, 0.0030],
-  ], { intervalMs: 700, mot: 'car', nickname: 'Tanisha', entityType: 'friend' }),
-
-  // ─── STRANGER — unknown person, slow approach, no name ───
-  stranger: () => _emitPath('SIM_STRANGER_04', [
-    [0.0006, -0.0006], [0.0005, -0.0005], [0.0004, -0.0004],
-    [0.0003, -0.0003], [0.0002, -0.0002], [0.0001, -0.0001],
-  ], { intervalMs: 1200, mot: 'walk', nickname: null, entityType: 'stranger' }),
-
-  // ─── ENEMY — fast approach, from a distance, no name ───
-  enemy: () => _emitPath('SIM_ENEMY_05', [
-    [0.0050, -0.0050], [0.0038, -0.0038], [0.0026, -0.0026],
-    [0.0014, -0.0014], [0.0005, -0.0005], [0.0001, -0.0001],
-  ], { intervalMs: 700, mot: 'car', nickname: null, entityType: 'enemy' }),
-
-  // ─── SCENARIO: Ambush setup ───
-  // Maya walks. A stranger approaches. An enemy cuts her off.
-  ambushSetup: async () => {
-    await Promise.all([
-      SimSequences.tasia(),
-      SimSequences.potasia(),
-    ]);
-  },
+  ), 
+  // but this i the rescue that happened. 
   ambushSetupRescue: async () => {
     const tasia = SimSequences.tasia();
     const enemy = SimSequences.potasia();
@@ -321,37 +450,75 @@ export const SimSequences = {
     ]);
   },
     ambushSetupRescueAllAtOnce: async () => {
-    // Phase 1 — Tasia walks (let it run mostly through)
-    await SimSequences.tasia();
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 1 — TASIA'S ROUTINE
+  // ═══════════════════════════════════════════════════════════
+  msg.event(
+    'Tasia leaves her job and walks her usual Friday route home.',
+    { title: 'ROUTINE' }
+  );
+  await SimSequences.tasia();
+  await new Promise((r) => setTimeout(r, 1200));
 
-    // Small pause before danger enters
-    await new Promise((r) => setTimeout(r, 1000));
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 2 — STALKER LINGERING
+  // ═══════════════════════════════════════════════════════════
+  msg.risk(
+    'APP: Unknown person loitering along her route for 4 minutes. No phone signal — not a vetted teammate.',
+    { title: 'RISK DETECTED' }
+  );
+  const potasia = SimSequences.potasia();
+  await new Promise((r) => setTimeout(r, 2800));
 
-    // Phase 2 — enemy lingers, trickster circles
-    const potasia = SimSequences.potasia();
-    await new Promise((r) => setTimeout(r, 2000));
-    const trickster = SimSequences.trickster();
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 3 — INTENDED ATTACK (what he was planning)
+  // ═══════════════════════════════════════════════════════════
+  msg.risk(
+    'APP: Stalker is closing the distance. Tasia is alone — no friendly devices within 200 m.',
+    { title: 'APP' }
+  );
+  await new Promise((r) => setTimeout(r, 1800));
 
-    // Phase 3 — alarm fires 3.5s in
-    await new Promise((r) => setTimeout(r, 1500));
-    Simulations.emergency('SCR');
-    Simulations.chat('Team standby. Alarm active.', 'Overwatch');
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 4 — APP INTERVENES / PIN PULLED
+  // ═══════════════════════════════════════════════════════════
+  msg.alarm(
+    'THREAT CONFIRMED — automatic alarm triggered. GPS broadcasting to all teammates. Siren active.',
+    { title: 'ALARM' }
+  );
+  Sim.emergency('SCR');
+  // Sim.chat('Overwatch standby. Alarm live. All units respond.', 'Overwatch');
+  await new Promise((r) => setTimeout(r, 1500));
 
-    // Phase 4 — all five rescuers converge while enemies keep moving
-    await Promise.all([
-      SimSequences.rescueTasia1(),
-      SimSequences.rescueTasia2(),
-      SimSequences.rescueTasia3(),
-      SimSequences.rescueTasia4(),
-      SimSequences.rescueTasia5(),
-      potasia,
-      trickster,
-    ]);
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 5 — RESCUE TEAM CONVERGES
+  // ═══════════════════════════════════════════════════════════
+  msg.action(
+    'Five teammates in range — two by car, three on foot. Converging on Tasia\'s location.',
+    { title: 'RESCUE IN PROGRESS' }
+  );
 
-    // Wrap-up
-    await new Promise((r) => setTimeout(r, 1500));
-    Simulations.chat('Target vehicle exiting. Tasia is safe.', 'Rescue A');
-  },
+  await Promise.all([
+    SimSequences.rescueTasia1(),
+    SimSequences.rescueTasia2(),
+    SimSequences.rescueTasia3(),
+    SimSequences.rescueTasia4(),
+    SimSequences.rescueTasia5(),
+    potasia,
+  ]);
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 6 — RESOLUTION
+  // ═══════════════════════════════════════════════════════════
+  await new Promise((r) => setTimeout(r, 1500));
+  msg.resolved(
+    'Stalker fled on foot. Tasia is safe. Video and GPS log preserved for police report.',
+    { title: 'RESCUED' }
+  );
+  // Sim.chat('All units stand down. Tasia is safe.', 'Team 1');
+  await new Promise((r) => setTimeout(r, 2000));
+  Sim.clearAll();
+},
 
 
   // ─── SCENARIO: All friends ───

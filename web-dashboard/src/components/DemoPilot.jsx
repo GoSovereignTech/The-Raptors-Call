@@ -132,18 +132,7 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
         <Play className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
 
-      {/* Draggable caption */}
-          {/*  prev.
-               style={{
-              bottom: `${bottomOffset}px`,
-              transform: `translate(${captionPos.x}px, ${captionPos.y}px)`,
-              background: 'var(--caption-bg)',
-              borderColor: 'var(--caption-border)',
-              color: 'var(--caption-text)',
-            }}
-
-          */}  
-
+      {/* Draggable caption */} 
       {caption && (
         <div
           onPointerDown={onPointerDown}

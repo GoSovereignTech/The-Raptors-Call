@@ -13,7 +13,7 @@ import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide
 import RaptorMark from '../../components/RaptorMark.jsx';
 import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
 // Add at the top of the file
-
+import { registerMessageHandler, requestNotificationPermission } from '../../lib/messageCenter.js';
 import { DemoPilot } from '../../components/DemoPilot.jsx';
 import SplashPage from '../../components/SplashPage.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
@@ -426,6 +426,10 @@ function HomeField({ location, onOpenSettings }) {
   const [meshConnected, setMeshConnected] = useState(false);
   const [dongleConnected, setDongleConnected] = useState(false);
   const [mapFailed, setMapFailed] = useState(false);
+  // message center  
+  const [appMessage, setAppMessage] = useState(null);
+  const appMsgTimeoutRef = useRef(null);
+
   const lastMag = useRef(null);
   const meshNodeRef = useRef(null);
   const activeNodesRef = useRef([]);
@@ -526,8 +530,33 @@ function HomeField({ location, onOpenSettings }) {
     activeNodesRef.current = activeNodes;
   }, [activeNodes]);
 
+  useEffect(() => {
+    registerMessageHandler((incoming) => {
+      // Replace whatever's on screen
+      if (appMsgTimeoutRef.current) clearTimeout(appMsgTimeoutRef.current);
+      setAppMessage(incoming);
+      // Auto-dismiss after duration unless it's an alarm
+      if (incoming.priority !== 'alarm') {
+        appMsgTimeoutRef.current = setTimeout(() => setAppMessage(null), incoming.durationMs);
+      }
+      return;
+    });
 
-  // -- start  of the block 
+    // Ask for notification permission on first user interaction
+    const askOnce = () => {
+      requestNotificationPermission();
+      window.removeEventListener('click', askOnce);
+      window.removeEventListener('touchstart', askOnce);
+    };
+    window.addEventListener('click', askOnce, { once: true });
+    window.addEventListener('touchstart', askOnce, { once: true });
+
+    return () => {
+      if (appMsgTimeoutRef.current) clearTimeout(appMsgTimeoutRef.current);
+    };
+  }, []);
+
+  // -- send 
   // After your other hooks:
 
 const allEntities = useMemo(() => {
@@ -1062,28 +1091,75 @@ const openDetail = (entity) => {
       {/* Radar sweep overlay — appears centered when toggled */} 
       {leafletMap && (
         <> 
-        <button
-          onClick={() => {
-            leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
+          <button
+            onClick={() => {
+              leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
+            }}
+            className="absolute bottom-[220px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
+            style={{
+              background: 'var(--panel-bg)',
+              borderColor: 'var(--panel-border)',
+              color: 'var(--accent)',
+            }}
+            aria-label="Return to my position"
+          >
+            <Crosshair className="h-5 w-5" />
+          </button>
+       
+        
+        {appMessage && (
+          <div
+            className="absolute left-3 right-3 z-[590] rounded-lg border px-3 py-2 backdrop-blur shadow-xl pointer-events-auto"
+            style={{
+              bottom: '150px',                 // 120px above the DemoPilot caption
+              background: 'var(--panel-bg)',
+              borderColor: appMessage.color,
+              borderLeftWidth: 4,
+              color: 'var(--text-primary)',
+              maxWidth: 480,
+              margin: '0 auto',
+            }}
+          >
+            {appMessage.title && (
+              <div
+                className="mb-0.5 text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: appMessage.color }}
+              >
+                {appMessage.title}
+              </div>
+            )}
+            <div className="text-xs leading-relaxed">{appMessage.text}</div>
+            {appMessage.actions && (
+              <div className="mt-2 flex gap-2">
+                {appMessage.actions.map((a, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setAppMessage(null); a.onClick?.(); }}
+                    className="rounded-md px-3 py-1 text-[11px] font-bold"
+                    style={{ background: appMessage.color, color: '#0c1a28' }}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+     
+        {/* Demo pilot — above Crosshair */}
+        
+        <DemoPilot
+          bottomOffset={280}
+          onRun={(fn, ...args) => {
+            const target = window.Sim?.[fn];
+            if (typeof target === 'function') target(...args);
           }}
-          className="absolute bottom-[220px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
-          style={{
-            background: 'var(--panel-bg)',
-            borderColor: 'var(--panel-border)',
-            color: 'var(--accent)',
-          }}
-          aria-label="Return to my position"
-        >
-          <Crosshair className="h-5 w-5" />
-        </button>
-               {/* Demo pilot — above Crosshair */}
-            <DemoPilot
-              bottomOffset={280}
-              onRun={(fn, ...args) => {
-                const target = window.Sim?.[fn];
-                if (typeof target === 'function') target(...args);
-              }}
-            /> 
+        />
+
+
+
+
+
          </>
       )}
 

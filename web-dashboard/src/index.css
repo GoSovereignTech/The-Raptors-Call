@@ -131,3 +131,9 @@
   opacity: 0.8;
   z-index: 2;
 }
+
+#nl-badge-frame {
+  position: relative !important;
+    margin: 81px 0px 0 0 !important;
+    padding: 23px 0 0 0px  !important;
+}
