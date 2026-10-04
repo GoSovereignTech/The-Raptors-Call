@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="en" data-theme="light" style="color-scheme: light;">
+  <head> 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Raptor's Call — Off-Grid Community Defense</title>
@@ -9,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
   :root{
-    --orange:#F0701A;
+    --orange:#FF6A13;
     --orange-deep:#D94E00;
     --navy:#0C1A28;
     --navy2:#132A3E;
@@ -21,7 +20,7 @@
     padding-bottom:env(safe-area-inset-bottom,0px);
     box-sizing:border-box;
   }
-  @media (prefers-color-scheme: dark){ :root{ --orange:#F0701A; --navy:#0C1A28; } }
+  @media (prefers-color-scheme: dark){ :root{ --orange:#FF6A13; --navy:#0C1A28; } }
   *{box-sizing:border-box;}
   html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
   html,body{margin:0; padding:0;}
@@ -31,7 +30,6 @@
     font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:84px; /* clears the fixed CTA bar */
   }
   h1,h2,h3,.display{font-family:'Anton',Impact,'Arial Black',sans-serif; font-weight:400; letter-spacing:0.5px; line-height:1.05;}
   a{color:inherit;}
@@ -49,12 +47,8 @@
   .hero-band .sub{font-size:clamp(1.05rem,2.6vw,1.35rem); font-weight:700; margin:0 0 14px; color:var(--cream);}
   .hero-band p.lede{max-width:640px; font-size:1.02rem; color:#D9E2E8; margin:0 0 22px;}
   .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px;}
-  .chip{border:1px solid rgba(57,224,196,0.5); color:var(--teal); padding:6px 13px; border-radius:99px; font-size:0.8rem; font-weight:600; text-decoration:none; display:inline-block;}
-  .chip.navy-bg {
-    background-color: var(--navy);
-  }
+  .chip{border:1px solid rgba(57,224,196,0.5); color:var(--teal); padding:6px 13px; border-radius:99px; font-size:0.8rem; font-weight:600;}
   .cta-row{display:flex; flex-wrap:wrap; gap:12px;}
-
   .btn{display:inline-block; padding:14px 26px; border-radius:10px; font-weight:800; text-decoration:none; font-size:1rem; border:2px solid transparent;}
   .btn:focus-visible{outline:3px solid var(--teal); outline-offset:2px;}
   .btn-primary{background:var(--teal); color:var(--navy);}
@@ -64,23 +58,19 @@
   .section-title{font-size:clamp(1.7rem,4.5vw,2.3rem); margin:0 0 10px; color:var(--navy);}
   .section-subtitle{
     font-size:clamp(1.1rem,3.8vw,1.9rem); margin:4px 0 2px 4px; color:var(--cream);
-  }
-  .section-lede{max-width:620px; font-size:1.02rem; margin:0 0 34px; color:#3B2100;}
 
-  /* ─── Soft cream panel: for body copy that would otherwise sit directly
-     on the orange background. Matches the navy-card pattern already used
-     for stats/pricing, just inverted for lighter-weight paragraph text. ─── */
-  .card-soft{
-    background:var(--cream);
-    color:var(--ink);
-    border-radius:16px;
-    padding:22px 24px;
-    margin:0 0 26px;
   }
-  .card-soft .section-lede{color:#4A2E12; margin-bottom:0;}
-  .card-soft p{color:#4A2E12;}
-  .card-soft h3{color:var(--navy);}
-  .card-soft ol{color:#4A2E12;}
+  /*
+  .section-subtitle::before {
+    content: '͢͢͢͢';
+    top:-8px; 
+    padding: 0 8px;
+    position: relative;
+    display: inline-block;;
+    margin: 0;
+  }͕
+  */
+  .section-lede{max-width:620px; font-size:1.02rem; margin:0 0 34px; color:#3B2100;}
 
   .why-card{background:var(--navy); color:var(--cream); border-radius:16px; padding:26px 28px; margin-bottom:28px;}
   .why-card p{margin:0 0 12px; color:#E7EEF2; font-size:1.02rem;}
@@ -120,7 +110,7 @@
   .priv-note p{margin:0; color:#E7EEF2;}
 
   .trust-wrap{display:grid; grid-template-columns:1.1fr 0.9fr; gap:32px; align-items:center;}
-  .trust-list{margin:0; padding-left:20px; color:#4A2E12;}
+  .trust-list{margin:0; padding-left:20px; color:#3B2100;}
   .trust-list li{margin-bottom:10px;}
   .trust-img img{border-radius:16px; height:260px; object-fit:cover; width:100%;}
   @media(max-width:760px){.trust-wrap{grid-template-columns:1fr;} .trust-img{order:-1;} .trust-img img{height:200px;}}
@@ -146,40 +136,41 @@
     color: var(--orange) !important;
     text-align: center;
   }
-  .highlight-2 { color: var(--orange-deep) !important; }
-  .highlight-3 { color: var(--orange-deep) !important; }
-  .white-highlight { color: var(--cream) !important }
-  .centered { text-align: center !important; }
-  .hr-style { border: 1px dotted #607d8bbd; }
-  .curved-rad.hero-photo { border-radius: 20px; margin: 18px auto 16px auto; }
-  .price-grid .price-card { text-decoration: none; }
-  .price-grid .price-card:hover,
-  .price-grid .price-card:focus,
-  .price-grid .price-card:focus-within {
-      box-shadow: 0 9px 15px rgb(254 246 246 / 89%), 0 -6px 15px rgb(254 246 246 / 89%);
-      filter: brightness(1.9);
+  .highlight-2 {
+     color: var(--orange-deep) !important; 
   }
-  .white-italics {
-    font-style: italic;
-    font-weight: bold;
-    color: var(--cream);
-    text-align: center;
+  .highlight-3 {
+     color: var(--orange-deep) !important; 
   }
+  .white-highlight {
+    color: var(--cream) !important
 
-  /* ─── Sticky CTA bar — always present, as requested ─── */
-  .sticky-cta{
-    position:fixed; left:0; right:0; bottom:0; z-index:40;
-    background:var(--navy);
-    border-top:1px solid rgba(57,224,196,0.35);
-    box-shadow:0 -8px 24px rgba(0,0,0,0.35);
-    display:flex; gap:10px;
-    padding:10px max(12px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
   }
-  .sticky-cta a{flex:1; text-align:center; padding:12px 10px; font-size:0.9rem;}
-  @media(min-width:640px){
-    .sticky-cta{justify-content:center;}
-    .sticky-cta a{flex:none; min-width:220px;}
+  .centered {
+    text-align: center !important;
   }
+  .hr-style {
+    border: 1px dotted #607d8bbd;
+  }
+  .curved-rad.hero-photo {
+    border-radius: 20px;
+    margin: 18px auto 16px auto;
+  }
+.price-grid  .price-card {
+  text-decoration: none;
+}
+.price-grid  .price-card:hover,
+.price-grid  .price-card:focus,
+.price-grid  .price-card:focus-within {
+    box-shadow: 0 9px 15px rgb(254 246 246 / 89%), 0 -6px 15px rgb(254 246 246 / 89%);
+    filter: brightness(1.9);
+}
+.white-italics {
+  font-style: italic;
+  font-weight: bold;
+  color: var(--cream);
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -196,25 +187,27 @@
 
 <div class="hero-band">
   <div class="wrap">
-    <h1 class="centered">ARE YOU IN DANGER?<br>
+    <h1  class="centered">ARE YOU IN DANGER?<br>
       <span class="hightlight-1"> UNDER ATTACK?</span></h1>
+    <!-- p class="sub">Or do you see someone else under attack?</p -->
     <hr class="hr-style centered"/>
     <h1 class="highlight-1">JUST<br/> PRESS THE ALARM BUTTON<br/>
     <span class="white-highlight">OR PULL THE PIN</span></h1>
 
-    <img class="curved-rad hero-photo" src="/explainerImages/black-girl-1png-alarm.jpeg" alt="A woman pulling the alarm pin to trigger The Raptor's Call"/>
-    <p class="lede">The alarm (The Raptor's Call) reaches the team in seconds, and the whole team is on the way in seconds</p>
-
+    <img class="curved-rad hero-photo" src="/explainerImages/black-girl-1png-alarm.jpeg" alt="A woman pulling the alarm"/>
+    <p class="lede">The alarm (The Raptor's Call) reaches the team in seconds, and the whole  team is on the way in seconds</p>
+    
+   
     <div class="chips">
       <span class="chip">Works off-grid</span>
       <span class="chip">No monthly fees</span>
       <span class="chip">Vetted team members only</span>
       <span class="chip">Real hardware, not just an app</span>
     </div>
-
+    
     <div class="cta-row">
       <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Support the launch (GoFundMe)</a>
-      <a class="btn btn-ghost" href="#why-we-exist">Why this project exists</a>
+       <a class="btn btn-ghost" href="#why-we-exist">Why this project exists</a>
       <a class="btn btn-ghost" href="#how-it-works">See How it works</a>
     </div>
   </div>
@@ -222,73 +215,76 @@
 
 <section>
   <div class="wrap">
-    <h2 id="why-we-exist" class="section-title">Why we exist</h2>
-
-    <img class="curved-rad hero-photo" src="/explainerImages/800px-strange-fruit-hanging.png" alt="Why The Raptor's Call exists"/>
+    <h2 id="why-we-exist" class="section-title">Why we exist</h2> 
+   
+    <img class="curved-rad hero-photo" src="/explainerImages/800px-strange-fruit-hanging.png" alt="A woman pulling the alarm"/>
 
     <div class="stat-grid">
-      <div class="stat">
-        <h3 class="section-subtitle">to stop hate crimes</h3>
-        <span class="num">11,679</span><span class="lbl">hate crimes reported to the FBI in 2024 — anti-Black bias remains the most common single category, year after year</span>
-      </div>
+       
+        <div class="stat">
+          <h3 class="section-subtitle">to stop hate crimes</h3>
+        <span class="num">11,679</span><span class="lbl">hate crimes reported to the FBI in 2024 — anti-Black bias remains the most common single category, year after year</span></div>
+      
 
-      <div class="stat">
-        <h3 class="section-subtitle">to stop assaults</h3>
-        <span class="num">443,634</span><span class="lbl">An estimated 443,634 rapes and sexual assaults occur annually in the U.S. among people ages 12 and older, according to data from RAINN.</span>
-      </div>
+      
+         <div class="stat">
+          <h3 class="section-subtitle">to stop assaults</h3>
+         <span class="num">443,634</span><span class="lbl">An estimated 443,634 rapes and sexual assaults occur annually in the U.S. among people ages 12 and older, according to data from RAINN.</span></div>
+     
 
+       
       <div class="stat">
-        <h3 class="section-subtitle">to prevent missing persons</h3>
-        <span class="num">600,000+</span><span class="lbl">people reported missing in the U.S. every year (NCIC)</span>
-      </div>
-
+       <h3 class="section-subtitle">to prevent missing persons</h3>
+        <span class="num">600,000+</span><span class="lbl">people reported missing in the U.S. every year (NCIC)</span></div>
+     
+      
+      
       <div class="stat">
-        <h3 class="section-subtitle">to prevent &amp; stop human trafficking</h3>
-        <span class="num">21,457 </span><span class="lbl">The National Human Trafficking Hotline identified 15,085 cases involving 21,457 individual victims (not all newly trafficked within that single year) in recent annual tracking data</span>
-      </div>
+        <h3 class="section-subtitle">to prevent & stop human trafficking</h3>
+        <span class="num">21,457 </span><span class="lbl">The National Human Trafficking Hotline identified 15,085 cases involving 21,457 individual victims (not all newly trafficked within that single year) in recent annual tracking data</span></div>
     </div>
   </div>
+
 </section>
 
 <section id="how-it-works">
   <div class="wrap">
     <h2 class="section-title">How does it work?</h2>
 
-    <div class="card-soft">
-      <h3>We create safety by giving you our </h3>
-      <ol>
-        <li><p><b>Silent &amp; Loud Personal Alarm</b> </p></li>
-        <li><p><b>and/or our Smartphone app with electronic attachments.</b></p> </li>
-      </ol>
-     
-      <p class="section-lede"><b>Each piece works alone.
-        Together, they turn a group of neighbors into a real-time safety net.</b></p>
-         <p><b>Just Press the Alarm Button or Pull the Pin and we'll be there.</b> </p>
-    </div>
+    <h3>We coordinate better safety by giving you our </h3>
+    <ol>
+      <li><p><b>Silent & Loud Personal Alarm</b> </p></li>
+      <li><p><b>and/or our Smartphone app with electronic attachments.</b></p> </li>  
+    </ol>
+     <p><b>Just press the alarm button or pull the pin and we'll be there.</b> </p>
+    <p class="section-lede"><b>Each piece works alone. 
+      Together, they turn a group of neighbors into a real-time safety net.</b></p>
 
     <div class="layer">
-      <div class="card-soft">
+      <div>
         <span class="layer-tag">Our Personal Alarm - in disguise</span>
         <h3>Our Alarm can be <b>disguised</b> as anything.</h3>
-        <p><b>hair pins, jewelry pieces</b>, <b> accessories</b>, <b>literally anything</b>.  If you have an emergency, we can quickly find you and rescue you.  </p>
-        <p>This is fundamentally different than the past where -  for example - a student could get lynched on a campus with 1,000 students in their dorm rooms. With our tech tools, we notify the rescue teams.</p>
+        <p><b>hair pins, jewelry pieces</b>, <b> accessories</b>, <b>literally anthing</b>.  If you have an emergency, we can quckly find you and rescue you.  </p>
+        <p>This is fundamentally different than the past where -  for example - a student could get lynched on a campus with 1,000 students in their dorm rooms.</p>
       </div>
       <div class="layer-img"><img src="/explainerImages/mirror-jewlery.png" alt="A woman wearing the Raptor's Call alarm tag styled as a hairpin"></div>
+   
     </div>
 
     <div class="layer">
-      <div class="card-soft">
+      <div>
         <span class="layer-tag">The App</span>
         <h3>Turns your phone into a command center</h3>
         <p>A small dongle that plugs into any Android phone and puts your whole team on one live map. See where everyone is, send messages that never touch the internet, and get alerts even while the app runs quietly in the background.</p>
       </div>
-      <div class="layer-img">
-        <img class="curved-rad hero-photo" src="/explainerImages/wh-girl-1png-alarm.jpeg" alt="A woman using The Raptor's Call app to see her team"/>
-      </div>
+          <div class="layer-img">
+         <img class="curved-rad hero-photo" src="/explainerImages/wh-girl-1png-alarm.jpeg" alt="A woman pulling the alarm"/>
+        </div>
+   
     </div>
 
     <div class="layer">
-      <div class="card-soft">
+      <div>
         <span class="layer-tag">The Network</span>
         <h3>Our Sensors see what you can't see.</h3>
         <p>motion, heat, footsteps and more, a kilometer away - or as far as you want to see on your phone. Add nodes over time to widen your team's vision.</p>
@@ -301,30 +297,33 @@
   <div class="hero-band">
      <h1 class="highlight-1">JUST<br/> PRESS THE ALARM BUTTON<br/>
       <span class="white-highlight">OR PULL THE PIN</span></h1>
-  </div>
+      
+  </div>  
 
 <section>
   <div class="wrap">
+   
     <div class="watch-panel">
       <div>
-        <p class="white-italics"> What if you cannot press the alarm?</p>
+         <p class="white-italics"> What if you cannot press the alarm?</p>
         <h3>The App is watching your back too</h3>
         <p style="color:#E7EEF2; margin:0;">The Raptor's Call quietly notices when something's off — an unexpected route, stalkers etc. </p>
       </div>
       <ul>
         <li>If it detects a real risk, it asks for confirmation. </li>
         <li>If it can't confirm you're okay, it can sound the alarm on your behalf.</li>
-        <li>If you lose signal in a basement, tunnel, or elevator, the network remembers your last known location and keeps retrying until team members receive the message.</li>
+        <li>If you lose signal in a basement, tunnel, or elevator, the network remembers your last known location and keeps retrying until team members recieve the message.</li>
       </ul>
-      <h3>The App can hear you say, "Help", or "Call The Raptors!" and sound the alarm to your team.</h3>
+       <h3>The App can hear you say "Call The Raptors!" After 3 practice tries during setup.</h3>
     </div>
+           
   </div>
 </section>
 
 <section class="privacy-sec">
   <div class="wrap">
     <h2 class="section-title">Privacy: You decide who sees you</h2>
-
+  
     <p><b>Privacy Options in the Settings Page</b></p>
     <div class="priv-grid">
       <div class="priv-card"><h4>Always visible</h4><p>Your team sees your real location at all times. Built for members actively on watch.</p></div>
@@ -342,14 +341,14 @@
 <section>
   <div class="wrap">
     <div class="trust-wrap">
-      <div class="card-soft">
-        <h2 class="section-title" style="margin-bottom:10px;">Who is on your Team?<br/>
+      <div>
+        <h2 class="section-title">Who is on your Team?<br/>
           Carefully vetted friends and neighbors.</h2>
         <p class="section-lede" style="margin-bottom:16px;">Anyone can be watched over. Not anyone gets to watch.</p>
         <ul class="trust-list">
           <li>Every applicant is checked through references, a personal interview, and a background check before they can see anyone's location.</li>
           <li>New members start on probation with limited visibility until they've proven reliable.</li>
-          <li>Unusual behavior is flagged automatically, and repeat problems mean quiet, permanent removal. (A system is organized for appeals)</li>
+          <li>Unusual behavior is flagged automatically, and repeat problems mean quiet, permanent removal. (A systeem is organized for appeals)</li>
         </ul>
       </div>
       <div class="trust-img"><img src="/explainerImages/community.jpeg" alt="Neighbors checking their phones together on a city sidewalk, connected by the mesh network"></div>
@@ -357,39 +356,15 @@
   </div>
 </section>
 
-<section id="get-started">
+<section>
   <div class="wrap">
-  
-
-    <div class="card-soft">
-        <h2 class="section-title">Ready to Get Started?</h2>
-        <h3 class="section-title">Get your team equipped & trained</h3>
-       
-        
-      <p class="section-lede" style="margin-bottom:12px;"><b>Option #1: DONATE:</b>
-        <br/>
-        Your donation helps a community that can't afford it - to get it free or heavily discounted. <br/>
-        Every dollar funds hardware, assembly, and training.  
-        We are equiping Jackson, Mississippi and more.
-      </p>
-      <p style="margin:0 0 10px;"><b>Option #2: Buy it for yourself.</b> 
-        <br/><a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Loadouts 1 & 2 to start. 3 & 4 to grow.</a> It's hand-assembled and tested at my own 
-        location before it ships to you — that takes 3 to 6 weeks. 
-        You get 3 free ebooks the instant  you buy.
-      <br/><br/>
-      <b>The Ebooks</b>
-      </p>
-   
-      <div class="chips" style="margin-bottom:0;">
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/?section=-YSbtfHFcrbDB-Y6gzmOHA%3D%3D" target="_blank" rel="noopener">My Novel - Sparkles. My Action Thriller</a>
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/endlynchigsnow?layout=profile" target="_blank" rel="noopener">My Ebook - How to End Modern-Day Lynchings</a>
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/SafeFarmerProtocols?layout=profile" target="_blank" rel="noopener">My Ebook - The Safe Farmer Protocol</a>
-      </div>
-    </div>
-
+    <h2 class="section-title">Get Started</h2>
+    <h2 class="section-title">Get your team equipped</h2>
+    <h2 class="section-title">BUY Or FUND --or BOTH</h2>
+    <p class="section-lede">Every dollar funds hardware, assembly, and training — no salaries, no overhead. Subsidized units go to neighborhoods that can't cover the cost themselves.</p>
     <div class="price-grid">
       <a href="https://sparklesnovel.gumroad.com/l/personalAlarm?layout=profile" class="price-card"><h4>Personal Alarm &amp; Off-Grid Beacon Tag</h4><div class="amt">$159</div><p>The wearable alarm, disguised as everyday jewelry.</p></a>
-      <a href="https://sparklesnovel.gumroad.com/l/teamwork?layout=profile" class="price-card"><h4>Raptor's Key mesh dongle</h4><div class="amt">From $59</div><p>Turns your Android phone into a full command center. Add the Google Pixel GrapheneOS-hardened phone option on the product page.</p></a>
+      <a href="https://sparklesnovel.gumroad.com/l/teamwork?layout=profile" class="price-card"><h4>Raptor's Key mesh dongle</h4><div class="amt">$59–$554</div><p>Turns your Android phone into a full command center - or get Google Pixel Graphene hardened OS.</p></a>
       <a href="https://sparklesnovel.gumroad.com/l/radar?layout=profile" class="price-card"><h4>Raptor's Radar</h4><div class="amt">$158–$198</div><p>Sees through walls and darkness from 30+ feet away.</p></a>
     </div>
   </div>
@@ -417,14 +392,11 @@
     <div>Pre-launch — hardware ships as funding allows.</div>
     <div class="Contact">
       Contacts
-      <br/> gumroad
+      <br/> gumroad 
     </div>
   </div>
 </footer>
 
-<div class="sticky-cta">
-  <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate — Help Equip Someone</a>
-  <a class="btn btn-ghost" href="#get-started">Get Your Own</a>
-</div>
+
 
 </body></html>
