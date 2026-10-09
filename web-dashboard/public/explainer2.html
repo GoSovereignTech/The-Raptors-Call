@@ -76,6 +76,7 @@
     border-radius:16px;
     padding:22px 24px;
     margin:0 0 26px;
+        filter:  invert(2) hue-rotate(301deg) saturate(0.4);
   }
   .card-soft .section-lede{color:#4A2E12; margin-bottom:0;}
   .card-soft p{color:#4A2E12;}
@@ -357,6 +358,138 @@
   </div>
 </section>
 
+<!-- ═══════════════ HOW TO JOIN — 5 STEPS ═══════════════ -->
+<style>
+  .funnel-list {
+    list-style: none;
+    padding: 0;
+    margin: 26px 0 0;
+    counter-reset: step;
+  }
+  .funnel-step {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 20px;
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    align-items: start;
+  }
+  .funnel-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: var(--navy);
+    font-family: 'Anton', sans-serif;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .funnel-body h3 {
+    color: #fff;
+    font-size: 1.25rem;
+    margin: 0 0 6px;
+  }
+  .funnel-body p {
+    color: #C9D4DA;
+    font-size: 0.98rem;
+    margin: 0 0 14px;
+  }
+  .funnel-body .funnel-note {
+    color: var(--teal);
+    font-size: 0.85rem;
+    font-style: italic;
+    margin: 0;
+  }
+  .funnel-body .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  .funnel-body .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--cream);
+  }
+  .funnel-body .cta-row {
+    margin: 0;
+  }
+  @media (max-width: 520px) {
+    .funnel-step {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>
+
+<section id="how-to-join">
+  <div class="wrap">
+    <h2 class="section-title centered">How to join — 5 steps</h2>
+    <p class="section-lede centered" style="margin: 8px auto 0; text-align: center;">
+      From browsing to trained and equipped. Here is the whole path.
+    </p>
+
+    <ol class="funnel-list">
+      <li class="funnel-step">
+        <div class="funnel-num">1</div>
+        <div class="funnel-body">
+          <h3>Try the web app — free</h3>
+          <p>Open the demo. Watch the alarm scene play out. No signup, no email required.</p>
+          <a class="btn btn-primary" href="https://theraptors.netlify.app">Open web app →</a>
+        </div>
+      </li>
+
+      <li class="funnel-step">
+        <div class="funnel-num">2</div>
+        <div class="funnel-body">
+          <h3>Buy a loadout</h3>
+          <p>Hand-assembled. Tested before shipping. Ships in 3–6 weeks. Pre-sale funds the first production run.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com">Shop loadouts →</a>
+            <a class="btn btn-ghost" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate instead →</a>
+          </div>
+        </div>
+      </li>
+
+      <li class="funnel-step">
+        <div class="funnel-num">3</div>
+        <div class="funnel-body">
+          <h3>Book your intake call</h3>
+          <p>A vetted admin calls you to walk through setup, ask matching questions, and prepare your gear. Takes 20 minutes.</p>
+          <a class="btn btn-primary" href="https://calendly.com/REPLACE-WITH-YOUR-CALENDLY-LINK">Pick a time →</a>
+        </div>
+      </li>
+
+      <li class="funnel-step">
+        <div class="funnel-num">4</div>
+        <div class="funnel-body">
+          <h3>Receive your gear</h3>
+          <p>Tested. Charged. Ready to pair with your phone and your team.</p>
+          <p class="funnel-note">Nothing to do here — just check your mail.</p>
+        </div>
+      </li>
+
+      <li class="funnel-step">
+        <div class="funnel-num">5</div>
+        <div class="funnel-body">
+          <h3>Join a training day</h3>
+          <p>Practice with your team. Learn basic response, alarm drills, and coordination with your vetted neighbors.</p>
+          <a class="btn btn-primary" href="https://calendly.com/REPLACE-WITH-YOUR-CALENDLY-LINK/training">See upcoming dates →</a>
+        </div>
+      </li>
+    </ol>
+
+    <p class="section-lede centered" style="text-align: center; margin: 26px auto 0; font-size: 0.92rem;">
+      <b>Just here to try the demo?</b>
+      <a href="https://theraptors.netlify.app" style="color: var(--navy); text-decoration: underline;">Open it →</a>
+      &nbsp;·&nbsp;
+      <b>Just here to support?</b>
+      <a href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods" style="color: var(--navy); text-decoration: underline;">Donate →</a>
+    </p>
+  </div>
+</section>
 <section id="get-started">
   <div class="wrap">
   
@@ -416,11 +549,29 @@
     <div><strong>The Raptor's Call</strong> — a Go Sovereign Tech project</div>
     <div>Pre-launch — hardware ships as funding allows.</div>
     <div class="Contact">
-      Contacts
-      <br/> gumroad
+       <a href="#" class="email-link" data-u="DrSutherland" data-d="proton.me">Email us</a>
+       <br>
+      <a href="#" class="phone-link" data-p1="240" data-p2="424" data-p3="0163">Call us</a>
     </div>
   </div>
 </footer>
+<script>
+  // Assemble contact info after load — scrapers hitting static HTML see nothing.
+  (function () {
+    document.querySelectorAll('.email-link').forEach(function (el) {
+      const addr = el.dataset.u + '@' + el.dataset.d;
+      el.href = 'mailto:' + addr;
+      // Uncomment the next line if you also want the address shown as text.
+      // el.textContent = addr;
+    });
+    document.querySelectorAll('.phone-link').forEach(function (el) {
+      const num = el.dataset.p1 + '-' + el.dataset.p2 + '-' + el.dataset.p3;
+      el.href = 'tel:' + el.dataset.p1 + el.dataset.p2 + el.dataset.p3;
+      // Uncomment to display the number:
+      // el.textContent = num;
+    });
+  })();
+</script>
 
 <div class="sticky-cta">
   <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate — Help Equip Someone</a>

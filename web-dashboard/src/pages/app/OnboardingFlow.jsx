@@ -27,6 +27,7 @@ import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import { useFunnelStatus } from '../../hooks/useFunnelStatus.js';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@maplibre/maplibre-gl-leaflet'; 
 import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
@@ -420,6 +421,7 @@ function LocationSetup({ onLocated }) {
 
 function HomeField({ location, onOpenSettings }) {
   const live = useLiveLocation(location);
+  const status = useFunnelStatus();
   const [heading, setHeading] = useState(0);
   const [activity, setActivity] = useState(0.15);
   const [sensorsEnabled, setSensorsEnabled] = useState(false);
@@ -1287,6 +1289,15 @@ const openDetail = (entity) => {
   </div>
 
 </div>
+
+      {/** funnel stats */}
+      {status.current <= 5 && (
+        <div className="absolute left-3 right-3 top-20 z-[560] rounded-lg border border-amber-500/40 bg-amber-500/10 backdrop-blur px-3 py-1.5 text-xs text-amber-100 flex items-center justify-between">
+          <span>Step {status.current} of 5 · {STEP_LABELS[status.current]}</span>
+          <a href={STEP_LINKS[status.current]} className="font-bold underline">Continue →</a>
+        </div>
+      )}
+
 
       {mapFailed && (
         <div className="absolute left-4 right-4 top-16 z-[500] flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400 backdrop-blur">

@@ -1,0 +1,884 @@
+<!-- localhost:5173/sovereign.html -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<title>Sovereign Horizons Initiative — 6th Region Development Compact</title>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1a1a1a;
+  --border: #2a2a2a;
+  --text: #e8e8e8;
+  --text-dim: #9a9a9a;
+  --accent: #c9a84c;
+  --accent-dim: #8a7030;
+  --signal: #3a76f0;
+  --proton: #6d4aff;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-bottom: 110px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Progress Bar ── */
+.progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  z-index: 1000;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--proton));
+  transition: width 0.15s ease-out;
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  position: fixed;
+  top: 3px;
+  left: 0;
+  width: 100%;
+  background: rgba(10,10,10,0.96);
+  backdrop-filter: blur(10px);
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+  z-index: 999;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.breadcrumb::-webkit-scrollbar { display: none; }
+.breadcrumb span {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-right: 4px;
+  transition: all 0.3s;
+  cursor: default;
+}
+.breadcrumb span.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+}
+.breadcrumb span.viewed {
+  color: var(--accent-dim);
+}
+
+/* ── Container ── */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 78px 18px 20px;
+}
+
+/* ── Typography ── */
+h1 {
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+h2 {
+  font-size: clamp(1.15rem, 4vw, 1.45rem);
+  font-weight: 600;
+  margin: 36px 0 14px;
+  color: var(--accent);
+  line-height: 1.3;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 22px 0 8px;
+  line-height: 1.3;
+}
+p { margin-bottom: 13px; color: var(--text-dim); font-size: 0.95rem; }
+strong { color: var(--text); }
+em { font-style: italic; color: var(--text-dim); }
+
+/* ── Section ── */
+.section {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 68px;
+}
+.section:last-of-type { border-bottom: none; }
+
+/* ── Homepage Cards ── */
+.home-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 32px;
+}
+@media (min-width: 520px) {
+  .home-cards { grid-template-columns: 1fr 1fr; }
+}
+.card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 18px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s;
+  text-align: center;
+}
+.card:hover, .card:focus {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  display: block;
+}
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.card-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* ── Document Cards ── */
+.doc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.doc-card:hover { border-color: var(--accent-dim); }
+
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+.doc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.doc-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2);
+  border-radius: 8px;
+}
+.doc-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+.doc-status {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.doc-chevron {
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+.doc-card.open .doc-chevron {
+  transform: rotate(180deg);
+}
+
+.doc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, padding 0.3s;
+  padding: 0 18px;
+  border-top: 1px solid transparent;
+}
+.doc-card.open .doc-body {
+  max-height: 1200px;
+  padding: 0 18px 18px;
+  border-top-color: var(--border);
+}
+
+.doc-body p {
+  font-size: 0.88rem;
+  margin-bottom: 12px;
+}
+
+.doc-body ul {
+  padding-left: 18px;
+  margin-bottom: 12px;
+}
+.doc-body li {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: var(--proton);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  margin-top: 6px;
+}
+.doc-link:hover { background: #5a3ae0; }
+
+/* ── Signal Notice ── */
+.signal-notice {
+  background: rgba(58,118,240,0.1);
+  border: 1px solid rgba(58,118,240,0.3);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin: 18px 0;
+  font-size: 0.87rem;
+}
+.signal-notice strong { color: var(--signal); }
+
+/* ── Milestone Table ── */
+.milestone-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin: 14px 0;
+}
+.milestone-table th,
+.milestone-table td {
+  padding: 9px 6px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.milestone-table th {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Lists ── */
+ul, ol { padding-left: 18px; margin-bottom: 13px; }
+li { margin-bottom: 5px; color: var(--text-dim); font-size: 0.92rem; }
+
+/* ── Bottom Panel ── */
+.bottom-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(18,18,18,0.98);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 10px 14px;
+  z-index: 1001;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bottom-panel .input-group {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+.bottom-panel input {
+  flex: 1;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  min-width: 0;
+}
+.bottom-panel input:focus { border-color: var(--accent); }
+.btn-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 16px;
+  background: var(--signal);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-signal:hover { background: #2d5fd0; }
+
+@media (max-width: 480px) {
+  .bottom-panel { flex-direction: column; gap: 7px; padding: 9px 11px; }
+  .bottom-panel .input-group { width: 100%; }
+  .btn-signal { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ PROGRESS ═══ -->
+<div class="progress-container">
+  <div class="progress-fill" id="progressFill"></div>
+</div>
+
+<!-- ═══ BREADCRUMB ═══ -->
+<nav class="breadcrumb" id="breadcrumb">
+  <span data-section="home" class="active">Home</span>
+  <span data-section="overview">Overview</span>
+  <span data-section="goals">Goals</span>
+  <span data-section="why">Why Sign</span>
+  <span data-section="values">Values</span>
+  <span data-section="offerings">Offerings</span>
+  <span data-section="documents">Documents</span>
+  <span data-section="security">Security</span>
+  <span data-section="signup">Sign Up</span>
+</nav>
+
+<main class="container">
+
+  <!-- HOME -->
+  <section class="section" id="home" data-section="home">
+    <h1>Sovereign Horizons Initiative</h1>
+    <p style="font-size:1.05rem; color:var(--text);">A Diaspora-Led Development Compact for the 6th Region</p>
+    <p>Building self-sufficient, sovereign communities on the African continent — beginning with a pilot in the Democratic Republic of the Congo.</p>
+
+    <div class="home-cards">
+      <a href="#signup" class="card" onclick="scrollToSignup(event)">
+        <span class="card-icon">📝</span>
+        <div class="card-title">Sign Up</div>
+        <div class="card-desc">Express your intent to participate. Secure handoff via Signal.</div>
+      </a>
+      <a href="#documents" class="card">
+        <span class="card-icon">📂</span>
+        <div class="card-title">Documents</div>
+        <div class="card-desc">Governance drafts, legal checklists, and the introductory letter. Review via Proton Drive.</div>
+      </a>
+    </div>
+
+    <div class="signal-notice">
+      <strong>🔒 Privacy First.</strong> This website contains only public information. All personal identifying information is exchanged securely through Signal. Governance documents are shared via Proton Drive's end-to-end encrypted platform.
+    </div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section class="section" id="overview" data-section="overview">
+    <h2>What Is the Initiative?</h2>
+    <p>The Sovereign Horizons Initiative is a diaspora-led, land-based development program designed to establish self-sufficient, sovereign communities on the African continent, beginning with a pilot in the Democratic Republic of the Congo.</p>
+    <p>Our model is built on a <strong>Community Land Trust (CLT)</strong> structure — land is held in perpetuity for community benefit rather than speculative profit. Residents own the improvements on the land, not the land itself, which keeps costs stable and prevents displacement.</p>
+    <p>The initiative is organized under the framework of the African Union's recognition of the Global African Diaspora as the <strong>6th Region of Africa</strong>. We are not a charity. We are a compact — a binding agreement among people who choose to build together.</p>
+  </section>
+
+  <!-- GOALS -->
+  <section class="section" id="goals" data-section="goals">
+    <h2>Current State & Milestone Goals</h2>
+
+    <h3>Current State (Year 0)</h3>
+    <ul>
+      <li>Foundational research complete on DRC land concession law, CLT structures, and 6th Region frameworks</li>
+      <li>Core technologies identified: AWG water, solar energy, seed sovereignty, ISSB construction, ethanol fuel</li>
+      <li>Initial outreach to potential founding members underway</li>
+      <li><strong>No land secured. No formal entity registered. This is the ground floor.</strong></li>
+    </ul>
+
+    <h3>Year 1 Goals</h3>
+    <ul>
+      <li>Achieve critical mass of committed signatories</li>
+      <li>Form founding council; draft Community Constitution and Bylaws</li>
+      <li>Register implementing entity (ASBL/NGO) in DRC; initiate ANAPI approval</li>
+      <li>Identify and negotiate long-term land concession</li>
+      <li>Conduct founding assembly; establish secure communications</li>
+    </ul>
+
+    <h3>Year 5 Goals</h3>
+    <ul>
+      <li>Secure and legally register pilot land concession</li>
+      <li>Deploy defense and food sovereignty technologies (AWG, ISSB housing)</li>
+      <li>Settle first wave of resident members; build community infrastructure</li>
+      <li>Establish sovereign education system powered by time-based currency</li>
+      <li>Demonstrate ethanol fuel micro-economy</li>
+      <li>Begin satellite township feasibility studies in two additional countries</li>
+    </ul>
+
+    <h3>Year 10 Goals</h3>
+    <ul>
+      <li>Full food, water, and energy sovereignty at pilot site</li>
+      <li>Federation of at least three satellite communities across different countries</li>
+      <li>Fully operational sovereign education and health system</li>
+      <li>Replicable model for diaspora-led development across the continent</li>
+      <li>Return native lands to displaced communities in partnership with customary authorities</li>
+    </ul>
+
+    <h3>Sign-Up Milestone Thresholds</h3>
+    <table class="milestone-table">
+      <thead>
+        <tr><th>Milestone</th><th>Signatories</th><th>What Happens</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Foundation</td><td>50</td><td>Founding Council formed; Constitution drafting begins</td></tr>
+        <tr><td>Legal Establishment</td><td>150</td><td>DRC entity registration initiated; ANAPI engagement</td></tr>
+        <tr><td>Land Acquisition</td><td>300</td><td>Land concession negotiations formalized</td></tr>
+        <tr><td>Pilot Deployment</td><td>500</td><td>First residents deployed; construction begins</td></tr>
+        <tr><td>Federation Expansion</td><td>1,000+</td><td>Satellite feasibility studies launched</td></tr>
+      </tbody>
+    </table>
+    <p><em>Position selections begin within 60 days of reaching 50 signatories. Working group leads selected within 90 days. Governance documents will be finalized at the first assembly of 100+ signatories.</em></p>
+  </section>
+
+  <!-- WHY SIGN -->
+  <section class="section" id="why" data-section="why">
+    <h2>Why We Are Asking Black/African Diaspora to Sign</h2>
+    <p>This initiative is not for everyone. It is specifically for people of African descent living outside the continent who understand that the <strong>6th Region is not a metaphor</strong>.</p>
+    <ul>
+      <li>The diaspora holds the <strong>capital, technical expertise, and strategic distance</strong> needed to build without being immediately co-opted by local patronage networks or foreign corporate capture.</li>
+      <li>Africa's development has been systematically sabotaged by external actors who profit from instability. A diaspora-led model is <strong>harder to capture</strong> because its members are not dependent on local political favors for survival.</li>
+      <li>The 6th Region framework gives us <strong>political leverage</strong>. When we approach African governments as a coordinated diaspora bloc, we negotiate from a position of collective strength.</li>
+      <li>We are not asking for charity. We are asking for <strong>committed participants</strong> who will contribute skills, resources, and presence.</li>
+    </ul>
+  </section>
+
+  <!-- VALUES -->
+  <section class="section" id="values" data-section="values">
+    <h2>What Kind of People We Want</h2>
+
+    <h3>Character</h3>
+    <ul>
+      <li><strong>People of good character</strong> who do not believe in following where colonizers left off to continue the colonial exploitation of the people.</li>
+      <li><strong>People who deliberately reject the systems and language of colonization.</strong> We no longer use "His/Her Excellency." When the United States broke free from England, it did not retain such language. We address each other as equals.</li>
+      <li><strong>People who respect indigenous land rights</strong> and will not continue the dispossession of natives nor relegate them to reservations.</li>
+      <li><strong>People who are emotionally sound</strong> and can resist the control of negative impulses over character and behavior. We need people who can disagree without fragmenting.</li>
+    </ul>
+
+    <h3>Geopolitical Sophistication</h3>
+    <ul>
+      <li>People who are <strong>well-read</strong> and will not fall for state capture, corporate capture, colonization schemes, or divide-and-conquer tactics.</li>
+      <li>People who <strong>recognize bribes for what they are</strong> — paper printed money offered in exchange for African sovereignty and resources.</li>
+      <li>People who can <strong>imagine a world without the dogma of neocolonization</strong>. This project requires imagination, not just reaction.</li>
+    </ul>
+
+    <h3>Skills We Actively Seek</h3>
+    <p>Engineers · Medical professionals · Educators · Legal professionals · Security specialists · Agronomists · ISSB construction experts · Finance professionals · Technologists · Community organizers</p>
+  </section>
+
+  <!-- OFFERINGS -->
+  <section class="section" id="offerings" data-section="offerings">
+    <h2>Our Unique and Advanced Initial Offerings</h2>
+
+    <h3>🛡️ Defense Technology Transfer</h3>
+    <p>Proprietary defense inventions designed to protect people and farms from militia threats. Deployed in partnership with local authorities and community safety committees — not as private militias, which are illegal under DRC law.</p>
+    <p><em>We do not use the word "police." The term carries the weight of colonial enforcement and slavery. We use <strong>"Community Safety"</strong> and <strong>"Peacekeeping"</strong> instead.</em></p>
+
+    <h3>🌾 Food Sovereignty & Seed Technology</h3>
+    <ul>
+      <li>Unprecedented variety of climate-adapted seed stocks</li>
+      <li>Community-scale agricultural systems designed for abundance, not scarcity</li>
+      <li>Seed bank infrastructure to preserve and distribute sovereign seed</li>
+    </ul>
+
+    <h3>⛽ Alternative Fuel Technology</h3>
+    <ul>
+      <li>Ethanol production systems to replace dependence on imported gasoline</li>
+      <li>Community-scale fuel micro-economies</li>
+    </ul>
+
+    <h3>💧 Water Sovereignty</h3>
+    <ul>
+      <li>Atmospheric Water Generation (AWG) systems with solar integration</li>
+      <li>Rainwater harvesting and community water management</li>
+    </ul>
+
+    <h3>🏗️ Home Building Sovereignty</h3>
+    <p><strong>Interlocking Stabilized Soil Blocks (ISSB)</strong> for inexpensive and rapid modern home construction. UN-Habitat documents ISSB as approximately <strong>30% cheaper and faster</strong> than fired bricks, with lower environmental impact.</p>
+
+    <h3>📚 Sovereign Education System</h3>
+    <ul>
+      <li>Time-based currency to power education, ensuring every member has access to learning</li>
+      <li>Curriculum teaching sovereignty principles, practical skills, and geopolitical awareness</li>
+    </ul>
+
+    <h3>🚐 Mobile Home Accommodation</h3>
+    <p>Visitors and prospective members are encouraged to bring or use mobile homes during the evaluation phase.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DOCUMENTS SECTION — Governance drafts for review            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section class="section" id="documents" data-section="documents">
+    <h2>Governance Documents — Drafts for Review</h2>
+    <p>These are initial working drafts. They are shared with vetted members for review and comment. <strong>Final ratification will occur at the first assembly of 100+ signatories.</strong> In the meantime, the trusted vetted group can review these documents and provide feedback through Proton Drive.</p>
+
+    <div class="signal-notice" style="background: rgba(109,74,255,0.1); border-color: rgba(109,74,255,0.3);">
+      <strong style="color: var(--proton);">🔐 How to Review:</strong> Each document below is hosted on <strong>Proton Drive</strong> with end-to-end encryption. Click the link to open the document. You can add comments directly in the document without needing a Proton account. Feedback is threaded and contextual.
+    </div>
+
+    <!-- Document 1: Constitution -->
+    <div class="doc-card" id="doc-constitution">
+      <div class="doc-header" onclick="toggleDoc('doc-constitution')">
+        <div class="doc-header-left">
+          <div class="doc-icon">📜</div>
+          <div>
+            <div class="doc-title">01 — Community Constitution</div>
+            <div class="doc-status">Draft v0.1 · For Review</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>The foundational document for the community. Outlines values, governance structure, rights, responsibilities, and the mechanisms for amendment. This is the supreme law of the community — all other documents derive their authority from it.</p>
+        <ul>
+          <li>Preamble: Statement of sovereignty and purpose</li>
+          <li>Article I: Name, territory, and legal personality</li>
+          <li>Article II: Foundational principles (anti-colonial, indigenous land rights, emotional soundness)</li>
+          <li>Article III: Governance structure (Council, Assembly, working groups)</li>
+          <li>Article IV: Rights and responsibilities of members</li>
+          <li>Article V: Land and property (CLT framework)</li>
+          <li>Article VI: Defense and community safety</li>
+          <li>Article VII: Education, health, and cultural practice</li>
+          <li>Article VIII: Amendment and dissolution</li>
+        </ul>
+        <a href="https://drive.proton.me/urls/YOUR_CONSTITUTION_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+    <!-- Document 2: Bylaws -->
+    <div class="doc-card" id="doc-bylaws">
+      <div class="doc-header" onclick="toggleDoc('doc-bylaws')">
+        <div class="doc-header-left">
+          <div class="doc-icon">📋</div>
+          <div>
+            <div class="doc-title">02 — Bylaws & CLT Ground Lease</div>
+            <div class="doc-status">Draft v0.1 · For Review</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>Operational rules for the Community Land Trust and day-to-day governance. Includes the 99-year ground lease agreement template, membership procedures, meeting rules, and dispute resolution mechanisms.</p>
+        <ul>
+          <li>CLT structure and board composition</li>
+          <li>Ground lease terms (99-year, renewable)</li>
+          <li>Membership application and vetting process</li>
+          <li>Quarterly assembly procedures</li>
+          <li>Working group charters and reporting</li>
+          <li>Conflict resolution and mediation</li>
+          <li>Financial management and audits</li>
+          <li>Visitor and mobile home policies</li>
+        </ul>
+        <a href="https://drive.proton.me/urls/YOUR_BYLAWS_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+    <!-- Document 3: ASBL Statutes -->
+    <div class="doc-card" id="doc-asbl">
+      <div class="doc-header" onclick="toggleDoc('doc-asbl')">
+        <div class="doc-header-left">
+          <div class="doc-icon">⚖️</div>
+          <div>
+            <div class="doc-title">03 — ASBL Statutes (DRC Non-Profit Registration)</div>
+            <div class="doc-status">Draft v0.1 · For Review</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>Required for registering as a non-profit (Association Sans But Lucratif) in the DRC. Must be notarized and signed by all founding members. This is the legal foundation for operating in the DRC.</p>
+        <ul>
+          <li>Name and registered address in DRC</li>
+          <li>Purpose and objectives (aligned with Constitution)</li>
+          <li>Membership categories and admission</li>
+          <li>Governance bodies and their powers</li>
+          <li>Financial resources and management</li>
+          <li>Dissolution and asset distribution</li>
+          <li>Required annexes: member list, leadership declaration, good conduct certificates</li>
+        </ul>
+        <p><em>Note: This document must comply with DRC Law No. 004/2001 and requires notarization. The founding members charged with administration must provide certificates of good conduct, life, and morals.</em></p>
+        <a href="https://drive.proton.me/urls/YOUR_ASBL_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+    <!-- Document 4: Introductory Letter -->
+    <div class="doc-card" id="doc-letter">
+      <div class="doc-header" onclick="toggleDoc('doc-letter')">
+        <div class="doc-header-left">
+          <div class="doc-icon">✉️</div>
+          <div>
+            <div class="doc-title">04 — Introductory Letter to DRC Officials</div>
+            <div class="doc-status">Template v0.1 · For Review</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>Template for approaching provincial governors, customary authorities, and national ministries. Adapt the bracketed sections for each recipient. The letter should be sent through official channels and followed up with a formal proposal package.</p>
+        <ul>
+          <li>Addressed to provincial governor or specific minister</li>
+          <li>Subject line: Proposal for Diaspora-Led Sovereign Community Development</li>
+          <li>Three pillars: Defense Sovereignty, Food & Water Sovereignty, Economic Sovereignty</li>
+          <li>Request for guidance on land concession and ANAPI approval</li>
+          <li>Offer to present in person</li>
+        </ul>
+        <a href="https://drive.proton.me/urls/YOUR_LETTER_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+    <!-- Document 5: Documentation Checklist -->
+    <div class="doc-card" id="doc-checklist">
+      <div class="doc-header" onclick="toggleDoc('doc-checklist')">
+        <div class="doc-header-left">
+          <div class="doc-icon">✅</div>
+          <div>
+            <div class="doc-title">05 — Documentation & Permissions Checklist</div>
+            <div class="doc-status">Reference v0.1 · For Review</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>Comprehensive reference of every legal, regulatory, and security requirement for operating in the DRC. Organized by category with notes on costs, timelines, and responsible agencies.</p>
+        <ul>
+          <li><strong>Organizational:</strong> ASBL registration, foreign association authorization, NGO registration</li>
+          <li><strong>Land & Investment:</strong> Land concession (25-year renewable), ANAPI approval (USD 200,000 minimum), environmental compliance</li>
+          <li><strong>Sector-Specific:</strong> Mining permits (if applicable), agriculture concession rules, environmental certificates</li>
+          <li><strong>Security:</strong> Local Security Committees (CLSPs/CLSEs), FARDC partnership protocols, prohibition on private militias</li>
+          <li><strong>Order of Operations:</strong> Legal registration → Foundational documents → Land acquisition → ANAPI engagement → Local leaders → Community building</li>
+        </ul>
+        <a href="https://drive.proton.me/urls/YOUR_CHECKLIST_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+    <!-- Document 6: Values Questionnaire -->
+    <div class="doc-card" id="doc-questionnaire">
+      <div class="doc-header" onclick="toggleDoc('doc-questionnaire')">
+        <div class="doc-header-left">
+          <div class="doc-icon">📝</div>
+          <div>
+            <div class="doc-title">06 — Values & Awareness Questionnaire</div>
+            <div class="doc-status">Confidential · For Completion</div>
+          </div>
+        </div>
+        <div class="doc-chevron">▾</div>
+      </div>
+      <div class="doc-body">
+        <p>15 questions designed to understand a prospective member's values, awareness, and alignment with the initiative's principles. Responses are kept confidential and reviewed only by the interim vetting committee.</p>
+        <ul>
+          <li>What does sovereignty mean to you?</li>
+          <li>How do you understand the relationship between the diaspora and the continent?</li>
+          <li>What is your view on land ownership and indigenous land rights?</li>
+          <li>How would you respond if offered money to compromise the community's principles?</li>
+          <li>What does "defense sovereignty" mean to you?</li>
+          <li>How do you feel about titles and honorifics in governance?</li>
+          <li>What is your understanding of the 6th Region framework?</li>
+          <li>…and 8 more</li>
+        </ul>
+        <p><em>This questionnaire is sent privately via Signal after initial contact. Do not submit responses through this website.</em></p>
+        <a href="https://drive.proton.me/urls/YOUR_QUESTIONNAIRE_LINK" class="doc-link" target="_blank" rel="noopener noreferrer">
+          📖 Open in Proton Drive →
+        </a>
+      </div>
+    </div>
+
+  </section>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <!-- SECURITY -->
+  <section class="section" id="security" data-section="security">
+    <h2>Secure Sign-Up — Privacy Is Foundational</h2>
+    <p>This initiative operates in a geopolitical environment where diaspora organizing can attract unwanted attention. We require that all signatories take basic steps to protect their identity and communications.</p>
+
+    <h3>Recommended Device Setup</h3>
+    <ul>
+      <li><strong>Google Pixel device</strong> with <strong>GrapheneOS</strong> — hardened Android OS with verified boot, regular security patches, and zero privileged Google Play access</li>
+      <li>Alternatively, any Android device with Signal installed and a VPN active</li>
+    </ul>
+
+    <h3>Recommended Applications</h3>
+    <ul>
+      <li><strong>Signal</strong> — end-to-end encrypted messaging (keys never leave your device)</li>
+      <li><strong>SimpleX</strong> or <strong>Session</strong> — additional encrypted messaging</li>
+      <li><strong>Mullvad VPN</strong> or <strong>IVPN</strong> — always-on VPN with kill switch</li>
+      <li><strong>Tor Browser</strong> or <strong>Vanadium</strong> — anonymous browsing</li>
+    </ul>
+
+    <h3>Document Collaboration</h3>
+    <p>Governance documents are hosted on <strong>Proton Drive</strong>, which uses end-to-end encryption and is based in Switzerland. Only you hold the keys — even Proton cannot access your files.[reference:11] Comments and suggestions are supported directly in the document.</p>
+
+    <div class="signal-notice" style="margin-top:20px;">
+      <strong>🔒 How Sign-Up Works:</strong><br>
+      1. Tap the Signal button below<br>
+      2. Your Signal app opens with a chat to the interim coordinator<br>
+      3. Send a message — the coordinator will guide you through the secure intake process<br>
+      4. Your personal information is exchanged <strong>only</strong> through Signal's end-to-end encrypted channel
+    </div>
+  </section>
+
+  <!-- SIGNUP -->
+  <section class="section" id="signup" data-section="signup" style="text-align:center; padding: 44px 0;">
+    <h2 style="justify-content:center;">Ready to Sign?</h2>
+    <p style="max-width:380px; margin:0 auto 20px;">Tap below to open Signal and begin the secure sign-up process. If Signal is not installed, you will be prompted to install it first.</p>
+    <a href="https://signal.me/#eu/YOUR_SIGNAL_LINK_HERE"
+       class="btn-signal"
+       target="_blank"
+       rel="noopener noreferrer"
+       style="font-size:1.05rem; padding:14px 28px;">
+      ✉️ Open Signal to Sign Up
+    </a>
+    <p style="margin-top:14px; font-size:0.78rem;">Link opens in Signal app. No personal data is collected on this page.</p>
+  </section>
+
+</main>
+
+<!-- ═══ BOTTOM PANEL ═══ -->
+<div class="bottom-panel" id="bottomPanel">
+  <div class="input-group">
+    <input type="text" 
+           id="signalUsernameInput" 
+           placeholder="Signal username (optional)" 
+           aria-label="Signal username"
+           autocomplete="off">
+  </div>
+  <a href="#" 
+     id="signalBtn"
+     class="btn-signal"
+     onclick="openSignal(event)">
+    ✉️ Sign Up via Signal
+  </a>
+</div>
+
+<script>
+// ── Progress Bar & Breadcrumb ──
+const sections = document.querySelectorAll('[data-section]');
+const progressFill = document.getElementById('progressFill');
+const breadcrumbSpans = document.querySelectorAll('.breadcrumb span');
+const viewedSections = new Set();
+
+function updateProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressFill.style.width = Math.min(progress, 100) + '%';
+
+  let activeSection = 'home';
+  sections.forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 100 && rect.bottom > 100) {
+      activeSection = section.dataset.section;
+    }
+  });
+
+  breadcrumbSpans.forEach(span => {
+    const sec = span.dataset.section;
+    span.classList.toggle('active', sec === activeSection);
+    if (viewedSections.has(sec)) span.classList.add('viewed');
+  });
+
+  viewedSections.add(activeSection);
+}
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+window.addEventListener('load', updateProgress);
+
+// ── Scroll to signup ──
+function scrollToSignup(e) {
+  e.preventDefault();
+  document.getElementById('signup').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Document Accordion ──
+function toggleDoc(id) {
+  const card = document.getElementById(id);
+  const isOpen = card.classList.contains('open');
+
+  // Close all others (accordion behavior)
+  document.querySelectorAll('.doc-card.open').forEach(c => {
+    if (c.id !== id) c.classList.remove('open');
+  });
+
+  card.classList.toggle('open', !isOpen);
+}
+
+// ── Signal Deep Link ──
+function openSignal(e) {
+  e.preventDefault();
+  const SIGNAL_LINK = 'https://signal.me/#eu/YOUR_SIGNAL_LINK_HERE';
+  const input = document.getElementById('signalUsernameInput');
+  const username = input.value.trim();
+
+  let url = SIGNAL_LINK;
+  if (username) {
+    url += '?note=' + encodeURIComponent('My Signal username: ' + username);
+  }
+
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+// ── Mobile hint ──
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const signalBtn = document.getElementById('signalBtn');
+if (!isMobile) {
+  signalBtn.title = 'Opens Signal app or web redirect. Ensure Signal is installed.';
+}
+</script>
+
+</body>
+</html>

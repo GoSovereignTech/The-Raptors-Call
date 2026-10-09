@@ -452,3 +452,56 @@ Development
  5. Map ccolor 
  6. person icon easing
  7. jsonloveli gmail
+
+ =========
+
+Videos 
+Okay lets make 3 new videos based on your recommendation based on the same hook. 
+Using Lunabloom or other free video trial system 
+I have provided the start and ending  images for 2 of the videos 
+
+Hook: What would you do if you were cornered right now?
+
+1. A dark and ominous night 
+ a Black young woman is being followed by the man in overalls as seen in the  picture. Her cellphone is opened showing the app. 
+footstep sounds quicken to a run. 
+she gasps and starts running. it's a chase.  
+more men in over alls appear to chase one to cut her off 
+as she is about to press the alarm button, her cellphone drops. 
+she gasps shocked 
+and reaches for her jewelry piece as seen in the attached picture. and pulls the pin 
+The ALARM SOUNDS  like the frantic a screech of the harris hawk. Her team mates out-of-site are alerted on their phone which shows the same app interface as hers  . 
+They come running and the attackers run away 
+The TARGET Image shows her jumping for joy rescued. 
+
+2. same as above but a white woman walking though a park the bushes on either side emerge. she screams, starts running,  pulls the pin out of her jewelry  
+same out come as above but this time a blonde woman is seen jumping for joy rescued.
+
+3. same as above 
+Hook: What would you do if you were cornered right now?
+
+  A dark and ominous night.
+ A college age student is walking across a college dorm near a tree. 
+is surround he yells help. no one responds 
+the dormitory lights remain off , windows remain closed. cricket sounds. 
+he lifts up his cellphone where the app is seen. 
+he presses the alarm button
+The ALARM SOUNDS  like the frantic a screech of the harris hawk.  
+persons in the dorm have the app open 
+ alerted on their phone which shows the same app interface as his.
+The dorm lights come on as the windows are opening. people are heard shouting leave him alone.  and students come streaming out of the dorm main entrance running towards him as the attackers run away. He says whew thanks that was close 
+ 
+
+i think between googleflow or lunabloom this could work for free thoughts 
+
+ this incorporates the hook you recommended in all three
+
+============
+
+Scene 1 Prompt  starting-image-1.png :"Cinematic over-the-shoulder tracking shot. The young black woman looks back in fear as the man in overalls quickens his pace. The camera shakes slightly to show urgency as she begins to sprint down the dark street."
+• Scene 2 Prompt cell-alarm.jpeg :"Close up shot of a hand holding a smartphone running an app. The phone suddenly slips out of the hand, falling toward the pavement in slow motion. The camera follows the phone dropping."
+• Scene 3 Prompt jewelry-alarm.jpeg :"Close up on the woman's waist. Her hand urgently pulls the metallic pin out of the beaded security jewelry piece. A bright pulse of light emanates from the device."
+• Scene 4 Prompt rescued-lady.jpeg: The ALARM SOUNDS  like the frantic a screech of the harris hawk. Her friends who were out-of-site are alerted on their phone which shows the same app interface as hers. 
+They come running and the attackers run away 
+The TARGET Image shows her jumping for joy at being rescued.  Thanks for rescuing me.
+ 
