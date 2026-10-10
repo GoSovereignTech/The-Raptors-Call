@@ -1,4 +1,5 @@
 // src/hooks/useFunnelStatus.js
+import React, {useEffect, useState} from 'react';
 export function useFunnelStatus() {
   const [status, setStatus] = useState({ current: 1, done: {} });
 

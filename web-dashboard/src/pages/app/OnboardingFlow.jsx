@@ -1290,13 +1290,14 @@ const openDetail = (entity) => {
 
 </div>
 
-      {/** funnel stats */}
+      {/** funnel stats 
       {status.current <= 5 && (
         <div className="absolute left-3 right-3 top-20 z-[560] rounded-lg border border-amber-500/40 bg-amber-500/10 backdrop-blur px-3 py-1.5 text-xs text-amber-100 flex items-center justify-between">
           <span>Step {status.current} of 5 · {STEP_LABELS[status.current]}</span>
           <a href={STEP_LINKS[status.current]} className="font-bold underline">Continue →</a>
         </div>
       )}
+        */}
 
 
       {mapFailed && (
