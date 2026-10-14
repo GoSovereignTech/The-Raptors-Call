@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guardians of Greatness | Numbers-Focused Leadership</title>
+  <meta name="description" content="Guardians of Greatness is a numbers-focused movement to end epidemic statistics in Black communities and African villages through safety, suicide prevention, economic sovereignty, and family restoration." />
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-light: #f0d77a;
+      --black: #0a0a0a;
+      --black-2: #111;
+      --black-3: #1a1a1a;
+      --white: #f5f5f5;
+      --muted: #b8b8b8;
+      --danger: #b33a3a;
+      --success: #2f7d4f;
+      --radius: 12px;
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--gold-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 1rem; }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #222;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      font-weight: 800;
+      letter-spacing: .3px;
+      color: var(--white);
+    }
+
+    .brand svg { color: var(--gold); flex-shrink: 0; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--gold-light); }
+
+    .menu-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid #333;
+      color: var(--white);
+      border-radius: 8px;
+      padding: .35rem .55rem;
+      font-size: 1.1rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 5rem 0 4rem;
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,.14), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(212,175,55,.08), transparent 35%),
+        var(--black);
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: .75rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(212,175,55,.35);
+      padding: .3rem .65rem;
+      border-radius: 999px;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    h1 span { color: var(--gold); }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 60ch;
+      margin-bottom: 1.6rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .8rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
+      padding: .85rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: .95rem;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); text-decoration: none; }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .btn-primary:hover { background: var(--gold-light); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border-color: #444;
+    }
+
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold-light); }
+
+    .hero-card {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border: 1px solid #262626;
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    .hero-card h3 {
+      color: var(--gold);
+      font-size: 1.05rem;
+      margin-bottom: .75rem;
+    }
+
+    .hero-card ul {
+      list-style: none;
+      display: grid;
+      gap: .7rem;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .hero-card li::before {
+      content: "▸";
+      color: var(--gold);
+      margin-right: .5rem;
+    }
+
+    /* Sections */
+    section { padding: 4rem 0; border-bottom: 1px solid #1a1a1a; }
+
+    .section-head { margin-bottom: 2rem; }
+
+    .section-head h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: -.5px;
+      margin-bottom: .5rem;
+    }
+
+    .section-head p { color: var(--muted); max-width: 75ch; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--black-2);
+      border: 1px solid #242424;
+      border-radius: var(--radius);
+      padding: 1.3rem;
+    }
+
+    .card h3 {
+      color: var(--gold-light);
+      margin-bottom: .55rem;
+      font-size: 1.05rem;
+    }
+
+    .card p, .card li { color: var(--muted); font-size: .94rem; }
+
+    .card ul { list-style: none; display: grid; gap: .5rem; margin-top: .6rem; }
+
+    .card ul li::before {
+      content: "•";
+      color: var(--gold);
+      margin-right: .45rem;
+    }
+
+    .stat {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--gold);
+      display: block;
+      line-height: 1.2;
+      margin-bottom: .2rem;
+    }
+
+    .callout {
+      background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.03));
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout p { color: var(--white); }
+
+    .quote {
+      border-left: 3px solid var(--gold);
+      padding-left: 1rem;
+      color: var(--muted);
+      font-style: italic;
+      margin: 1rem 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .target-list {
+      display: grid;
+      gap: .8rem;
+      list-style: none;
+    }
+
+    .target-list li {
+      background: var(--black-2);
+      border: 1px solid #242424;
+      border-radius: 10px;
+      padding: .9rem 1rem;
+      color: var(--muted);
+    }
+
+    .target-list strong { color: var(--gold-light); }
+
+    /* Form */
+    form {
+      background: var(--black-2);
+      border: 1px solid #242424;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: .35rem;
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: .8rem .9rem;
+      background: #0c0c0c;
+      border: 1px solid #333;
+      color: var(--white);
+      border-radius: 8px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .checkbox-row input { width: auto; margin-top: .25rem; }
+
+    .form-note {
+      font-size: .82rem;
+      color: #888;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2.5rem 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-grid, .two-col, .footer-grid { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 68px;
+        left: 0;
+        right: 0;
+        background: #0d0d0d;
+        border-bottom: 1px solid #222;
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links.open { display: flex; }
+      .menu-btn { display: block; }
+      .grid-3, .form-row { grid-template-columns: 1fr; }
+      section { padding: 3rem 0; }
+      .hero { padding: 3.5rem 0 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="#top">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+      <span>Guardians of Greatness</span>
+    </a>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#why">Why Now</a>
+      <a href="#founder">Founder</a>
+      <a href="#initiatives">Initiatives</a>
+      <a href="#targets">1-Year Targets</a>
+      <a href="#contact">Join</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Numbers-Focused Leadership</span>
+        <h1>Guardians of <span>Greatness</span></h1>
+        <p>
+          A movement to end epidemic statistics in Black communities and African villages —
+          through community safety, suicide prevention, economic sovereignty, and family restoration.
+          We are not asking for permission. We are setting measurable goals and reporting progress.
+        </p>
+
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#contact">Join the mailing list</a>
+          <a class="btn btn-outline" href="https://theraptors.netlify.app/explainer2.html" target="_blank" rel="noopener">Raptor’s Call explainer</a>
+          <a class="btn btn-outline" href="https://youtube.com/shorts/S1u4fltnoKk?is=DqIIMF8oUINQOOjL" target="_blank" rel="noopener">See the system</a>
+        </div>
+
+        <p class="form-note" style="margin-top:1rem;">
+          Bi-monthly progress updates. No spam. Unsubscribe anytime.
+        </p>
+      </div>
+
+      <aside class="hero-card">
+        <h3>What we are targeting</h3>
+        <ul>
+          <li>Hate crimes, lynchings, and abductions</li>
+          <li>Violent crime and unsafe African villages</li>
+          <li>Suicide and mental health crises</li>
+          <li>Black business creation and circulation of Black dollars</li>
+          <li>Family unity and relationship stability</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- WHY NOW -->
+  <section id="why">
+    <div class="container">
+      <div class="section-head">
+        <h2>Why now</h2>
+        <p>
+          The statistics are not anecdotes. They are patterns — and many are getting worse.
+          We are documenting them, confronting them, and building systems to change them.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <span class="stat">11,000+</span>
+          <h3>Reported anti-Black hate crimes</h3>
+          <p>
+            Reported anti-Black hate crimes have surpassed 11,000 annually, with estimates
+            suggesting twice as many go unreported.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="stat">Highest in a decade</span>
+          <h3>Suspected lynchings</h3>
+          <p>
+            Black people found hanging from trees — suspected lynchings — are at their
+            highest levels in a decade, according to community monitors and advocates.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="stat">600,000</span>
+          <h3>Reported missing each year</h3>
+          <p>
+            About 600,000 people are reported missing each year in the U.S. Only about 2%
+            are abducted off the street or from their cars — but those cases are rising.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="stat">2%</span>
+          <h3>Black discretionary spending</h3>
+          <p>
+            Only about 2% of Black discretionary spending is spent with Black-owned
+            businesses. We are building pathways to redirect that circulation.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="stat">95% → 65%</span>
+          <h3>Family structure shift</h3>
+          <p>
+            In the 1950s, 95% of Black American families were two-parent homes.
+            Today, about 65% of Black American families are single-parent homes.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="stat">New epidemics</span>
+          <h3>Not our historical norms</h3>
+          <p>
+            Epidemic gang violence, mass incarceration, childhood suicide attempts,
+            and family breakdown are relatively new — and therefore solvable.
+          </p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>Recent case:</strong> On October 6, 2026, Pikesville, Maryland resident
+          Yvonna Stevens reported narrowly escaping an attempted kidnapping at Quarry Lake
+          Greenspring in Pikesville, Baltimore County. According to her account, three white
+          men in a white van tried to pull her inside. She described one of the men as
+          wearing a kippah. This story has received little mainstream coverage.
+        </p>
+        <p style="margin-top:.7rem;">
+          <a href="https://www.instagram.com/p/DeQdAPVRGZt/" target="_blank" rel="noopener">Watch her account on Instagram</a>
+          &nbsp;•&nbsp;
+          <a href="https://youtube.com/shorts/czDV-ZvXPS4?is=Z6dFl2NAioNOvTTl" target="_blank" rel="noopener">Backup on YouTube</a>
+        </p>
+      </div>
+    </div>
+  </section>
+  <div class="img__wrapper">
+    <img src="" class=""/>
+  </div>
+  <!-- FOUNDER -->
+  <section id="founder">
+    <div class="container two-col">
+      <div>
+        <div class="section-head">
+          <h2>Founder</h2>
+          <p>Stephen Sutherland, MD — Howard University College of Medicine, Class of 2014.</p>
+        </div>
+
+        <p>
+          Before medical school, Dr. Sutherland worked as a high school and elementary school
+          teacher, a web developer, and a music school founder. After graduating in 2014,
+          during the nationwide Black Lives Matter protests, he discovered severe epidemic
+          statistics in Black communities that was never taught.
+        </p>
+
+        <p style="margin-top:1rem;">
+          He found that most of these epidemics are relatively new. For example, in the 1950s, Black
+          Americans were not doing epidemic gang violence anywhere in the USA. Black
+          communities were filled with the sound of happy children, not the sound of guns.
+          The trend lines are getting worse in every category.
+        </p>
+
+        <p style="margin-top:1rem;">
+          He decided that solving these problems is the most important thing to do with his
+          career. To start, he researched and wrote the book <em><b>the Guardians of Greatness -  <i>presents The Greatest Renaissance of the New Millennium</i></b></em> 
+          It presents an truly awakening experience and blueprint
+          to end our epidemic statistics. He has since run social experiments and very noble projects in Baltimore,
+          Haiti, and Nigeria. 
+        </p>
+
+        <blockquote class="quote">
+          “Some would say I failed. But I call them 1st and 2nd iterations.
+          From those iterations, I learned all the unspoken reasons why 
+          our communities struggle. My current solutions builds on the wisdom of the past 
+          10+ years. I'm proud of the effort that led to 
+          the current amazing batch of solutions.
+           World changing success are just a step away.
+        </blockquote>
+
+        <p>
+          The <strong>Young Guardians & Guardians of Greatness</strong> after-school program
+          was designed to create structure, opportunities, and incentives so our youth are
+          raised with our best efforts — instead of being raised by the streets.
+        </p>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Credentials & experience</h3>
+          <ul>
+            <li>MD, Howard University College of Medicine, 2014</li>
+            <li>Former high school & elementary school teacher</li>
+            <li>Full-stack developer & systems designer</li>
+            <li>Founder, Guardians of Greatness</li>
+            <li>Author, <em>Guardians of Greatness Presents the Greatest Renaissance of the New Millennium</em></li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+          <h3>Core conclusion</h3>
+          <p>
+            Black leaders and Black initiatives have failed by the numbers. All the numbers
+            are the worst and peaking. Why? They had no specific goals for reducing these
+            numbers. We are changing that with public, measurable targets.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INITIATIVES -->
+  <section id="initiatives">
+    <div class="container">
+      <div class="section-head">
+        <h2>Initiatives</h2>
+        <p>
+          Guardians of Greatness builds practical, open, and scalable systems. Each initiative
+          attacks a specific statistic.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <h3>Raptor’s Call Network</h3>
+          <p>
+            A low-cost community safety network for villages, farms, and neighborhoods:
+            pull-pin alarms, GPS beacons, LoRa/Meshtastic mesh, solar relay nodes, radar/PIR/thermal
+            sensors, live dashboard, and “Rewind” path history.
+          </p>
+          <p style="margin-top:.7rem;">
+            <a href="https://theraptors.netlify.app/explainer2.html" target="_blank" rel="noopener">Read the explainer →</a>
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Live Free App</h3>
+          <p>
+            A therapist-driven mental health app for remote therapeutic monitoring,
+            AI-assisted dialogue, vision boards, crisis keyword detection, and billing
+            under CPT 90832, 90834, 90837, and 98978.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Young Guardians</h3>
+          <p>
+            After-school structure, aviation and real-estate design exposure, mentorship,
+            and incentives designed to redirect youth from gang violence and into
+            productive pathways.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Economic Sovereignty</h3>
+          <p>
+            Redirecting a portion of the $300 billion in Black discretionary spending back
+            into Black-owned businesses through a publicly owned social media platform.
+            Past founders will be invited to join as executives; users will own shares.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Food & Fuel Sovereignty</h3>
+          <p>
+            Automated duckweed bioreactors, biofloc fish and shrimp farming, agroforestry,
+            and community-managed ethanol and biogas pathways for African villages and
+            underserved communities.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Family & Relationships</h3>
+          <p>
+            Millennium Relationships and the GOGPersonality app — tools to improve family
+            unity, relationship stability, and the two-parent household rate.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TARGETS -->
+  <section id="targets">
+    <div class="container">
+      <div class="section-head">
+        <h2>1-year targets</h2>
+        <p>
+          We are promising measurable progress within one year. We will publish updates
+          every two months.
+        </p>
+      </div>
+
+      <ul class="target-list">
+        <li>
+          <strong>Safety:</strong> Drop hate crimes and lynchings by more than 50% via the
+          Raptor’s Call network. Drop violent crimes and make African villages safer.
+          Restart farming — measured by counts.
+        </li>
+        <li>
+          <strong>Suicide reduction:</strong> Deploy the Live Free App to therapists and
+          clients to intervene earlier and reduce suicide attempts.
+        </li>
+        <li>
+          <strong>Business creation & revenue:</strong> Redirect some of our $300 billion
+          in discretionary spending back to our community through a publicly owned social
+          media platform.
+        </li>
+        <li>
+          <strong>Family:</strong> Improve family unity and relationships via Millennium
+          Relationships and related tools.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-head">
+        <h2>Join us</h2>
+        <p>
+          Fill out the contact form to join our mailing list. You will receive an email
+          of our progress on a bi-monthly basis. Indicate any skills you would like to
+          contribute or projects you want to participate in.
+        </p>
+      </div>
+
+      <!--
+        NETLIFY FORM:
+        If you deploy on Netlify, this form will work as-is.
+        If not, replace action with your own endpoint (Formspree, Basin, etc.)
+        or use mailto:s...@gmail.com
+      -->
+      <form name="guardians-contact" method="POST" data-netlify="true" action="/thank-you">
+        <input type="hidden" name="form-name" value="guardians-contact" />
+
+        <div class="form-row">
+          <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="skills">Skills you can contribute</label>
+            <input type="text" id="skills" name="skills" placeholder="e.g. web development, organizing, media, fundraising" />
+          </div>
+          <div>
+            <label for="projects">Projects you want to join</label>
+            <select id="projects" name="projects">
+              <option value="">Select one</option>
+              <option>Raptor’s Call Network</option>
+              <option>Live Free App</option>
+              <option>Young Guardians</option>
+              <option>Economic Sovereignty</option>
+              <option>Food & Fuel Sovereignty</option>
+              <option>Family & Relationships</option>
+              <option>General / Mailing list only</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Tell us how you want to help, or ask a question."></textarea>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="subscribe" value="yes" checked />
+          <span>Subscribe me to the bi-monthly progress email.</span>
+        </label>
+
+        <button class="btn btn-primary" type="submit">Join Guardians of Greatness</button>
+        <p class="form-note">
+          Prefer Text/Call? 240-424-0163.
+        </p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <div class="brand" style="margin-bottom:.6rem;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <span>Guardians of Greatness</span>
+      </div>
+      <p>
+        Numbers-focused leadership for Black communities and African villages.
+        Safety, suicide prevention, economic sovereignty, and family restoration.
+      </p>
+    </div>
+
+    <div>
+      <h3 style="color:var(--gold-light);font-size:1rem;margin-bottom:.6rem;">Links</h3>
+      <div class="footer-links">
+        <a href="https://theraptors.netlify.app/explainer2.html" target="_blank" rel="noopener">Raptor’s Call</a>
+        <a href="https://youtube.com/shorts/S1u4fltnoKk?is=DqIIMF8oUINQOOjL" target="_blank" rel="noopener">System demo</a>
+        <a href="https://www.instagram.com/p/DeQdAPVRGZt/" target="_blank" rel="noopener">Yvonna Stevens account</a>
+        <a href="#contact">Join</a>
+      </div>
+      <p class="form-note" style="margin-top:1rem;">
+        © <span id="year"></span> Guardians of Greatness. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav
+  const menuBtn = document.getElementById('menuBtn');
+  const navLinks = document.getElementById('navLinks');
+
+  menuBtn.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+
+  // Close nav when a link is clicked
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
