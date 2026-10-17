@@ -887,7 +887,7 @@ if (typeof window !== 'undefined') {
 
 
  
-  window.Sim.sequence = SimSequences;
+//   window.Sim.sequence = SimSequences;
  
 }
 /* 

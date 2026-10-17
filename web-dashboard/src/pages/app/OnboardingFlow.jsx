@@ -47,6 +47,23 @@ const NODE_COLORS = {
   bridge: '#1f2937',   // near black
 };
 
+// ─── Funnel step copy ───
+const STEP_LABELS = {
+  1: 'Try the web app',
+  2: 'Buy a loadout',
+  3: 'Book your intake call',
+  4: 'Receive your gear',
+  5: 'Join a training day',
+};
+
+const STEP_LINKS = {
+  1: 'https://theraptors.netlify.app',
+  2: 'https://sparklesnovel.gumroad.com',
+  3: 'https://calendly.com/YOUR-USERNAME/30min',      // ← replace with your Calendly link
+  4: '#',                                              // no action — just wait
+  5: 'https://calendly.com/YOUR-USERNAME/training',    // ← replace with training event link
+};
+
 function VectorBaseMap() {
   const map = useMap();
   useEffect(() => {
@@ -1152,6 +1169,8 @@ const openDetail = (entity) => {
         
         <DemoPilot
           bottomOffset={280}
+          anchorLat={live.lat}
+          anchorLon={live.lon}
           onRun={(fn, ...args) => {
             const target = window.Sim?.[fn];
             if (typeof target === 'function') target(...args);
@@ -1290,14 +1309,14 @@ const openDetail = (entity) => {
 
 </div>
 
-      {/** funnel stats 
-      {status.current <= 5 && (
+      {/** funnel stats   */}
+      {status.current <= 5 && status.current !== 4 && (
         <div className="absolute left-3 right-3 top-20 z-[560] rounded-lg border border-amber-500/40 bg-amber-500/10 backdrop-blur px-3 py-1.5 text-xs text-amber-100 flex items-center justify-between">
           <span>Step {status.current} of 5 · {STEP_LABELS[status.current]}</span>
           <a href={STEP_LINKS[status.current]} className="font-bold underline">Continue →</a>
         </div>
       )}
-        */}
+      
 
 
       {mapFailed && (

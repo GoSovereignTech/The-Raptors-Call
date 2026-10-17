@@ -5,68 +5,57 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play } from 'lucide-react';
 
-
+import { setSimBase } from '../lib/simulation.js';
 
 
 const QUEUE = [
-  // ═══════════════════════════════════════════════════════════
-  // PHASE 1 — ROUTINE
-  // ═══════════════════════════════════════════════════════════
-  { fn: 'clearAll', arg: null,
-    caption: 'Setup — clean map. Three relay nodes online.' },
+  // ── SCENE 1 ─────────────────────────────────────────
+  {
+    scene: 'Routine Walk',
+    fn: 'sequence',
+    arg: ['maya'],
+    caption: 'Scene 1 — Maya walks her usual route home. All normal.',
+  },
 
-  { fn: 'sequence', arg: ['tasia'],
-    caption: 'Phase 1 — Tasia walks her usual evening route home.' },
+  // ── SCENE 2 ─────────────────────────────────────────
+  {
+    scene: 'Dacara Rescue',
+    fn: 'sequence',
+    arg: ['dacaraFullScene'],
+    caption: 'Scene 2 — Dacara is lured into a vehicle. She pulls the pin. Team rescues.',
+  },
 
-  // ═══════════════════════════════════════════════════════════
-  // PHASE 2 — DANGER APPEARS
-  // ═══════════════════════════════════════════════════════════
-  { fn: 'sequence', arg: ['potasia'],
-    caption: 'Phase 2 — An unknown vehicle idles near her route. Pattern flagged.' },
+  // ── SCENE 3 ─────────────────────────────────────────
+  {
+    scene: 'Ambush Intercept',
+    fn: 'sequence',
+    arg: ['ambushSetupRescueAllAtOnce'],
+    caption: 'Scene 3 — Stalker ambush. Five teammates converge in under 90 seconds.',
+  },
 
-  { fn: 'sequence', arg: ['trickster'],
-    caption: 'APP: Second vehicle circling the block. Two unknowns coordinating.' },
+  // ── SCENE 4 ─────────────────────────────────────────
+  {
+    scene: 'All Friends',
+    fn: 'sequence',
+    arg: ['allThree'],
+    caption: 'Scene 4 — Three teammates moving at once. Walk, run, and drive.',
+  },
 
-  { fn: 'chat', arg: ['Overwatch: suspicious vehicle parked at corner 4 min.', 'Overwatch'],
-    caption: 'Overwatch reports visual. Team placed on standby.' },
-
-  // ═══════════════════════════════════════════════════════════
-  // PHASE 3 — ABDUCTION TRIGGERED
-  // ═══════════════════════════════════════════════════════════
-  { fn: 'emergency', arg: ['SCR'],
-    caption: 'Phase 3 — PIN PULLED. Siren active. GPS broadcast to team.' },
-
-  { fn: 'sequence', arg: ['rescueTasia1'],
-    caption: 'Rescue A — inbound by car. ETA 40 seconds.' },
-
-  { fn: 'sequence', arg: ['rescueTasia2'],
-    caption: 'Rescue B — closing from the north. Intercepting route.' },
-
-  { fn: 'sequence', arg: ['rescueTasia3'],
-    caption: 'Rescue C — on foot, converging from the east.' },
-
-  { fn: 'sequence', arg: ['rescueTasia4'],
-    caption: 'Rescue D — sprinting from the north across the field.' },
-
-  { fn: 'sequence', arg: ['rescueTasia5'],
-    caption: 'Rescue E — approaching from the south on foot.' },
-
-  // ═══════════════════════════════════════════════════════════
-  // PHASE 4 — RESCUE COMPLETE
-  // ═══════════════════════════════════════════════════════════
-  { fn: 'chat', arg: ['Target vehicle exiting. 5 friendly contacts on scene.', 'Rescue A'],
-    caption: 'Attacker flees. Team controls the location.' },
-
-  { fn: 'chat', arg: ['Tasia is safe. Clear.', 'Rescue B'],
-    caption: 'RESCUED — Tasia recovered within 90 seconds of the pin pull.' },
-
-  { fn: 'clearAll', arg: null,
-    caption: 'Map cleared. Report filed. Evidence preserved.' },
+  // ── SCENE 5 ─────────────────────────────────────────
+  {
+    scene: 'End',
+    fn: 'clearAll',
+    arg: null,
+    caption: 'End of demo. Press Rewind to review any scene.',
+  },
 ];
 
 
 
-export function DemoPilot({ onRun, bottomOffset = 320 }) {
+export function DemoPilot({ onRun, 
+  anchorLat,          // ← new
+  anchorLon,  
+  bottomOffset = 320 }) {
   const [index, setIndex] = useState(-1);
   const [caption, setCaption] = useState('');
 
@@ -77,15 +66,32 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
   const advance = () => {
     const next = (index + 1) % QUEUE.length;
     const step = QUEUE[next];
+    console.log('index=',index, ' step =',step );
     setIndex(next);
     setCaption(step.caption);
-    try {
-      if (Array.isArray(step.arg)) onRun(step.fn, ...step.arg);
-      else if (step.arg != null) onRun(step.fn, step.arg);
-      else onRun(step.fn);
-    } catch (e) {
-      console.warn('[DemoPilot] Step failed:', step.fn, e);
+
+    // ── Re-anchor sim base to the user's current location ──
+    if (typeof anchorLat === 'number' && typeof anchorLon === 'number') {
+      setSimBase(anchorLat, anchorLon);
     }
+    // ── Clear previous scene before loading the next (skip on very first run) ──
+    if (index >= 0) {
+      try { window.Sim?.clearAll?.(); } catch {}
+    }
+
+    // Small delay so clear settles before new packets fly
+    setTimeout(() => {
+      try {
+        if (Array.isArray(step.arg)) onRun(step.fn, ...step.arg);
+        else if (step.arg != null) onRun(step.fn, step.arg);
+        else onRun(step.fn);
+      } catch (e) {
+        console.warn('[DemoPilot] Step failed:', step.fn, e);
+      }
+    }, 150);
+
+
+  
   };
 
   // ─── Drag handlers ───
@@ -118,6 +124,16 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
   return (
     <>
       {/* Advance button — repositioned on small screens via inline style */}
+      
+      
+      {index === -1 && (
+        <div className="absolute left-2 right-14 sm:right-16 z-[560] rounded-md border border-amber-500/40 bg-raptor-bg/90 backdrop-blur px-2.5 py-1.5 text-[11px] sm:text-xs text-amber-100 shadow-lg"
+            style={{ bottom: `${bottomOffset}px` }}>
+          <span className="font-bold text-amber-500 mr-1.5">▶</span>
+          Press the play button to watch a rescue scenario. Each scene runs at your current location.
+        </div>
+      )}
+      
       <button
         onClick={advance}
         className="absolute right-2 sm:right-4 z-[560] flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border backdrop-blur transition active:scale-95"
@@ -154,7 +170,7 @@ export function DemoPilot({ onRun, bottomOffset = 320 }) {
           }} 
         >
           <span className="font-bold mr-1.5" style={{ color: 'var(--caption-accent)' }}>
-            {index + 1}/{QUEUE.length}
+           Scene {index + 1} of {QUEUE.length}
           </span>
           <span>{caption}</span>
         </div>
