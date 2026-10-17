@@ -27,7 +27,7 @@ import '../../styles/raptor-ui.css';
 import { NUDGES, getLoadout } from '../../lib/loadouts.js';
 import { playSiren, stopSiren } from '../../lib/alarmAudio.js';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
-import { useFunnelStatus } from '../../hooks/useFunnelStatus.js';
+import { useFunnelStatus, markFunnelStepDone } from '../../hooks/useFunnelStatus.js';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@maplibre/maplibre-gl-leaflet'; 
 import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
@@ -59,9 +59,17 @@ const STEP_LABELS = {
 const STEP_LINKS = {
   1: 'https://theraptors.netlify.app',
   2: 'https://sparklesnovel.gumroad.com',
-  3: 'https://calendly.com/YOUR-USERNAME/30min',      // ← replace with your Calendly link
+  3: 'https://calendly.com/stephensutherlandmd/30min',      // ← replace with your Calendly link
   4: '#',                                              // no action — just wait
-  5: 'https://calendly.com/YOUR-USERNAME/training',    // ← replace with training event link
+  5: 'https://calendly.com/stephensutherlandmd/training',    // ← replace with training event link
+};
+
+const STEP_KEYS = {
+  1: 'triedDemo',
+  2: 'purchased',
+  3: 'intakeScheduled',
+  // 4: 'gearReceived', (No link for this one, handled elsewhere)
+  5: 'trained',
 };
 
 function VectorBaseMap() {
@@ -1172,6 +1180,8 @@ const openDetail = (entity) => {
           anchorLat={live.lat}
           anchorLon={live.lon}
           onRun={(fn, ...args) => {
+              // Mark step 1 as done the first time they run a scene
+              markFunnelStepDone('triedDemo'); 
             const target = window.Sim?.[fn];
             if (typeof target === 'function') target(...args);
           }}
@@ -1310,13 +1320,26 @@ const openDetail = (entity) => {
 </div>
 
       {/** funnel stats   */}
+      {/* Funnel stats */}
       {status.current <= 5 && status.current !== 4 && (
         <div className="absolute left-3 right-3 top-20 z-[560] rounded-lg border border-amber-500/40 bg-amber-500/10 backdrop-blur px-3 py-1.5 text-xs text-amber-100 flex items-center justify-between">
           <span>Step {status.current} of 5 · {STEP_LABELS[status.current]}</span>
-          <a href={STEP_LINKS[status.current]} className="font-bold underline">Continue →</a>
+          
+          <a 
+            href={STEP_LINKS[status.current]} 
+            target={status.current === 1 ? "_self" : "_blank"} // Don't open a new tab for step 1
+            rel="noopener noreferrer"
+            onClick={() => {
+              const key = STEP_KEYS[status.current];
+              if (key) markFunnelStepDone(key);
+            }}
+            className="font-bold underline"
+          >
+            Continue →
+          </a>
         </div>
       )}
-      
+            
 
 
       {mapFailed && (
