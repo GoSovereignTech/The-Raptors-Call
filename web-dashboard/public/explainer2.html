@@ -73,15 +73,29 @@
   .card-soft{
     background:var(--cream);
     color:var(--ink);
+    background: var(--navy2);
+    color: var(--cream);
+
     border-radius:16px;
     padding:22px 24px;
     margin:0 0 26px;
-        filter:  invert(2) hue-rotate(301deg) saturate(0.4);
+       /* filter:  invert(2) hue-rotate(301deg) saturate(0.4); */
   }
-  .card-soft .section-lede{color:#4A2E12; margin-bottom:0;}
-  .card-soft p{color:#4A2E12;}
-  .card-soft h3{color:var(--navy);}
-  .card-soft ol{color:#4A2E12;}
+  .card-soft .section-lede{  margin-bottom:0;}
+  .card-soft p{color:#4A2E12;
+              color: var(--cream);
+              font-size: 0.85rem;
+              color: #C9D4DA;
+  }
+  .card-soft h3{color:var(--navy);
+                font-size: 0.85rem;
+              color: #C9D4DA;}
+  .card-soft ol{color:#4A2E12;
+   color: var(--cream);
+  
+                font-size: 0.85rem;
+              color: #C9D4DA;
+            }
 
   .why-card{background:var(--navy); color:var(--cream); border-radius:16px; padding:26px 28px; margin-bottom:28px;}
   .why-card p{margin:0 0 12px; color:#E7EEF2; font-size:1.02rem;}
@@ -96,9 +110,21 @@
   .layer{display:grid; grid-template-columns:1fr 1fr; gap:34px; align-items:center; margin-bottom:44px;}
   .layer:nth-child(even) .layer-img{order:2;}
   .layer-img img{border-radius:16px; box-shadow:0 14px 30px rgba(0,0,0,0.18); width:100%; height:260px; object-fit:cover;}
+  .layer-img.full-width {
+    width:90%;
+    margin: 8px auto 28px;
+    display: block;
+    
+  }
+   .layer-img.full-width img {
+    width: 100%;
+   }
   .layer-tag{display:inline-block; background:var(--navy); color:var(--teal); font-weight:700; font-size:0.75rem; padding:5px 11px; border-radius:99px; margin-bottom:10px;}
-  .layer h3{font-size:1.5rem; margin:0 0 8px; color:var(--navy);}
-  .layer p{margin:0; color:#3B2100; font-size:1rem;}
+  .layer h3{font-size:1.5rem; margin:0 0 8px;
+    /* color:var(--navy); */
+    }
+  .layer p{margin:0; 
+     /* color:var(--navy); */ font-size:1rem;}
   @media(max-width:760px){.layer{grid-template-columns:1fr;} .layer:nth-child(even) .layer-img{order:0;} .layer-img img{height:220px;}}
 
   .watch-panel{background:var(--navy); color:var(--cream); border-radius:18px; padding:32px; display:grid; grid-template-columns:1fr 1fr; gap:24px;}
@@ -198,14 +224,15 @@
 <div class="hero-band">
   <div class="wrap">
     <h1 class="centered">ARE YOU IN DANGER?<br>
-      <span class="hightlight-1"> UNDER ATTACK?</span></h1>
+      <!-- span class="hightlight-1"> UNDER ATTACK?</span --></h1>
     <hr class="hr-style centered"/>
-    <h1 class="highlight-1">JUST<br/> PRESS THE ALARM BUTTON<br/>
-    <span class="white-highlight">OR PULL THE PIN</span>
+    <h1 class="highlight-1">PRESS THE ALARM BUTTON
+    <br/><span class="white-highlight">PULL THE PIN</span>
+    <br/><span class="hightlight-1"> OR SAY THE WORD</span>
    <br/><span class="white-highlight">and Help is on the Way. </span></h1>
       
 
-    <img class="curved-rad hero-photo" src="/explainerImages/black-girl-2png-alarm.jpeg" alt="A woman pulling the alarm pin to trigger The Raptor's Call"/>
+    <!-- img class="curved-rad hero-photo" src="/explainerImages/black-girl-2png-alarm.jpeg" alt="A woman pulling the alarm pin to trigger The Raptor's Call" / -->
     <p class="lede">The alarm (The Raptor's Call) reaches the team in seconds</p>
 
     <div class="chips">
@@ -270,11 +297,18 @@
       </div>
 
       <div class="stat">
-        <h3 class="section-subtitle">to stop Burglary and Home Invasion</h3>
+        <h3 class="section-subtitle">to stop burglary and home invasion</h3>
         <span class="num">1,343,180 </span>
         <span class="lbl">In 2023, there were 1,343,180 household burglaries or trespassing incidents. Living alone is a known risk factor; for crimes like residential robbery or burglary, living alone increases the likelihood of victimization.</span>
       </div>
 
+      <div class="stat">
+        <h3 class="section-subtitle">to stop kidnappings</h3>
+        <span class="num">50,654 </span>
+        <span class="lbl">While stranger kidnappings are rare, the FBI recorded 50,654 abductions and kidnappings in the U.S. over a recent 12-month period. An estimated 58,200 non-family abductions occur annually.s</span>
+      </div>
+
+     
 
 
     </div>
@@ -301,28 +335,41 @@
       <div class="card-soft">
         <span class="layer-tag">Our Personal Alarm - in disguise</span>
         <h3>Our Alarm can be <b>disguised</b> as anything.</h3>
-        <p><b>Eg., Hair pins, jewelry pieces</b>, <b>dolls</b>, <b>toys</b>, <b>accessories</b>, <b>literally anything</b>. 
+        <p><b>Eg., Hair pins, jewelry pieces</b>, <b>dolls</b>, <b>toys</b> etc.,
            If you have an emergency, we can quickly find you and rescue you.  </p>
         <br/>
-        <p>This is fundamentally different than the past where - a person could be attacked while all the neighbors slept. 
-          With our tech tools, just 
-          <br/> (1) Press the button or 
-          <br/> (2) Pull a Pin or 
-          <br/> (3) say the Word and it notifies the rescue teams faster than you can dial 911.
-        <Br/><br/>
-      You can trigger the alarm on the app or on your personally disguised alarm. </p>
+        <p> 🔑 This is fundamentally different than the past where - a person could be attacked while all the neighbors slept. 
+          <br/> <br/>
+          Even if their line-of sight is blocked by foggy windows or walls, their cellphones' alarm will sound,  they will see your position and the people around you on the map. 
+          The app handles everything, all you have to do is  </p> 
+         <ol>
+          <li> Press the button or </li>
+          <li> Pull a Pin or </li>
+          <li> Say the Word and it notifies the rescue teams faster than you can dial 911.</li>
+        </ol>
+      
+        <p><small>You can trigger the alarm on the app or on your personally disguised alarm.</small> </p>
       </div>
       <div class="layer-img"><img src="/explainerImages/mirror-jewlery.png" alt="A woman wearing the Raptor's Call alarm tag styled as a hairpin"></div>
     </div>
+
+    
+      
+        <div class="layer-img full-width"><img src="/explainerImages/800px-primary-alarm.jpeg" alt="A woman wearing the Raptor's Call alarm tag styled as a hairpin"></div>
+      
+ 
 
     <div class="layer">
       <div class="card-soft">
         <span class="layer-tag">The App</span>
         <h3>Turns your phone into a command center</h3>
-        <p>A small dongle that plugs into any Android phone and puts your whole team on one live map. See where everyone is, send messages that never touch the internet, and get alerts even while the app runs quietly in the background.</p>
+        <p>A small electronic device that plugs into any smartphone phone and puts your whole team on one live map.
+           <br/>See where everyone is,
+           <br/>Send messages that never touch the internet,
+           <br/> Get alerts even while the app runs quietly in the background.</p>
       </div>
       <div class="layer-img">
-        <img class="curved-rad hero-photo" src="/explainerImages/wh-girl-1png-alarm.jpeg" alt="A woman using The Raptor's Call app to see her team"/>
+        <img class="curved-rad hero-photo" src="/explainerImages/the-raptors-key.jpeg" alt="A woman using The Raptor's Call app to see her team"/>
       </div>
     </div>
 
@@ -337,11 +384,19 @@
   </div>
 </section>
 
-  <div class="hero-band">
-     <h1 class="highlight-1">JUST<br/> PRESS THE ALARM BUTTON<br/>
-      <span class="white-highlight">OR PULL THE PIN</span></h1>
-      <p>And Help is on the way. </p>
-  </div>
+
+  <!-- div class="wrap">
+    <h1 class="centered">ARE YOU IN DANGER?<br>
+    </h1>
+    <hr class="hr-style centered"/>
+    <h1 class="highlight-1">PRESS THE ALARM BUTTON
+    <br/><span class="white-highlight">PULL THE PIN</span>
+    <br/><span class="hightlight-1"> OR SAY THE WORD</span>
+   <br/><span class="white-highlight">and Help is on the Way. </span></h1>
+
+
+  
+  </div -->
 
 <section>
   <div class="wrap">
@@ -381,12 +436,13 @@
 
 <section>
   <div class="wrap">
+     <h2 class="section-title" style="margin-bottom:10px;">Who is on your Team?<br/>
+          Carefully vetted friends and neighbors.</h2>
     <div class="trust-wrap">
       <div class="card-soft">
-        <h2 class="section-title" style="margin-bottom:10px;">Who is on your Team?<br/>
-          Carefully vetted friends and neighbors.</h2>
-        <p class="section-lede" style="margin-bottom:16px;">Anyone can be watched over. Not anyone gets to watch.</p>
-        <ul class="trust-list">
+       
+        <p class="" style="margin-bottom:16px;">Anyone can be watched over. Not anyone gets to watch.</p>
+        <ul class="">
           <li>Every applicant is checked through references, a personal interview, and a background check before they can see anyone's location.</li>
           <li>New members start on probation with limited visibility until they've proven reliable.</li>
           <li>Unusual behavior is flagged automatically, and repeat problems mean quiet, permanent removal. (A system is organized for appeals)</li>
