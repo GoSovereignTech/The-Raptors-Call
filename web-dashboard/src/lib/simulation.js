@@ -11,35 +11,46 @@ let SIM_BASE_LON = -76.6216;
 // ─── Multi-character path simulators ───
 // Each step is [deltaLat, deltaLon]. Base is SIM_BASE_LAT/LON.
 // intervalMs is the delay between HBT packets — shorter = smoother movement.
-
 async function _emitPath(nid, path, {
-  intervalMs = 1400,
-  mot = 'walk',
-  nickname = null,
-  bat = 90,
-  entityType = 'friend',
-  caption = null,          // ← new
-  captionPriority = 'event',
-  captionTitle = null,
-} = {}) {
+    intervalMs = 200,        // Drastically reduced from 1400 for faster demos
+    mot = 'walk',
+    nickname = null,
+    bat = 90,
+    entityType = 'friend',
+    caption = null,
+    captionPriority = 'event',
+    captionTitle = null,
+  } = {}) {
   if (caption) {
     msg[captionPriority]?.(caption, { title: captionTitle || nickname || nid });
   }
-  for (let i = 0; i < path.length; i++) {
-    const [dLat, dLon] = path[i];
-    const packet = envelope('HBT', {
-      bat,
-      lat: SIM_BASE_LAT + dLat,
-      lon: SIM_BASE_LON + dLon,
-      mot,
-      nickname,
-      entityType,
-    }, { nid, cap: CAP.GPS | CAP.MOTION, team_id: 1 });
-    if (simHandler) simHandler(packet);
-    if (i < path.length - 1) {
-      await new Promise((r) => setTimeout(r, intervalMs));
-    }
-  }
+
+  // Return a Promise so parent scenes (like dacaraFullScene) wait properly
+  return new Promise((resolve) => {
+    let i = 0;
+    const move = () => {
+      if (i >= path.length) {
+        resolve(); // Done!
+        return;
+      }
+
+      const [dLat, dLon] = path[i];
+      const packet = envelope('HBT', {
+        bat,
+        lat: SIM_BASE_LAT + dLat,
+        lon: SIM_BASE_LON + dLon,
+        mot,
+        nickname,
+        entityType,
+      }, { nid, cap: CAP.GPS | CAP.MOTION, team_id: 1 });
+      
+      if (simHandler) simHandler(packet);
+      
+      i++;
+      setTimeout(move, intervalMs);
+    };
+    move();
+  });
 }
 
 /*

@@ -134,29 +134,36 @@ export function PersonMarker({ entity, onSelect, highlighted = false }) {
   }, [entity.lat, entity.lon, entity.lng]);
 
   // ─── Animation loop drives setLatLng directly ───
-  useEffect(() => {
-    let raf;
-    const tick = (t) => {
-      if (markerRef.current) {
-        const elapsed = t - animStartRef.current;
-        const p = animDurRef.current > 0
-          ? Math.min(1, elapsed / animDurRef.current)
-          : 1;
-        // Ease-out cubic
-        const eased = 1 - Math.pow(1 - p, 3);
-        const lat = fromPosRef.current.lat +
-          (toPosRef.current.lat - fromPosRef.current.lat) * eased;
-        const lng = fromPosRef.current.lng +
-          (toPosRef.current.lng - fromPosRef.current.lng) * eased;
-        try {
-          markerRef.current.setLatLng([lat, lng]);
-        } catch (e) {}
+  // Inside PersonMarker.jsx
+useEffect(() => {
+  let raf;
+  const tick = (t) => {
+    if (!markerRef.current) return;
+    const elapsed = t - animStartRef.current;
+    const p = animDurRef.current > 0 ? Math.min(1, elapsed / animDurRef.current) : 1;
+    const eased = 1 - Math.pow(1 - p, 3);
+    
+    // Only update if we are actually moving
+    if (p < 1) { 
+      const lat = fromPosRef.current.lat + (toPosRef.current.lat - fromPosRef.current.lat) * eased;
+      const lng = fromPosRef.current.lng + (toPosRef.current.lng - fromPosRef.current.lng) * eased;
+      
+      // Check if position changed to avoid redundant DOM updates
+      const current = markerRef.current.getLatLng();
+      if (Math.abs(current.lat - lat) > 0.00001 || Math.abs(current.lng - lng) > 0.00001) {
+        markerRef.current.setLatLng([lat, lng]);
       }
       raf = requestAnimationFrame(tick);
-    };
+    }
+  };
+  
+  // Only start the loop if there is a new destination
+  if (animStartRef.current > 0) {
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  }
+  
+  return () => cancelAnimationFrame(raf);
+}, [entity.lat, entity.lon, entity.lng]);
 
   return (
     <Marker

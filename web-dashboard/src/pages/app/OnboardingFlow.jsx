@@ -8,7 +8,7 @@ import {
 import { PointSampler } from '../../components/PointSampler.jsx';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Crosshair } from 'lucide-react';
+import { Crosshair, Bell } from 'lucide-react';
 import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide-react';
 import RaptorMark from '../../components/RaptorMark.jsx';
 import { ActiveNodeTracker } from '../../lib/localActiveNodes.js';
@@ -477,6 +477,8 @@ function HomeField({ location, onOpenSettings }) {
   const [showVariance, setShowVariance] = useState(true);
   const [ghosts, setGhosts] = useState([]);
   const [leafletMap, setLeafletMap] = useState(null);
+ // Add this near your other useState calls in HomeField
+ const [alarmIndex, setAlarmIndex] = useState(0);
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
@@ -995,6 +997,31 @@ const openDetail = (entity) => {
   }
 
   const pulseDuration = 2.4 - activity * 1.4;
+// Add these inside HomeField, before the return ()
+const activeAlarms = activeNodes.filter(n => n.alarm && n.alarm !== 'off');
+
+const handleCenterOnMe = () => {
+  if (leafletMap) {
+    // animate: false makes it instant, solving the "laggy" feel
+    leafletMap.setView([live.lat, live.lon], 16, { animate: false });
+  }
+};
+
+
+const handleCenterOnAlarm = () => {
+  if (activeAlarms.length === 0 || !leafletMap) return;
+  
+  // Cycle through active alarms
+  const target = activeAlarms[alarmIndex % activeAlarms.length];
+  leafletMap.setView([target.lat, target.lng ?? target.lon], 16, { animate: false });
+  
+  // Optional: open the detail panel for this alarm
+  openDetail(target);
+  
+  // Increment for the next tap
+  setAlarmIndex(prev => prev + 1);
+};
+
 
   return (
     <div className="map-page relative min-h-screen overflow-hidden bg-raptor-void">
@@ -1118,20 +1145,37 @@ const openDetail = (entity) => {
       {/* Radar sweep overlay — appears centered when toggled */} 
       {leafletMap && (
         <> 
+        {/* Center on Me Button */}
+        <button
+          onClick={handleCenterOnMe}
+          className="absolute bottom-[180px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition active:scale-95"
+          style={{
+            background: 'var(--panel-bg)',
+            borderColor: 'var(--panel-border)',
+            color: 'var(--accent)',
+          }}
+          aria-label="Center on My Location"
+        >
+          <Crosshair className="h-5 w-5" />
+          <small>You</small>
+        </button>
+
+        {/* Center on Alarm Button (Only shows if there's an active alarm) */}
+        {activeAlarms.length > 0 && (
           <button
-            onClick={() => {
-              leafletMap.flyTo([live.lat, live.lon], 16, { duration: 0.8 });
-            }}
-            className="absolute bottom-[220px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition"
+            onClick={handleCenterOnAlarm}
+            className="absolute bottom-[220px] right-2 z-[560] flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur shadow-lg transition active:scale-95 animate-pulse"
             style={{
-              background: 'var(--panel-bg)',
+              background: 'var(--threat-enemy)', // Red background for alarm
               borderColor: 'var(--panel-border)',
-              color: 'var(--accent)',
+              color: '#fff',
             }}
-            aria-label="Return to my position"
+            aria-label="Center on Active Alarm"
           >
-            <Crosshair className="h-5 w-5" />
+            <Bell className="h-5 w-5" />
+            <small>Alarms</small>
           </button>
+        )}
        
         
         {appMessage && (
