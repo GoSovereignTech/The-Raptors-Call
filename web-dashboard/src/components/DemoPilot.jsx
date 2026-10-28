@@ -2,13 +2,20 @@
 // Semi-transparent forward-only demo button + draggable caption.
 // Tapping the button advances through the queue; wraps at the end.
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Play } from 'lucide-react';
-
 import { setSimBase } from '../lib/simulation.js';
+import { raptorVoice } from '../lib/RaptorsVoice';
 
 
 const QUEUE = [
+    // ── SCENE 0: Intro (Index 0) ──
+  {
+    scene: 'Intro',
+    fn: 'sequence',//null, // No simulation runs here
+    arg: null,
+    caption: 'Press the play button to watch a rescue scenario. Each scene runs at your current location.',
+  },
   // ── SCENE 1 ─────────────────────────────────────────
   {
     scene: 'Routine Walk',
@@ -63,35 +70,41 @@ export function DemoPilot({ onRun,
   const [captionPos, setCaptionPos] = useState({ x: 0, y: 0 });
   const dragRef = useRef({ dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 });
 
-  const advance = () => {
+    // Use a single handler for the button click
+  const handleAdvance = () => {
     const next = (index + 1) % QUEUE.length;
     const step = QUEUE[next];
-    console.log('index=',index, ' step =',step );
+    console.log('Advancing to index:', index, 'Step:', step);
+
+    // 1. CLEAR PREVIOUS SCENE FIRST (This calls raptorVoice.stop())
+    try { window.Sim?.clearAll?.(); } catch {}
+
+    // 2. UPDATE UI
     setIndex(next);
     setCaption(step.caption);
 
-    // ── Re-anchor sim base to the user's current location ──
+    // 3. SPEAK THE INTRO (Now that clearAll is done, the voice won't be killed)
+    if (index === -1  ) {
+      raptorVoice.speakAndWait(step.caption);
+    }
+
+    // 4. RUN SIMULATION
     if (typeof anchorLat === 'number' && typeof anchorLon === 'number') {
       setSimBase(anchorLat, anchorLon);
     }
-    // ── Clear previous scene before loading the next (skip on very first run) ──
-    if (index >= 0) {
-      try { window.Sim?.clearAll?.(); } catch {}
+
+    if (step.fn) {
+      // Small delay so clear settles before new packets fly
+      setTimeout(() => {
+        try {
+          if (Array.isArray(step.arg)) onRun(step.fn, ...step.arg);
+          else if (step.arg != null) onRun(step.fn, step.arg);
+          else onRun(step.fn);
+        } catch (e) {
+          console.warn('[DemoPilot] Step failed:', step.fn, e);
+        }
+      }, 150);
     }
-
-    // Small delay so clear settles before new packets fly
-    setTimeout(() => {
-      try {
-        if (Array.isArray(step.arg)) onRun(step.fn, ...step.arg);
-        else if (step.arg != null) onRun(step.fn, step.arg);
-        else onRun(step.fn);
-      } catch (e) {
-        console.warn('[DemoPilot] Step failed:', step.fn, e);
-      }
-    }, 150);
-
-
-  
   };
 
   // ─── Drag handlers ───
@@ -121,21 +134,14 @@ export function DemoPilot({ onRun,
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
   };
 
+ 
+ 
+
   return (
     <>
-      {/* Advance button — repositioned on small screens via inline style */}
-      
-      
-      {index === -1 && (
-        <div className="absolute left-2 right-14 sm:right-16 z-[560] rounded-md border border-amber-500/40 bg-raptor-bg/90 backdrop-blur px-2.5 py-1.5 text-[11px] sm:text-xs text-amber-100 shadow-lg"
-            style={{ bottom: `${bottomOffset}px` }}>
-          <span className="font-bold text-amber-500 mr-1.5">▶</span>
-          Press the play button to watch a rescue scenario. Each scene runs at your current location.
-        </div>
-      )}
-      
+      {/* Advance button   */ }
       <button
-        onClick={advance}
+        onClick={ handleAdvance }
         className="absolute right-2 sm:right-4 z-[560] flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border backdrop-blur transition active:scale-95"
         style={{
           bottom: `${bottomOffset}px`,
@@ -147,6 +153,7 @@ export function DemoPilot({ onRun,
       >
         <Play className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
+     
 
       {/* Draggable caption */} 
       {caption && (
@@ -155,22 +162,21 @@ export function DemoPilot({ onRun,
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           className="absolute left-2 right-14 sm:right-16 z-[560] cursor-grab active:cursor-grabbing rounded-md border px-2.5 py-1.5 shadow-lg text-[11px] sm:text-xs select-none touch-none"
- 
           style={{
-            bottom: `150px`,
-            left: `auto`,
+            bottom: `150px`, 
             width: `auto`,
-            maxWidth: `250px`,
+            maxWidth: `220px`,
             minWidth: `150px`,
             right: `12px`,
-            transform: `unset`,
+            willChange: 'transform',  
+            transform: `translate(${captionPos.x}px, ${captionPos.y}px) translateZ(0)`,
             background: 'var(--caption-bg)',
             borderColor: 'var(--caption-border)',
             color: 'var(--caption-text)',
           }} 
         >
           <span className="font-bold mr-1.5" style={{ color: 'var(--caption-accent)' }}>
-           Scene {index + 1} of {QUEUE.length}
+           {index === 0 ? 'INFO' : `Scene ${index} of ${QUEUE.length - 2}`}
           </span>
           <span>{caption}</span>
         </div>

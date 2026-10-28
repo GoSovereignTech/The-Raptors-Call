@@ -1157,7 +1157,7 @@ const handleCenterOnAlarm = () => {
           aria-label="Center on My Location"
         >
           <Crosshair className="h-5 w-5" />
-          <small>You</small>
+          <small>Center You</small>
         </button>
 
         {/* Center on Alarm Button (Only shows if there's an active alarm) */}

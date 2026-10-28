@@ -1,16 +1,10 @@
-// src/lib/messageCenter.js
-// Central message bus — one place for on-screen captions + background notifications.
+import { raptorVoice } from './RaptorsVoice.js';
 
 let _handler = null;
 let _notificationPermission = 'default';
+const messageQueue = [];
+let isProcessing = false;
 
-// ─── Message categories ───
-// event   → neutral narration ("Tasia walks home.")
-// risk    → app-detected anomaly, may offer confirm/deny
-// offer   → friendly suggestion ("I found teammates nearby — want info?")
-// action  → recommendation ("Converge north. Block the exit.")
-// alarm   → highest priority, siren + border + notification
-// resolved → outcome ("Rescued.")
 export const PRIORITY = {
   event:    { color: '#94a3b8', notify: false, sound: false },
   risk:     { color: '#f59e0b', notify: true,  sound: false },
@@ -20,12 +14,10 @@ export const PRIORITY = {
   resolved: { color: '#10b981', notify: false, sound: false },
 };
 
-// ─── Register the on-screen renderer ───
 export function registerMessageHandler(fn) {
   _handler = fn;
 }
 
-// ─── Ask for notification permission (call once, on user gesture) ───
 export async function requestNotificationPermission() {
   if (typeof Notification === 'undefined') return 'unsupported';
   if (Notification.permission === 'granted') {
@@ -45,38 +37,57 @@ export async function requestNotificationPermission() {
   }
 }
 
-// ─── Fire a message ───
-// msg = { text, title?, priority?, id?, actions?, durationMs? }
-//   actions: [{ label, value }] — optional buttons like [Yes] [No]
+// This is the core function that handles the queue
 export function showMessage(msg) {
   const priority = PRIORITY[msg.priority] ? msg.priority : 'event';
 
-  // 1. On-screen
+  // 1. Push to the queue
+  messageQueue.push({
+    ...msg,
+    priority,
+    id: msg.id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+  });
+
+  // 2. Start processing if not already running
+  if (!isProcessing) {
+    processQueue();
+  }
+}
+
+async function processQueue() {
+  if (messageQueue.length === 0) {
+    isProcessing = false;
+    return;
+  }
+
+  isProcessing = true;
+  const currentMsg = messageQueue[0]; // Peek at the first item
+
+  // ─── 1. Update the UI Screen ───
   if (_handler) {
     _handler({
-      id: msg.id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      text: msg.text,
-      title: msg.title || null,
-      priority,
-      color: PRIORITY[priority].color,
-      actions: msg.actions || null,
-      durationMs: msg.durationMs ?? (priority === 'alarm' ? 12000 : 8000),
+      id: currentMsg.id,
+      text: currentMsg.text,
+      title: currentMsg.title || null,
+      priority: currentMsg.priority,
+      color: PRIORITY[currentMsg.priority].color,
+      actions: currentMsg.actions || null,
+      durationMs: currentMsg.durationMs ?? (currentMsg.priority === 'alarm' ? 12000 : 8000),
       ts: Date.now(),
     });
   }
 
-  // 2. Background notification (only for elevated priorities)
-  if (PRIORITY[priority].notify && _notificationPermission === 'granted') {
+  // ─── 2. Background Notifications (Optional, based on priority) ───
+  if (PRIORITY[currentMsg.priority].notify && _notificationPermission === 'granted') {
     try {
-      const n = new Notification(msg.title || 'The Raptor\'s Call', {
-        body: msg.text,
-        tag: msg.id || priority,            // collapses duplicates
-        silent: !PRIORITY[priority].sound,  // browser handles sound
-        requireInteraction: priority === 'alarm',
+      const n = new Notification(currentMsg.title || 'The Raptor\'s Call', {
+        body: currentMsg.text,
+        tag: currentMsg.id || currentMsg.priority,
+        silent: !PRIORITY[currentMsg.priority].sound,
+        requireInteraction: currentMsg.priority === 'alarm',
         icon: '/android-chrome-192x192.png',
       });
-      // Auto-close non-alarm notifications after 8s
-      if (priority !== 'alarm') {
+      if (currentMsg.priority !== 'alarm') {
         setTimeout(() => { try { n.close(); } catch {} }, 8000);
       }
     } catch (e) {
@@ -84,10 +95,17 @@ export function showMessage(msg) {
     }
   }
 
-  console.log(`[MSG:${priority}]`, msg.title || '', msg.text);
+  // ─── 3. Speak the Text and WAIT for it to finish ───
+  const textToSpeak = currentMsg.title ? `${currentMsg.title}. ${currentMsg.text}` : currentMsg.text;
+  await raptorVoice.speakAndWait(textToSpeak);
+
+  // ─── 4. Remove from queue and move to the next one ───
+  console.log(`[MSG:${currentMsg.priority}]`, currentMsg.title || '', currentMsg.text);
+  messageQueue.shift();
+  processQueue();
 }
 
-// ─── Convenience wrappers ───
+// ─── Convenience wrappers (This fixes the missing export!) ───
 export const msg = {
   event:    (text, opts = {}) => showMessage({ ...opts, text, priority: 'event' }),
   risk:     (text, opts = {}) => showMessage({ ...opts, text, priority: 'risk' }),

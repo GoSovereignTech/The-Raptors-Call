@@ -1,57 +1,4 @@
 // src/lib/simulation.js
-// Console-triggerable simulations with 5-sensor fusion support.
-// Payload shape matches real dongle output — drop-in compatible.
-import { msg } from './messageCenter.js';
-const SIM_PREFIX = 'SIM_';
-const SIM_LAT = 39.2838;
-const SIM_LON = -76.6216;
-let SIM_BASE_LAT = 39.2838;
-let SIM_BASE_LON = -76.6216;
-
-// ─── Multi-character path simulators ───
-// Each step is [deltaLat, deltaLon]. Base is SIM_BASE_LAT/LON.
-// intervalMs is the delay between HBT packets — shorter = smoother movement.
-async function _emitPath(nid, path, {
-    intervalMs = 200,        // Drastically reduced from 1400 for faster demos
-    mot = 'walk',
-    nickname = null,
-    bat = 90,
-    entityType = 'friend',
-    caption = null,
-    captionPriority = 'event',
-    captionTitle = null,
-  } = {}) {
-  if (caption) {
-    msg[captionPriority]?.(caption, { title: captionTitle || nickname || nid });
-  }
-
-  // Return a Promise so parent scenes (like dacaraFullScene) wait properly
-  return new Promise((resolve) => {
-    let i = 0;
-    const move = () => {
-      if (i >= path.length) {
-        resolve(); // Done!
-        return;
-      }
-
-      const [dLat, dLon] = path[i];
-      const packet = envelope('HBT', {
-        bat,
-        lat: SIM_BASE_LAT + dLat,
-        lon: SIM_BASE_LON + dLon,
-        mot,
-        nickname,
-        entityType,
-      }, { nid, cap: CAP.GPS | CAP.MOTION, team_id: 1 });
-      
-      if (simHandler) simHandler(packet);
-      
-      i++;
-      setTimeout(move, intervalMs);
-    };
-    move();
-  });
-}
 
 /*
  
@@ -161,6 +108,62 @@ Sim.sequence.ambushSetupRescue();
 
 
   */
+
+// Console-triggerable simulations with 5-sensor fusion support.
+// Payload shape matches real dongle output — drop-in compatible.
+import { msg } from './messageCenter.js';
+import { raptorVoice } from './RaptorsVoice.js'; 
+const SIM_PREFIX = 'SIM_';
+const SIM_LAT = 39.2838;
+const SIM_LON = -76.6216;
+let SIM_BASE_LAT = 39.2838;
+let SIM_BASE_LON = -76.6216;
+
+// ─── Multi-character path simulators ───
+// Each step is [deltaLat, deltaLon]. Base is SIM_BASE_LAT/LON.
+// intervalMs is the delay between HBT packets — shorter = smoother movement.
+async function _emitPath(nid, path, {
+    intervalMs = 200,        // Drastically reduced from 1400 for faster demos
+    mot = 'walk',
+    nickname = null,
+    bat = 90,
+    entityType = 'friend',
+    caption = null,
+    captionPriority = 'event',
+    captionTitle = null,
+  } = {}) {
+  if (caption) {
+    msg[captionPriority]?.(caption, { title: captionTitle || nickname || nid });
+  }
+
+  // Return a Promise so parent scenes (like dacaraFullScene) wait properly
+  return new Promise((resolve) => {
+    let i = 0;
+    const move = () => {
+      if (i >= path.length) {
+        resolve(); // Done!
+        return;
+      }
+
+      const [dLat, dLon] = path[i];
+      const packet = envelope('HBT', {
+        bat,
+        lat: SIM_BASE_LAT + dLat,
+        lon: SIM_BASE_LON + dLon,
+        mot,
+        nickname,
+        entityType,
+      }, { nid, cap: CAP.GPS | CAP.MOTION, team_id: 1 });
+      
+      if (simHandler) simHandler(packet);
+      
+      i++;
+      setTimeout(move, intervalMs);
+    };
+    move();
+  });
+}
+
 export const SimSequences = {
   // ═══════════════════════════════════════════════════════════
 // DACARA SCENE — abduction + rescue
@@ -283,7 +286,8 @@ dacaraFriendD: () => _emitPath('SIM_DACARA_FRIEND_D', [
 // ═══════════════════════════════════════════════════════════
 dacaraFullScene: async () => {
   // ─── PHASE 1: Routine ───
-  msg.alarm('Test alarm notification', { title: 'TEST' });
+ //  raptorVoice.speak("Simulation starting.", "event")
+ //  msg.alarm('Test alarm notification', { title: 'TEST' });
   msg.offer(
     'I noticed you walk alone every Friday at this time. 3 teammates are nearby — want company?',
     { title: 'APP' }
@@ -442,8 +446,10 @@ dacaraFullScene: async () => {
   ), 
   // but this i the rescue that happened. 
   ambushSetupRescue: async () => {
+
     const tasia = SimSequences.tasia();
     const enemy = SimSequences.potasia();
+    
     // Let them play for 3.5 seconds
     await new Promise((r) => setTimeout(r, 3500));
     // NOW fire the alarm — right when the enemy closes in
@@ -464,6 +470,8 @@ dacaraFullScene: async () => {
   // ═══════════════════════════════════════════════════════════
   // PHASE 1 — TASIA'S ROUTINE
   // ═══════════════════════════════════════════════════════════
+ //  raptorVoice.speak("Simulation starting.", "event")
+
   msg.event(
     'Tasia leaves her job and walks her usual Friday route home.',
     { title: 'ROUTINE' }
@@ -840,6 +848,10 @@ export function registerClearHandler(handler) {
 // ✅ simulation.js — just delegates
 export function clearAll() {
   if (clearHandler) clearHandler();
+
+  // 🎤 Stop any ongoing speech immediately
+  raptorVoice.stop(); 
+
   console.log('[Sim] All markers cleared.');
 }
 
