@@ -288,26 +288,29 @@ dacaraFullScene: async () => {
   // ─── PHASE 1: Routine ───
  //  raptorVoice.speak("Simulation starting.", "event")
  //  msg.alarm('Test alarm notification', { title: 'TEST' });
+
+  await SimSequences.dacaraWalk();
+  await new Promise((r) => setTimeout(r, 600));
   msg.offer(
     'I noticed you walk alone every Friday at this time. 3 teammates are nearby — want company?',
     { title: 'APP' }
   );
-  await SimSequences.dacaraWalk();
-  await new Promise((r) => setTimeout(r, 800));
 
   // ─── PHASE 2: Pickup ───
+  await new Promise((r) => setTimeout(r, 1000));
   const enemyCar = SimSequences.dacaraEnemyCar();
-  await new Promise((r) => setTimeout(r, 2800));
+  await new Promise((r) => setTimeout(r, 1000));
 
   // ─── PHASE 3: She's in the car ───
   const dacaraTag = SimSequences.dacaraTagInCar();
-  await new Promise((r) => setTimeout(r, 2800));
+  await new Promise((r) => setTimeout(r, 1000));
 
   // ─── PHASE 4: Pin pulled — alarm fires ───
-  // msg.alarm('PIN PULLED — GPS broadcast to all teammates.', { title: 'ALARM' });
-  Sim.emergency('SCR');
-  await new Promise((r) => setTimeout(r, 400));
-
+  msg.alarm('PIN PULLED — GPS broadcast to all teammates.', { title: 'ALARM' });
+ 
+  await new Promise((r) => setTimeout(r, 15000));
+   Sim.emergency('SCR');
+  await new Promise((r) => setTimeout(r, 100));
   // ─── PHASE 5: All responders converge ───
   await Promise.all([
     SimSequences.dacaraFriendA(),
@@ -319,12 +322,12 @@ dacaraFullScene: async () => {
   ]);
 
   // ─── PHASE 6: Resolution ───
-  await new Promise((r) => setTimeout(r, 800));
+  //await new Promise((r) => setTimeout(r, 800));
   msg.resolved(
     'All units on scene. Vehicle boxed front and rear. Dacara is safe.',
     { title: 'RESCUED' }
   );
-  Simulations.chat('Mission accomplished. She is safe.', 'Team A');
+  // Simulations.chat('Mission accomplished. She is safe.', 'Team A');
 },
 
 // demos 
@@ -483,7 +486,7 @@ dacaraFullScene: async () => {
   // PHASE 2 — STALKER LINGERING
   // ═══════════════════════════════════════════════════════════
   msg.risk(
-    'APP: Unknown person loitering along her route for 4 minutes. No phone signal — not a vetted teammate.',
+    'Unknown person loitering along her route for 4 minutes. No phone signal — not a vetted teammate.',
     { title: 'RISK DETECTED' }
   );
   const potasia = SimSequences.potasia();
@@ -493,7 +496,7 @@ dacaraFullScene: async () => {
   // PHASE 3 — INTENDED ATTACK (what he was planning)
   // ═══════════════════════════════════════════════════════════
   msg.risk(
-    'APP: Stalker is closing the distance. Tasia is alone — no friendly devices within 200 m.',
+    'Stalker is closing the distance. Tasia is alone — no friendly devices within 200 m.',
     { title: 'APP' }
   );
   await new Promise((r) => setTimeout(r, 1800));
@@ -505,6 +508,7 @@ dacaraFullScene: async () => {
     'THREAT CONFIRMED — automatic alarm triggered. GPS broadcasting to all teammates. Siren active.',
     { title: 'ALARM' }
   );
+   await new Promise((r) => setTimeout(r,10500));
   Sim.emergency('SCR');
   // Sim.chat('Overwatch standby. Alarm live. All units respond.', 'Overwatch');
   await new Promise((r) => setTimeout(r, 1500));

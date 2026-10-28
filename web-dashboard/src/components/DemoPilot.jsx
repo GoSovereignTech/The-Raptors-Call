@@ -84,7 +84,7 @@ export function DemoPilot({ onRun,
     setCaption(step.caption);
 
     // 3. SPEAK THE INTRO (Now that clearAll is done, the voice won't be killed)
-    if (index === -1  ) {
+    if (index === -1 ||  index === 0 ) {
       raptorVoice.speakAndWait(step.caption);
     }
 

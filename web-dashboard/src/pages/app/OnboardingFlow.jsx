@@ -959,9 +959,9 @@ const openDetail = (entity) => {
 
   const cancelEmergencyState = () => {
     setAlarmStatus('CLEAR');
-    setActiveNodes([]);
+   // setActiveNodes([]);
    
-    setInitialAlarmLocation(null);
+   // setInitialAlarmLocation(null);
     stopSiren();
   };
   
@@ -1021,6 +1021,22 @@ const handleCenterOnAlarm = () => {
   // Increment for the next tap
   setAlarmIndex(prev => prev + 1);
 };
+
+/*
+const hasCenteredRef = useRef(false);
+
+useEffect(() => {
+  if (leafletMap && live.lat && live.lon && !hasCenteredRef.current) {
+    leafletMap.setView([live.lat, live.lon], 16, { animate: false });
+    hasCenteredRef.current = true;
+  }
+}, [leafletMap, live.lat, live.lon]);
+*/
+useEffect(() => {
+  if (leafletMap && live.lat && live.lon) {
+    leafletMap.setView([live.lat, live.lon], 16, { animate: false });
+  }
+}, [leafletMap, live.lat, live.lon]);
 
 
   return (
