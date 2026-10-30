@@ -8,7 +8,7 @@ import {
 
 const MAX_IMAGE_KB = 200;
 
-export function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, onBack }) {
+export default function SettingsPage({ userGuid, meshNodeId, currentProfile, onSaved, onBack }) {
   const [nickname, setNickname] = useState(currentProfile?.nickname || '');
   const [role, setRole] = useState(currentProfile?.role || 'protector');
   const [pictureBlob, setPictureBlob] = useState(currentProfile?.picture_blob || null);

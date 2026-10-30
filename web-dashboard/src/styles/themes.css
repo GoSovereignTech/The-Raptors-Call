@@ -2,83 +2,88 @@
  * Theme system — swap the whole palette by changing one attribute:
  *   document.documentElement.setAttribute('data-theme', 'sky-blue')
  */
-
-/* ═══ THEME: Sky Blue (default) ═══ */
+/* ═══ THEME: Sky Blue (Elite Tactical Edition) ═══ */
 [data-theme="sky-blue"], :root {
   /* ─── Threat colors ─── */
-  --threat-friend:  #12b981;
-  --threat-enemy:   #e94b3c;
-  --threat-unknown: #f5a623;
-  --threat-self:    #3cb5e8;
+  --threat-friend:  #10b981; /* Emerald */
+  --threat-enemy:   #ef4444; /* Sharp Red */
+  --threat-unknown: #f59e0b; /* Amber */
+  --threat-self:    #0ea5e9; /* Electric Blue */
 
   /* ─── Person marker chrome ─── */
-  --marker-bg:      #0c1a28;
-  --marker-outline: #0c1a28;
+  --marker-bg:      #0f172a;
+  --marker-outline: #f8fafc; /* White outline for dark maps */
   --marker-outline-width: 1.5px;
 
-  /* ─── Panel & UI chrome ─── */
-  --panel-bg:       #99d7ee;
-  --panel-bg-deep:  #a0d4ea;
-  --panel-border:   #4ab8d4;
-  --panel-glow:     rgba(74, 184, 212, 0.25);
+  /* ─── Panel & UI chrome (DARK GLASS) ─── */
+  --panel-bg:       rgba(15, 23, 42, 0.90); /* Deep navy with slight transparency */
+  --panel-bg-deep:  #0f172a;                /* Solid dark for chat/settings */
+  --panel-border:   #1e3a8a;                /* Deep blue border */
+  --panel-glow:     rgba(14, 165, 233, 0.2);
 
   /* ─── Accents ─── */
-  --accent:         #0e94b8;
-  --accent-soft:    rgba(14, 148, 184, 0.15);
-  --accent-glow:    rgba(74, 184, 212, 0.5);
+  --accent:         #0ea5e9; /* Vibrant Cyan */
+  --accent-soft:    rgba(14, 165, 233, 0.15);
+  --accent-glow:    rgba(14, 165, 233, 0.5);
 
-  /* ─── Text ─── */
-  --text-primary:   #0c1a28;      /* DARK — text on light panels */
-  --text-muted:     #3a5a70;
-  --card-text:      #e0f2fe;      /* LIGHT — text on dark cards */
+  /* ─── Text (HIGH CONTRAST) ─── */
+  --text-primary:   #f8fafc; /* Crisp White */
+  --text-muted:     #94a3b8; /* Slate for secondary text */
+  --card-text:      #f8fafc; /* White text on dark cards */
 
   /* ─── Alarm buttons ─── */
-  --alarm-loud-from: #fc833e;
-  --alarm-loud-to:   #f65054;
-  --alarm-silent:    #4db8d8;
-  --silent-bg:       #0c1a28;
-  --silent-border:   #4db8d8;
-  --silent-text:     #4db8d8;
+  --alarm-loud-from: #f97316;
+  --alarm-loud-to:   #ef4444;
+  --alarm-silent:    #0ea5e9;
+  --silent-bg:       rgba(15, 23, 42, 0.8);
+  --silent-border:   #0ea5e9;
+  --silent-text:     #0ea5e9;
 
-  /* ─── Chip / button glass (light) ─── */
-  --chip-bg:        transparent;
-  --chip-border:    #5baecb;
-  --chip-text:      #0c1a28;
+  /* ─── Chip / button glass (DARK) ─── */
+  --chip-bg:        rgba(15, 23, 42, 0.6);
+  --chip-border:    #334155;
+  --chip-text:      #94a3b8;
 
   /* ─── Percentage badge ─── */
-  --badge-bg:       #ffffff;
-  --badge-text:     #0c1a28;
-  --badge-border:   rgba(12, 26, 40, 0.15);
+  --badge-bg:       #0ea5e9;
+  --badge-text:     #ffffff;
+  --badge-border:   transparent;
 
-  /* ─── Map tint ─── */
-  --map-filter: invert(0.92) hue-rotate(180deg) saturate(0.65) brightness(1.05) contrast(1.05);
-  --map-overlay: linear-gradient(180deg, rgba(184, 224, 242, 0.05) 0%, rgba(160, 212, 234, 0.18) 100%);
+  /* ─── Map tint (DARK MODE) ─── */
+  --map-filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.4);
+  --map-overlay: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%);
+  /* ─── Map tint (TACTICAL BLUE) ─── */
+  /* This shifts the orange hues to cyan/blue and keeps the dark base */
+  --map-filter: hue-rotate(160deg) saturate(1.3) brightness(0.95) contrast(1.4);
+  /* Optional overlay for extra depth */
+  --map-overlay: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%);
+
 
   /* ─── YOU beacon ─── */
-  --beacon-fill:    #3cb5e8;
-  --beacon-stroke:  #0c1a28;
-  --beacon-label-bg: #0c1a28;
+  --beacon-fill:    #0ea5e9;
+  --beacon-stroke:  #ffffff;
+  --beacon-label-bg: #0f172a;
 
   /* ─── Demo caption ─── */
-  --caption-bg: #99d7ee;
-  --caption-border: #5baecb;
-  --caption-text:  #0c1a28;
-  --caption-accent: #0c1a28;
+  --caption-bg: rgba(15, 23, 42, 0.95);
+  --caption-border: #0ea5e9;
+  --caption-text:  #f8fafc;
+  --caption-accent: #38bdf8;
 
-  /* ─── Chat drawer ─── */
-  --chat-header-bg: #0c1a28;
-  --chat-header-text: #e0f2fe;
-  --chat-bubble-bg: #0c1a28;
-  --chat-bubble-text: #e0f2fe;
-  --chat-input-bg: #0c1a28;
-  --chat-input-text: #e0f2fe;
-  --chat-send-bg: #38bdf8;
-  --chat-send-text: #0c1a28;
+  /* ─── Chat drawer (FIXED CONTRAST) ─── */
+  --chat-header-bg: #0f172a;
+  --chat-header-text: #f8fafc;
+  --chat-bubble-bg: #1e293b; /* Lighter navy for bubbles */
+  --chat-bubble-text: #f8fafc;
+  --chat-input-bg: #0f172a;
+  --chat-input-text: #f8fafc;
+  --chat-send-bg: #0ea5e9;
+  --chat-send-text: #ffffff;
 
   /* ─── Danger (cancel alert) ─── */
-  --danger-bg: #ffe0dd;
-  --danger-text: #c81e3f;
-  --danger-border: #e94b3c;
+  --danger-bg: #450a0a;
+  --danger-text: #fca5a5;
+  --danger-border: #ef4444;
 }
 
 /* ═══ THEME: Desert Sand ═══ */
@@ -207,4 +212,26 @@
   --danger-bg: #1a0808;
   --danger-text: #fca5a5;
   --danger-border: #f43f5e;
+}
+
+/* ═══ FORCE MAP TINTING FOR SKY BLUE ═══ */
+[data-theme="sky-blue"] .leaflet-container .maplibregl-map {
+  /* Apply the filter to the map container */
+  filter: var(--map-filter) !important;
+  transition: filter 0.3s ease;
+}
+
+[data-theme="sky-blue"] .maplibregl-canvas {
+  /* Ensure the WebGL canvas inherits the filter */
+  filter: inherit !important;
+}
+
+/* Optional: Add a subtle blue overlay on top of the map to deepen the aesthetic */
+[data-theme="sky-blue"] .leaflet-container .maplibregl-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* Allows you to click the map normally */
+  background: var(--map-overlay);
+  z-index: 400; /* Just below your UI markers */
 }

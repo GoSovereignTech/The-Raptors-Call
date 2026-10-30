@@ -4,18 +4,24 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  server: {
+        headers: {
+          'Cross-Origin-Opener-Policy': 'same-origin',
+          'Cross-Origin-Embedder-Policy': 'require-corp',
+        },
+        host: '0.0.0.0',        // ← bind to all interfaces
+        port: 5173,
+        strictPort: true,       // fail rather than silently pick another port
+       /*  hmr: {
+            clientPort: 443,
+          }      // Codespaces proxies WebSocket over 443
+         */
+      },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      server: {
-        host: '0.0.0.0',        // ← bind to all interfaces
-        port: 5173,
-        strictPort: true,       // fail rather than silently pick another port
-        hmr: {
-          clientPort: 443,
-        }      // Codespaces proxies WebSocket over 443
-      },
+      
       includeAssets: [
         'ssim.html', 
         'favicon.ico',
@@ -76,7 +82,7 @@ export default defineConfig({
     }),
   ],
     optimizeDeps: {
-    exclude: ['maplibre-gl'],
+    exclude: ['maplibre-gl','@sqlite.org/sqlite-wasm'],
     esbuildOptions: {
       target: 'es2022',
     },

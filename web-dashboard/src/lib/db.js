@@ -2,23 +2,85 @@
 // lib/db.js - Database connection and initialization
 
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import sqlite3WasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
 let db = null;
-
+/* 
 export async function initDatabase() {
     if (db) return db;
 
     const sqlite3 = await sqlite3InitModule({
         print: console.log,
         printErr: console.error,
+        locateFile: (file) => {
+            if (file.endsWith('.wasm')) {
+                return sqlite3WasmUrl;
+            }
+            return file;
+        }
     });
 
-    db = new sqlite3.oo1.OpfsDb('/raptors-call.db');
-    
+   //  db = new sqlite3.oo1.OpfsDb('/raptors-call.db');
+    db = new sqlite3.oo1.OpfsDb('/sqlite3.wasm');
     // Create tables
     await createTables(db);
     
     return db;
+}
+
+*/
+/* 
+export async function initDatabase() {
+    if (db) return db;
+
+    // 1. Fetch the binary data manually
+    const response = await fetch(sqlite3WasmUrl);
+    const wasmBinary = await response.arrayBuffer();
+
+    // 2. Pass the binary directly to the initializer
+    const sqlite3 = await sqlite3InitModule({
+        print: console.log,
+        printErr: console.error,
+        wasmBinary: wasmBinary, 
+    });
+
+    db = new sqlite3.oo1.OpfsDb('/raptors-call.db');
+    await createTables(db);
+    return db;
+}
+
+ */
+/*
+latest */
+export async function initDatabase() {
+    if (db) return db;
+
+    try {
+        const response = await fetch(sqlite3WasmUrl);
+        const wasmBinary = await response.arrayBuffer();
+
+        const sqlite3 = await sqlite3InitModule({
+            print: console.log,
+            printErr: console.error,
+            wasmBinary: wasmBinary, 
+        });
+
+        // Check if the OpfsDb class actually exists in this version
+        if (sqlite3.oo1 && typeof sqlite3.oo1.OpfsDb === 'function') {
+            db = new sqlite3.oo1.OpfsDb('/raptors-call.db');
+            console.log("✅ Using OPFS Persistent Database");
+        } else {
+            console.warn("⚠️ OpfsDb not found in this SQLite build. Using In-Memory Database.");
+            db = new sqlite3.oo1.DB(':memory:');
+        }
+        
+        await createTables(db);
+        return db;
+
+    } catch (fatalError) {
+        console.error("❌ Fatal Database Init Error:", fatalError);
+        throw fatalError;
+    }
 }
 
 async function createTables(db) {

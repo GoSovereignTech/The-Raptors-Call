@@ -9,7 +9,7 @@ const THEMES = [
 
 export function ThemeSwitcher() {
   const [current, setCurrent] = useState(
-    () => localStorage.getItem('raptor-theme') || 'sky-blue'
+    () => localStorage.getItem('raptor-theme') || 'sky-blue' // desert'
   );
 
   useEffect(() => {

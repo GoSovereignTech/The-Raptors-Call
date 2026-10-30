@@ -107,3 +107,58 @@ export default function App() {
     />
   );
 }
+
+
+/* old  from OnboardingFlow.jsx 
+
+export default function App() {
+  const [view, setView] = useState('splash'); // 'splash' | 'setup' | 'home' | 'settings'
+  const [location, setLocation] = useState(null);
+
+  // Check for stored location on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('user-location');
+      if (stored) {
+        const loc = JSON.parse(stored);
+        if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+          setLocation(loc);
+          setView('home');
+        }
+      }
+    } catch (e) {   }
+  }, []);
+
+  if (view === 'splash') {
+    return (
+      <SplashPage
+        onEnterPrecise={() => setView('setup')}
+        onEnterDemo={() => {
+          // Use a fixed demo location (downtown Baltimore in your sim area)
+          const demoLoc = { lat: 39.2838, lon: -76.6216, source: 'demo', label: 'Demo Mode' };
+          localStorage.setItem('user-location', JSON.stringify(demoLoc));
+          setLocation(demoLoc);
+          setView('home');
+        }}
+      />
+    );
+  }
+  if (view === 'settings') {
+    return <SettingsPage
+      userGuid={localStorage.getItem('raptor:user-guid') || null}
+      meshNodeId={localStorage.getItem('raptor:mesh-node-id') || null}
+      onBack={() => setView('home')}
+      onSaved={() => { }}
+    />;
+  }
+  if (view === 'setup') {
+    return <LocationSetup onLocated={(loc) => {
+      setLocation(loc);
+      setView('home');
+    }} />;
+  }
+
+  return <HomeField location={location} onOpenSettings={() => setView('settings')} />
+}
+
+*/

@@ -57,8 +57,11 @@
   color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent) inset, 0 4px 12px var(--accent-glow);
 }
-[data-theme="sky-blue"]  .raptor-chip.active{
-  background: #7ed0e6;
+[data-theme="sky-blue"] .raptor-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 [data-theme="desert"]  .raptor-chip {
   color: var(--caption-border);
