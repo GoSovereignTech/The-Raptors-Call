@@ -72,7 +72,7 @@ export default function SettingsPage({ userGuid, meshNodeId, currentProfile, onS
   };
 
   return (
-    <div className="settings-page mx-auto w-full max-w-md space-y-6 p-4 pb-20" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--panel-bg)'   }}>
+    <div className="settings-page mx-auto w-full space-y-6 p-4 pb-20" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--panel-bg)'   }}>
       <button onClick={onBack} className="text-sm flex items-center gap-1" style={{ color: 'var(--accent)' }}>
         ← Back to map
       </button>

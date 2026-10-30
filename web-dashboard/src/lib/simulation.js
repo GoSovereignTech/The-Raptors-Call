@@ -165,6 +165,18 @@ async function _emitPath(nid, path, {
 }
 
 export const SimSequences = {
+    stolenNode: () => _emitPath('RAPTOR_NODE_01', [
+    [0.003, 0.002],   // Starting position (home)
+    [0.0032, 0.0022], // Moves 10m
+    [0.0035, 0.0025], // Moves 20m -> Triggers alert!
+    [0.0040, 0.0030], 
+    [0.0045, 0.0035], 
+  ], { 
+    intervalMs: 800, 
+    mot: 'car', 
+    nickname: 'Stolen Relay', 
+    entityType: 'infrastructure' // Tells the system this is a node, not a person
+  }),
   // ═══════════════════════════════════════════════════════════
 // DACARA SCENE — abduction + rescue
 // ═══════════════════════════════════════════════════════════
@@ -539,8 +551,8 @@ dacaraFullScene: async () => {
     { title: 'RESCUED' }
   );
   // Sim.chat('All units stand down. Tasia is safe.', 'Team 1');
-  await new Promise((r) => setTimeout(r, 2000));
-  Sim.clearAll();
+ // await new Promise((r) => setTimeout(r, 2000));
+ // Sim.clearAll();
 },
 
 

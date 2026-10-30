@@ -153,6 +153,25 @@ const RadarSweepMarker = React.memo(function RadarSweepMarker({
     };
   }, [map, computeScale]);
 
+
+  useEffect(() => {
+  // Expose a read-only debug function to the console
+  window.debugHistory = () => {
+    const report = {};
+    entityHistoryRef.current.forEach((history, id) => {
+      if (history.length === 0) return;
+      report[id] = {
+        entries: history.length,
+        firstSeen: new Date(history[0].ts).toLocaleTimeString(),
+        lastSeen: new Date(history[history.length - 1].ts).toLocaleTimeString(),
+        currentPos: `${history[history.length - 1].lat.toFixed(5)}, ${history[history.length - 1].lng.toFixed(5)}`
+      };
+    });
+    console.table(report);
+    return "History logged above. (Read-only)";
+  };
+}, []);
+
   // Apply scale to the inner element WITHOUT touching the icon HTML,
   // so the CSS rotation animation never restarts.
   useEffect(() => {
@@ -370,6 +389,42 @@ export default function HomeField({ location, onOpenSettings }) {
   const [unconfirmedMarkers, setUnconfirmedMarkers] = useState([]);
   const entityHistoryRef = useRef(new Map());   // entityId → [{lat, lng, ts, movement}, ...]
 
+
+
+
+
+  const toggleRadar = () => {
+    const nextState = !showRadarOverlay;
+    setShowRadarOverlay(nextState);
+
+    if (nextState) {
+      showNudge('radar');
+      
+      // Spawn 3 radar contacts near the user
+      const contacts = [
+        { id: generateEntityId('RADAR'), lat: live.lat + 0.0004, lng: live.lon + 0.0003, threat: 'unknown' },
+        { id: generateEntityId('RADAR'), lat: live.lat - 0.0003, lng: live.lon + 0.0005, threat: 'unknown' },
+        { id: generateEntityId('RADAR'), lat: live.lat + 0.0001, lng: live.lon - 0.0004, threat: 'unknown' },
+      ].map(c => ({
+        ...c,
+        alias: 'Radar Contact',
+        movement: 'idle',
+        speed: 0,
+        alarm: 'off',
+        isSelf: false,
+        isInfrastructure: false,
+        fromSensor: true, // This makes them show up as sensor detections
+        lastUpdate: Math.floor(Date.now() / 1000)
+      }));
+
+      setActiveNodes(prev => [...prev, ...contacts]);
+    } else {
+      // Remove radar contacts when turning off
+      setActiveNodes(prev => prev.filter(n => !n.id.startsWith('RADAR_')));
+    }
+  };
+
+
   const showToast = (text, opts = {}) => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, text, ...opts }]);
@@ -393,19 +448,35 @@ export default function HomeField({ location, onOpenSettings }) {
   
   const [isRewinding, setIsRewinding] = useState(false);
   
+    // Advance rewindTime while Play is active
+    useEffect(() => {
+    if (!isPlayingRewind || !isRewinding) return;
+    const interval = setInterval(() => {
+        setRewindTime((prev) => {
+        const next = prev + 200;              // 200 ms per tick = 5× speed
+        if (next >= Date.now()) {
+            setIsPlayingRewind(false);
+            return Date.now();
+        }
+        return next;
+        });
+    }, 200);
+    return () => clearInterval(interval);
+    }, [isPlayingRewind, isRewinding]);
+
   // two helper callbacks inside HomeFields
   // ─── Record a position update into history for this entity ───
-  const recordHistory = (entity) => {
-    const hist = entityHistoryRef.current.get(entity.id) || [];
-    hist.push({
-      lat: entity.lat,
-      lng: entity.lng ?? entity.lon,
-      ts: entity.lastUpdate || Math.floor(Date.now() / 1000),
-      movement: entity.movement,
-    });
-    if (hist.length > 500) hist.shift();
-    entityHistoryRef.current.set(entity.id, hist);
-  };
+const recordHistory = (entity) => {
+  const hist = entityHistoryRef.current.get(entity.id) || [];
+  hist.push({
+    lat: entity.lat,
+    lng: entity.lng ?? entity.lon,
+    ts: entity.lastUpdate ? entity.lastUpdate * 1000 : Date.now(), // ms
+    movement: entity.movement,
+  });
+  if (hist.length > 1500) hist.shift();
+  entityHistoryRef.current.set(entity.id, hist);
+};
 
   // ─── Move an existing entity to a new position ───
   // Records previous position in history, then updates the entity.
@@ -559,9 +630,67 @@ const openDetail = (entity) => {
       return null;
     }
     // ─── Sim → Map bridge ───
-    useEffect(() => {
+     useEffect(() => {
     registerSimHandler((packet) => {
       const now = packet.ts || Math.floor(Date.now() / 1000);
+
+      // ─── HBT: heartbeat / GPS update ───
+      if (packet.typ === 'HBT') {
+        const nodeId = packet.nid;
+        const lat = packet.d.lat;
+        const lng = packet.d.lon;
+        if (lat == null || lng == null || !nodeId) return;
+
+        if (!localStorage.getItem('raptor:mesh-node-id')) {
+          localStorage.setItem('raptor:mesh-node-id', nodeId);
+        }
+
+        const existing = activeNodesRef.current.find((n) => n.id === nodeId);
+
+        if (existing) {
+          // Check for Tamper Detection (if it's an infra node)
+          if (existing.isInfrastructure) {
+            const distance = Math.hypot(lat - existing.registeredLat, lng - existing.registeredLng);
+            // ~0.0001 degrees is roughly 11 meters
+            if (distance > 0.0001 && !existing.isStolen) {
+              msg.risk(`ALERT: Perimeter Node ${nodeId} has been physically moved. Tracking stolen asset.`, { title: 'TAMPER DETECTED' });
+              setActiveNodes(prev => prev.map(n => n.id === nodeId ? { ...n, isStolen: true, threat: 'enemy' } : n));
+            }
+          }
+          // Known entity → move the icon
+          moveEntity(nodeId, lat, lng, packet.d.mot, packet.d.speed);
+        } else {
+          // New entity — determine threat from payload or default to friend
+          const typeMap = {
+            friend: 'CLEAR',
+            stranger: 'unknown',
+            unknown: 'unknown',
+            enemy: 'CONFIRMED_OPPOSITION',
+          };
+          const threat = typeMap[packet.d.entityType] || 'CLEAR';
+
+          const newEntity = {
+            id: nodeId,
+            lat,
+            lng,
+            alias: packet.d.nickname || nodeId,
+            nickname: packet.d.nickname || null,
+            threat,
+            movement: resolveMovement(packet.d.mot, packet.d.speed, 'idle'),
+            speed: packet.d.speed || 0,
+            alarm: packet.d.alarm || 'off',
+            isSelf: false,
+            isInfrastructure: false,
+            lastUpdate: now,
+          };
+
+          // ✅ RECORD BIRTH POSITION FOR REWIND
+          recordHistory(newEntity);
+
+          setActiveNodes((prev) => [...prev, newEntity]);
+        }
+        return; // ✅ CRUCIAL: Stop processing this packet
+      }
 
       // ─── SNS: sensor trigger ───
       if (packet.typ === 'SNS') {
@@ -597,24 +726,26 @@ const openDetail = (entity) => {
           moveEntity(candidate.id, lat, lng, null, null);
         } else {
           // No friend nearby → brand-new unknown person
-          setActiveNodes((prev) => [
-            ...prev,
-            {
-              id: generateEntityId('UNK'),
-              lat,
-              lng,
-              alias: 'Unknown',
-              nickname: null,
-              threat: 'unknown',
-              movement: 'idle',
-              speed: 0,
-              alarm: 'off',
-              isSelf: false,
-              isInfrastructure: false,
-              fromSensor: true,
-              lastUpdate: now,
-            },
-          ]);
+          const newUnknown = {
+            id: generateEntityId('UNK'),
+            lat,
+            lng,
+            alias: 'Unknown',
+            nickname: null,
+            threat: 'unknown',
+            movement: 'idle',
+            speed: 0,
+            alarm: 'off',
+            isSelf: false,
+            isInfrastructure: false,
+            fromSensor: true,
+            lastUpdate: now,
+          };
+
+          // ✅ RECORD BIRTH POSITION FOR REWIND
+          recordHistory(newUnknown);
+
+          setActiveNodes((prev) => [...prev, newUnknown]);
         }
         return;
       }
@@ -623,54 +754,6 @@ const openDetail = (entity) => {
       if (packet.typ === 'ALM') {
         setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
         if (packet.d.mode === 'SCR') playSiren();
-        return;
-      }
-
-      // ─── HBT: heartbeat / GPS update ───
-      if (packet.typ === 'HBT') {
-        const nodeId = packet.nid;
-        const lat = packet.d.lat;
-        const lng = packet.d.lon;
-        if (lat == null || lng == null || !nodeId) return;
-
-        // Capture mesh node ID once for the Settings page
-        if (!localStorage.getItem('raptor:mesh-node-id')) {
-          localStorage.setItem('raptor:mesh-node-id', nodeId);
-        }
-
-        const existing = activeNodesRef.current.find((n) => n.id === nodeId);
-
-        if (existing) {
-          // Known friend → move the icon
-          moveEntity(nodeId, lat, lng, packet.d.mot, packet.d.speed);
-        } else {
-          // New entity — determine threat from payload or default to friend
-          const typeMap = {
-            friend: 'CLEAR',
-            stranger: 'unknown',
-            unknown: 'unknown',
-            enemy: 'CONFIRMED_OPPOSITION',
-          };
-          const threat = typeMap[packet.d.entityType] || 'CLEAR';
-
-          setActiveNodes((prev) => [
-            ...prev,
-            {
-              id: nodeId,
-              lat,
-              lng,
-              alias: packet.d.nickname || nodeId,
-              nickname: packet.d.nickname || null,
-              threat,
-              movement: resolveMovement(packet.d.mot, packet.d.speed, 'idle'),
-              speed: packet.d.speed || 0,
-              alarm: packet.d.alarm || 'off',
-              isSelf: false,
-              isInfrastructure: false,
-              lastUpdate: now,
-            },
-          ]);
-        }
         return;
       }
 
@@ -689,7 +772,6 @@ const openDetail = (entity) => {
       }
     });
   }, []);
-
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -781,13 +863,12 @@ const openDetail = (entity) => {
   }, [location]);
  
  
-  // --- NEW FUNCTIONS FROM MOMMA RAPTOR (MOVED OUTSIDE THE useEffect SO BUTTONS CAN SEE THEM!) ---
   const simulateIncomingFieldMeshNodes = (baseCoord) => {
     if (!baseCoord) return;
     const mockNodes = [
-      { id: 'RAPTOR_NODE_01', lat: baseCoord.lat + 0.003, lng: baseCoord.lon + 0.002, alias: 'North Ridge Relay', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
-      { id: 'RAPTOR_NODE_02', lat: baseCoord.lat - 0.002, lng: baseCoord.lon - 0.004, alias: 'South Exit Choke', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
-      { id: 'RAPTOR_NODE_03', lat: baseCoord.lat + 0.001, lng: baseCoord.lon - 0.002, alias: 'West Treeline Perimeter', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'sensor' },
+      { id: 'RAPTOR_NODE_01', lat: baseCoord.lat + 0.003, lng: baseCoord.lon + 0.002, registeredLat: baseCoord.lat + 0.003, registeredLng: baseCoord.lon + 0.002, alias: 'North Ridge Relay', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
+      { id: 'RAPTOR_NODE_02', lat: baseCoord.lat - 0.002, lng: baseCoord.lon - 0.004, registeredLat: baseCoord.lat - 0.002, registeredLng: baseCoord.lon - 0.004, alias: 'South Exit Choke', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'relay' },
+      { id: 'RAPTOR_NODE_03', lat: baseCoord.lat + 0.001, lng: baseCoord.lon - 0.002, registeredLat: baseCoord.lat + 0.001, registeredLng: baseCoord.lon - 0.002, alias: 'West Treeline Perimeter', threat: 'CLEAR', unvouchedDots: 0, isInfrastructure: true, nodeType: 'sensor' },
     ];
     setActiveNodes(mockNodes);
     const stats = { total: 3, friends: 2, relays: 1, sensors: 0 };
@@ -953,12 +1034,14 @@ useEffect(() => {
 */ 
 
 
-
 // Calculate where entities were at `rewindTime`
 const getHistoricalPosition = (entityId, targetTime) => {
   const history = entityHistoryRef.current.get(entityId);
   if (!history || history.length === 0) return null;
   
+  // If the rewind time is BEFORE this entity's very first packet, they shouldn't exist yet.
+  if (targetTime < history[0].ts) return null;
+
   let closest = history[0];
   for (let i = 0; i < history.length; i++) {
     if (history[i].ts <= targetTime) {
@@ -979,9 +1062,13 @@ const entitiesToRender = useMemo(() => {
     if (historical) {
       return { ...e, lat: historical.lat, lng: historical.lng, movement: historical.movement };
     }
-    return e;
-  });
+    // Return null if they didn't exist yet
+    return null; 
+  }).filter(Boolean); // Remove the nulls
 }, [allEntities, isRewinding, rewindTime]);
+
+
+
 
   return (
     <div className="map-page relative min-h-screen overflow-hidden bg-raptor-void">
@@ -996,33 +1083,34 @@ const entitiesToRender = useMemo(() => {
        
       <InitialRecenter lat={live.lat} lon={live.lon} />
 
-      <OffScreenIndicators
-        markers={[
-          ...unconfirmedMarkers.map((m) => ({
-            id: m.id,
-            lat: m.lat,
-            lng: m.lng,
-            threat: 'stranger',
-            data: m,
-            type: 'unconfirmed',
-          })),
-          ...activeNodes
-            .filter((n) => !n.isInfrastructure)
-            .map((n) => ({
-              id: n.id,
-              lat: n.lat,
-              lng: n.lng,
-              threat: n.threat === 'CONFIRMED_OPPOSITION' ? 'threat' : 'CLEAR',
-              data: n,
-              type: 'node',
-            })),
-        ]}
-        onZoneClick={(marker) => {
-          if (!leafletMap) return;
-          leafletMap.flyTo([marker.lat, marker.lng], 16, { duration: 0.8 });
-          setDetailEntity(marker.data);
-        }}
-      />
+    <OffScreenIndicators
+    markers={[
+        ...unconfirmedMarkers.map((m) => ({
+        id: m.id,
+        lat: m.lat,
+        lng: m.lng,
+        threat: 'stranger',
+        data: m,
+        type: 'unconfirmed',
+        })),
+
+        ...entitiesToRender
+        .filter((e) => e._type === 'node' && !e.isInfrastructure)
+        .map((n) => ({
+            id: n.id,
+            lat: n.lat,
+            lng: n.lng,
+            threat: n.threat === 'CONFIRMED_OPPOSITION' ? 'threat' : 'CLEAR',
+            data: n,
+            type: 'node',
+        })),
+    ]}
+    onZoneClick={(marker) => {
+        if (!leafletMap) return;
+        leafletMap.flyTo([marker.lat, marker.lng], 16, { duration: 0.8 });
+        setDetailEntity(marker.data);
+    }}
+    />
  
        <MapInstanceGetter onMap={setLeafletMap} />
           {/* 
@@ -1047,60 +1135,112 @@ const entitiesToRender = useMemo(() => {
         ))}
         {/* Fusion packets — as Leaflet markers */}
         {/* Unconfirmed low-confidence triggers — small fading circles */}
-{unconfirmedMarkers.map((m) => (
-  <UnconfirmedMarker
-    key={m.id}
-    entity={m}
-    onSelect={(e) => {
-      setSelectedFusion(e.packet);
-      setDetailEntity(e);
-    }}
-  />
-))}
+        
+    {unconfirmedMarkers.map((m) => (
+        <UnconfirmedMarker
+            key={m.id}
+            entity={m}
+            onSelect={(e) => {
+            setSelectedFusion(e.packet);
+            setDetailEntity(e);
+            }}
+        />
+        ))}
  
 {/* Infrastructure nodes — small relay dots */}
 {activeNodes
   .filter((n) => n.isInfrastructure)
   .map((node) => {
-    const nodeColor = NODE_COLORS[node.nodeType] || NODE_COLORS.relay;
-    const nodeLetter = (node.nodeType || 'relay').charAt(0).toUpperCase();
+    const isStolen = node.isStolen;
+    const nodeColor = isStolen ? 'var(--threat-enemy)' : (NODE_COLORS[node.nodeType] || NODE_COLORS.relay);
+    const nodeLetter = isStolen ? '!' : (node.nodeType || 'relay').charAt(0).toUpperCase();
 
     return (
       <Marker
         key={node.id}
         position={[node.lat, node.lng]}
         icon={L.divIcon({
-          className: 'mesh-node-marker',
+          className: `mesh-node-marker ${isStolen ? 'animate-pulse' : ''}`,
           html: `<div style="
             background-color: ${nodeColor};
-            width: 16px; height: 16px;
+            width: ${isStolen ? '20px' : '16px'}; 
+            height: ${isStolen ? '20px' : '16px'};
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            box-shadow: 0 0 8px ${nodeColor};
             display: flex; align-items: center; justify-content: center;
-            font-size: 9px; font-weight: 900; color: #fff;
+            font-size: ${isStolen ? '12px' : '9px'}; font-weight: 900; color: #fff;
             font-family: -apple-system, system-ui, sans-serif;
           ">${nodeLetter}</div>`,
-          iconSize: [16, 16],
-          iconAnchor: [8, 8],
+          iconSize: isStolen ? [20, 20] : [16, 16],
+          iconAnchor: isStolen ? [10, 10] : [8, 8],
         })}
         eventHandlers={{ click: () => openDetail(node) }}
       />
     );
   })}
 
-  {/* Persons — self, friends, unknowns, enemies — each is ONE moving icon */}
-  {activeNodes
-    .filter((n) => !n.isInfrastructure)
+  {/* Persons — self, friends, unknowns, enemies — each is ONE moving icon 
+    {entitiesToRender
+    .filter((e) => e._type === 'node' && !e.isInfrastructure)
     .map((node) => (
-      <PersonMarker
+        <PersonMarker
         key={node.id}
         entity={node}
         isRewinding={isRewinding}
         onSelect={openDetail}
         highlighted={node.id === highlightedId}
-      />
+        />
     ))}
+*/}
+{/* rewinding stolen nodes */}
+    {entitiesToRender
+    .filter((e) => e._type === 'node' && !e.isInfrastructure)
+    .map((node) => (
+        <PersonMarker
+        key={node.id}
+        entity={node}
+        isRewinding={isRewinding}
+        onSelect={openDetail}
+        highlighted={node.id === highlightedId}
+        />
+    ))}
+
+{/* Infrastructure nodes — small relay dots 
+{entitiesToRender
+  .filter((e) => e.isInfrastructure)
+  .map((node) => {
+    const isStolen = node.isStolen;
+    const nodeColor = isStolen ? 'var(--threat-enemy)' : (NODE_COLORS[node.nodeType] || NODE_COLORS.relay);
+    const nodeLetter = isStolen ? '!' : (node.nodeType || 'relay').charAt(0).toUpperCase();
+
+    return (
+      <Marker
+        key={node.id}
+        position={[node.lat, node.lng]}
+        icon={L.divIcon({
+          className: `mesh-node-marker ${isStolen ? 'animate-pulse' : ''}`,
+          html: `<div style="
+            background-color: ${nodeColor};
+            width: ${isStolen ? '20px' : '16px'}; 
+            height: ${isStolen ? '20px' : '16px'};
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 8px ${nodeColor};
+            display: flex; align-items: center; justify-content: center;
+            font-size: ${isStolen ? '12px' : '9px'}; font-weight: 900; color: #fff;
+            font-family: -apple-system, system-ui, sans-serif;
+          ">${nodeLetter}</div>`,
+          iconSize: isStolen ? [20, 20] : [16, 16],
+          iconAnchor: isStolen ? [10, 10] : [8, 8],
+        })}
+        eventHandlers={{ click: () => openDetail(node) }}
+      />
+    );
+  })}
+
+  */}
+
       </LiveMap>
       
       {/* Radar sweep overlay — appears centered when toggled */} 
@@ -1180,17 +1320,21 @@ const entitiesToRender = useMemo(() => {
      
         {/* Demo pilot — above Crosshair */}
         
-        <RewindPanel 
-            isOpen={isRewinding}
-            onClose={() => setIsRewinding(false)}
-            maxSeconds={300} 
-            currentTime={rewindTime}
-            onChangeTime={(t) => {
-                setRewindTime(t);
-                setIsPlayingRewind(false);
-            }}
-            isPlaying={isPlayingRewind}
-            onPlayPause={() => setIsPlayingRewind(!isPlayingRewind)}
+        <RewindPanel
+        isOpen={isRewinding}
+        onClose={() => {
+            setIsRewinding(false);
+            setIsPlayingRewind(false);
+            setRewindTime(Date.now());
+        }}
+        maxSeconds={300}
+        currentTime={rewindTime}
+        onChangeTime={(t) => {
+            setRewindTime(t);
+            setIsPlayingRewind(false);
+        }}
+        isPlaying={isPlayingRewind}
+        onPlayPause={() => setIsPlayingRewind((p) => !p)}
         />
 
 
@@ -1380,13 +1524,20 @@ const entitiesToRender = useMemo(() => {
         {/* ─── PANEL 1: overlay toggles + mesh connect ─── */}
         <div className="raptor-panel-row">
           {/* Rewind */}
-          <button
+            <button
             className={`raptor-chip ${isRewinding ? 'active' : ''}`}
             onClick={() => {
-              setIsRewinding(!isRewinding);
-              if (!isRewinding) showNudge('rewind');
+                const next = !isRewinding;
+                setIsRewinding(next);
+                if (next) {
+                setRewindTime(Date.now());       // start at live
+                setIsPlayingRewind(false);
+                showNudge('rewind');
+                } else {
+                setIsPlayingRewind(false);
+                }
             }}
-          >
+            >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 5 3 12l8 7V5z" />
               <path d="M21 5l-8 7 8 7V5z" />
@@ -1414,11 +1565,7 @@ const entitiesToRender = useMemo(() => {
           {/* Radar */}
           <button
             className={`raptor-chip ${showRadarOverlay ? 'active' : ''}`}
-            onClick={() => {
-              const next = !showRadarOverlay;
-              setShowRadarOverlay(next);
-              if (next) showNudge('radar');
-            }}
+            onClick={toggleRadar}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none" />

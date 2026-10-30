@@ -15,7 +15,7 @@ import {
 // ─── The main marker ───
 // src/components/PersonMarker.jsx
  
-export function PersonMarker({ entity, onSelect, highlighted = false }) {
+export function PersonMarker({ entity, isRewinding = false, onSelect, highlighted = false }) {
   const markerRef = useRef(null);
 
   // Immutable initial position — react-leaflet never updates the marker
@@ -111,44 +111,43 @@ export function PersonMarker({ entity, onSelect, highlighted = false }) {
     iconAnchor: [half, half],
   });
 
-  // ─── Detect new target position and start animation ───
-  useEffect(() => {
-    const newLat = entity.lat;
-    const newLng = entity.lon ?? entity.lng;
-    if (newLat == null || newLng == null) return;
-    if (!markerRef.current) return;
-
-    const current = markerRef.current.getLatLng();
-    const dLat = Math.abs(newLat - current.lat);
-    const dLng = Math.abs(newLng - current.lng);
-
-    // Ignore micro-jitter (< ~5m at this latitude)
-    if (dLat < 0.00005 && dLng < 0.00005) return;
-
-    fromPosRef.current = { lat: current.lat, lng: current.lng };
-    toPosRef.current = { lat: newLat, lng: newLng };
-    animStartRef.current = performance.now();
-
-    const distance = Math.hypot(newLat - current.lat, newLng - current.lng);
-    animDurRef.current = Math.min(2000, Math.max(350, distance * 800000));
-  }, [entity.lat, entity.lon, entity.lng]);
-
-  // ─── Animation loop drives setLatLng directly ───
-  // Inside PersonMarker.jsx
+// ─── Detect new target position ───
 useEffect(() => {
+  const newLat = entity.lat;
+  const newLng = entity.lon ?? entity.lng;
+  if (newLat == null || newLng == null) return;
+  if (!markerRef.current) return;
+
+  // During rewind: snap instantly, no animation, no jitter filter
+  if (isRewinding) {
+    markerRef.current.setLatLng([newLat, newLng]);
+    return;
+  }
+
+  const current = markerRef.current.getLatLng();
+  const dLat = Math.abs(newLat - current.lat);
+  const dLng = Math.abs(newLng - current.lng);
+  if (dLat < 0.00005 && dLng < 0.00005) return;
+
+  fromPosRef.current = { lat: current.lat, lng: current.lng };
+  toPosRef.current = { lat: newLat, lng: newLng };
+  animStartRef.current = performance.now();
+  const distance = Math.hypot(newLat - current.lat, newLng - current.lng);
+  animDurRef.current = Math.min(2000, Math.max(350, distance * 800000));
+}, [entity.lat, entity.lon, entity.lng, isRewinding]);
+
+// ─── Animation loop ───
+useEffect(() => {
+  if (isRewinding) return; // never animate in rewind mode
   let raf;
   const tick = (t) => {
     if (!markerRef.current) return;
     const elapsed = t - animStartRef.current;
     const p = animDurRef.current > 0 ? Math.min(1, elapsed / animDurRef.current) : 1;
     const eased = 1 - Math.pow(1 - p, 3);
-    
-    // Only update if we are actually moving
-    if (p < 1) { 
+    if (p < 1) {
       const lat = fromPosRef.current.lat + (toPosRef.current.lat - fromPosRef.current.lat) * eased;
       const lng = fromPosRef.current.lng + (toPosRef.current.lng - fromPosRef.current.lng) * eased;
-      
-      // Check if position changed to avoid redundant DOM updates
       const current = markerRef.current.getLatLng();
       if (Math.abs(current.lat - lat) > 0.00001 || Math.abs(current.lng - lng) > 0.00001) {
         markerRef.current.setLatLng([lat, lng]);
@@ -156,14 +155,9 @@ useEffect(() => {
       raf = requestAnimationFrame(tick);
     }
   };
-  
-  // Only start the loop if there is a new destination
-  if (animStartRef.current > 0) {
-    raf = requestAnimationFrame(tick);
-  }
-  
+  if (animStartRef.current > 0) raf = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(raf);
-}, [entity.lat, entity.lon, entity.lng]);
+}, [entity.lat, entity.lon, entity.lng, isRewinding]);
 
   return (
     <Marker

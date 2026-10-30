@@ -229,7 +229,7 @@
 .raptor-btn-stop:focus,
 .raptor-btn-stop:active,
 .raptor-btn-stop:hover {
-  background: #ffd0cc;
+  
   border-color: #c81e3f;
 }
 .raptor-btn-stop svg {
