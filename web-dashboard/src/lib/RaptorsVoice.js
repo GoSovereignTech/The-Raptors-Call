@@ -31,8 +31,7 @@ class RaptorsVoice {
     return new Promise((resolve) => {
       if (!this.isSupported || !text) return resolve();
 
-      // Cancel any stuck speech before starting fresh
-      this.synth.cancel(); 
+      
 
       const utterance = new SpeechSynthesisUtterance(text);
       if (this.voice) utterance.voice = this.voice;

@@ -53,7 +53,12 @@ export function showMessage(msg) {
     processQueue();
   }
 }
-
+// Add this export to messageCenter.js
+export function clearMessageQueue() {
+  messageQueue.length = 0;   // Empty the array
+  isProcessing = false;      // Reset the lock
+  raptorVoice.stop();        // Kill any active speech
+}
 async function processQueue() {
   if (messageQueue.length === 0) {
     isProcessing = false;

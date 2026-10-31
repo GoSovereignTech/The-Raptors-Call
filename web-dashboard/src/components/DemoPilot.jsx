@@ -5,7 +5,7 @@
 import { useState, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { setSimBase } from '../lib/simulation.js';
-import { raptorVoice } from '../lib/RaptorsVoice';
+import { msg } from '../lib/messageCenter.js'; 
 
 
 const QUEUE = [
@@ -71,22 +71,20 @@ export function DemoPilot({ onRun,
   const dragRef = useRef({ dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 });
 
     // Use a single handler for the button click
+// Inside handleAdvance:
   const handleAdvance = () => {
     const next = (index + 1) % QUEUE.length;
     const step = QUEUE[next];
-    console.log('Advancing to index:', index, 'Step:', step);
 
-    // 1. CLEAR PREVIOUS SCENE FIRST (This calls raptorVoice.stop())
+    // 1. CLEAR PREVIOUS SCENE
     try { window.Sim?.clearAll?.(); } catch {}
 
     // 2. UPDATE UI
     setIndex(next);
     setCaption(step.caption);
 
-    // 3. SPEAK THE INTRO (Now that clearAll is done, the voice won't be killed)
-    if (index === -1 ||  index === 0 ) {
-      raptorVoice.speakAndWait(step.caption);
-    }
+    // 3. QUEUE THE CAPTION (Don't call raptorVoice directly)
+    msg.event(step.caption, { title: 'DEMO SCENE' });
 
     // 4. RUN SIMULATION
     if (typeof anchorLat === 'number' && typeof anchorLon === 'number') {
@@ -94,7 +92,6 @@ export function DemoPilot({ onRun,
     }
 
     if (step.fn) {
-      // Small delay so clear settles before new packets fly
       setTimeout(() => {
         try {
           if (Array.isArray(step.arg)) onRun(step.fn, ...step.arg);

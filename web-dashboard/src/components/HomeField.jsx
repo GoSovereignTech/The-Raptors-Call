@@ -13,7 +13,7 @@ import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide
 import RaptorMark from './RaptorMark.jsx';
 import { ActiveNodeTracker } from './../lib/localActiveNodes.js';
 // Add at the top of the file
-import { registerMessageHandler, requestNotificationPermission } from './../lib/messageCenter.js';
+import { registerMessageHandler, requestNotificationPermission, clearMessageQueue } from './../lib/messageCenter.js';
 import { DemoPilot } from './DemoPilot.jsx';
 import SplashPage from './SplashPage.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from './FusionPacketOverlay.jsx';
@@ -481,22 +481,24 @@ const recordHistory = (entity) => {
   // ─── Move an existing entity to a new position ───
   // Records previous position in history, then updates the entity.
   // PersonMarker's useEffect picks up the lat/lng change and interpolates.
-  const moveEntity = (entityId, lat, lng, mot, speed) => {
-    setActiveNodes((prev) =>
-      prev.map((n) => {
-        if (n.id !== entityId) return n;
-        recordHistory(n);  // save old position BEFORE updating
-        return {
-          ...n,
-          lat,
-          lng,
-          movement: resolveMovement(mot, speed, n.movement),
-          speed: speed != null ? speed : n.speed,
-          lastUpdate: Math.floor(Date.now() / 1000),
-        };
-      })
-    );
-  };
+const moveEntity = (entityId, lat, lng, mot, speed) => {
+  setActiveNodes((prev) =>
+    prev.map((n) => {
+      if (n.id !== entityId) return n;
+      // record the NEW position (the one we are moving to)
+      const updatedNode = {
+        ...n,
+        lat,
+        lng,
+        movement: resolveMovement(mot, speed, n.movement),
+        speed: speed != null ? speed : n.speed,
+        lastUpdate: Math.floor(Date.now() / 1000),
+      };
+      recordHistory(updatedNode); // Save the new position
+      return updatedNode;
+    })
+  );
+};
 
 
   useEffect(() => {
@@ -619,6 +621,8 @@ const openDetail = (entity) => {
         setDetailEntity(null);
         setHighlightedId(null);
         setAlarmStatus('CLEAR');
+        
+        clearMessageQueue(); // ✅ CLEAR THE BACKLOG
         stopSiren();
         // Leave entityHistoryRef intact so Rewind can still see cleared entities
       });
