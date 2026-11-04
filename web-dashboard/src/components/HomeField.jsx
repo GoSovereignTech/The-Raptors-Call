@@ -37,7 +37,7 @@ import { enrichEntity, sortEntities, setProfileDb } from './../lib/entityProfile
 import { saveProfile } from './../lib/entityProfiles.js';
 import SettingsPage from './SettingsPage.jsx';
 
-import { RewindPanel } from './RewindPanel';
+import { RewindPanel } from './RewindPanel.jsx';
  
 
 const BRAND_NAME = 'The Raptor';
@@ -154,23 +154,6 @@ const RadarSweepMarker = React.memo(function RadarSweepMarker({
   }, [map, computeScale]);
 
 
-  useEffect(() => {
-  // Expose a read-only debug function to the console
-  window.debugHistory = () => {
-    const report = {};
-    entityHistoryRef.current.forEach((history, id) => {
-      if (history.length === 0) return;
-      report[id] = {
-        entries: history.length,
-        firstSeen: new Date(history[0].ts).toLocaleTimeString(),
-        lastSeen: new Date(history[history.length - 1].ts).toLocaleTimeString(),
-        currentPos: `${history[history.length - 1].lat.toFixed(5)}, ${history[history.length - 1].lng.toFixed(5)}`
-      };
-    });
-    console.table(report);
-    return "History logged above. (Read-only)";
-  };
-}, []);
 
   // Apply scale to the inner element WITHOUT touching the icon HTML,
   // so the CSS rotation animation never restarts.
@@ -451,6 +434,7 @@ export default function HomeField({ location, onOpenSettings }) {
     // Advance rewindTime while Play is active
     useEffect(() => {
     if (!isPlayingRewind || !isRewinding) return;
+
     const interval = setInterval(() => {
         setRewindTime((prev) => {
         const next = prev + 200;              // 200 ms per tick = 5× speed
@@ -463,6 +447,27 @@ export default function HomeField({ location, onOpenSettings }) {
     }, 200);
     return () => clearInterval(interval);
     }, [isPlayingRewind, isRewinding]);
+
+
+
+  useEffect(() => {
+  // Expose a read-only debug function to the console
+  window.debugHistory = () => {
+    const report = {};
+    entityHistoryRef.current.forEach((history, id) => {
+      if (history.length === 0) return;
+      report[id] = {
+        entries: history.length,
+        firstSeen: new Date(history[0].ts).toLocaleTimeString(),
+        lastSeen: new Date(history[history.length - 1].ts).toLocaleTimeString(),
+        currentPos: `${history[history.length - 1].lat.toFixed(5)}, ${history[history.length - 1].lng.toFixed(5)}`
+      };
+    });
+    console.table(report);
+    return "History logged above. (Read-only)";
+  };
+}, []);
+
 
   // two helper callbacks inside HomeFields
   // ─── Record a position update into history for this entity ───
@@ -638,64 +643,7 @@ const openDetail = (entity) => {
     registerSimHandler((packet) => {
       const now = packet.ts || Math.floor(Date.now() / 1000);
 
-      // ─── HBT: heartbeat / GPS update ───
-      if (packet.typ === 'HBT') {
-        const nodeId = packet.nid;
-        const lat = packet.d.lat;
-        const lng = packet.d.lon;
-        if (lat == null || lng == null || !nodeId) return;
-
-        if (!localStorage.getItem('raptor:mesh-node-id')) {
-          localStorage.setItem('raptor:mesh-node-id', nodeId);
-        }
-
-        const existing = activeNodesRef.current.find((n) => n.id === nodeId);
-
-        if (existing) {
-          // Check for Tamper Detection (if it's an infra node)
-          if (existing.isInfrastructure) {
-            const distance = Math.hypot(lat - existing.registeredLat, lng - existing.registeredLng);
-            // ~0.0001 degrees is roughly 11 meters
-            if (distance > 0.0001 && !existing.isStolen) {
-              msg.risk(`ALERT: Perimeter Node ${nodeId} has been physically moved. Tracking stolen asset.`, { title: 'TAMPER DETECTED' });
-              setActiveNodes(prev => prev.map(n => n.id === nodeId ? { ...n, isStolen: true, threat: 'enemy' } : n));
-            }
-          }
-          // Known entity → move the icon
-          moveEntity(nodeId, lat, lng, packet.d.mot, packet.d.speed);
-        } else {
-          // New entity — determine threat from payload or default to friend
-          const typeMap = {
-            friend: 'CLEAR',
-            stranger: 'unknown',
-            unknown: 'unknown',
-            enemy: 'CONFIRMED_OPPOSITION',
-          };
-          const threat = typeMap[packet.d.entityType] || 'CLEAR';
-
-          const newEntity = {
-            id: nodeId,
-            lat,
-            lng,
-            alias: packet.d.nickname || nodeId,
-            nickname: packet.d.nickname || null,
-            threat,
-            movement: resolveMovement(packet.d.mot, packet.d.speed, 'idle'),
-            speed: packet.d.speed || 0,
-            alarm: packet.d.alarm || 'off',
-            isSelf: false,
-            isInfrastructure: false,
-            lastUpdate: now,
-          };
-
-          // ✅ RECORD BIRTH POSITION FOR REWIND
-          recordHistory(newEntity);
-
-          setActiveNodes((prev) => [...prev, newEntity]);
-        }
-        return; // ✅ CRUCIAL: Stop processing this packet
-      }
-
+   
       // ─── SNS: sensor trigger ───
       if (packet.typ === 'SNS') {
         const conf = packet.d?.conf || 0;
@@ -760,6 +708,65 @@ const openDetail = (entity) => {
         if (packet.d.mode === 'SCR') playSiren();
         return;
       }
+   // ─── HBT: heartbeat / GPS update ───
+      if (packet.typ === 'HBT') {
+        const nodeId = packet.nid;
+        const lat = packet.d.lat;
+        const lng = packet.d.lon;
+        if (lat == null || lng == null || !nodeId) return;
+
+        if (!localStorage.getItem('raptor:mesh-node-id')) {
+          localStorage.setItem('raptor:mesh-node-id', nodeId);
+        }
+
+        const existing = activeNodesRef.current.find((n) => n.id === nodeId);
+
+        if (existing) {
+          // Check for Tamper Detection (if it's an infra node)
+          if (existing.isInfrastructure) {
+            const distance = Math.hypot(lat - existing.registeredLat, lng - existing.registeredLng);
+            // ~0.0001 degrees is roughly 11 meters
+            if (distance > 0.0001 && !existing.isStolen) {
+              msg.risk(`ALERT: Perimeter Node ${nodeId} has been physically moved. Tracking stolen asset.`, { title: 'TAMPER DETECTED' });
+              setActiveNodes(prev => prev.map(n => n.id === nodeId ? { ...n, isStolen: true, threat: 'enemy' } : n));
+            }
+          }
+          // Known entity → move the icon
+          moveEntity(nodeId, lat, lng, packet.d.mot, packet.d.speed);
+        } else {
+          // New entity — determine threat from payload or default to friend
+          const typeMap = {
+            friend: 'CLEAR',
+            stranger: 'unknown',
+            unknown: 'unknown',
+            enemy: 'CONFIRMED_OPPOSITION',
+          };
+          const threat = typeMap[packet.d.entityType] || 'CLEAR';
+
+          const newEntity = {
+            id: nodeId,
+            lat,
+            lng,
+            alias: packet.d.nickname || nodeId,
+            nickname: packet.d.nickname || null,
+            threat,
+            movement: resolveMovement(packet.d.mot, packet.d.speed, 'idle'),
+            speed: packet.d.speed || 0,
+            alarm: packet.d.alarm || 'off',
+            isSelf: false,
+            isInfrastructure: false,
+            lastUpdate: now,
+          };
+
+          // ✅ RECORD BIRTH POSITION FOR REWIND
+          recordHistory(newEntity);
+
+          setActiveNodes((prev) => [...prev, newEntity]);
+        }
+        return; // ✅ CRUCIAL: Stop processing this packet
+      }
+
+
 
       // ─── CHT: chat ───
       if (packet.typ === 'CHT') {
@@ -1145,8 +1152,8 @@ const entitiesToRender = useMemo(() => {
             key={m.id}
             entity={m}
             onSelect={(e) => {
-            setSelectedFusion(e.packet);
-            setDetailEntity(e);
+              setSelectedFusion(e.packet);
+              setDetailEntity(e);
             }}
         />
         ))}
@@ -1324,23 +1331,6 @@ const entitiesToRender = useMemo(() => {
      
         {/* Demo pilot — above Crosshair */}
         
-        <RewindPanel
-        isOpen={isRewinding}
-        onClose={() => {
-            setIsRewinding(false);
-            setIsPlayingRewind(false);
-            setRewindTime(Date.now());
-        }}
-        maxSeconds={300}
-        currentTime={rewindTime}
-        onChangeTime={(t) => {
-            setRewindTime(t);
-            setIsPlayingRewind(false);
-        }}
-        isPlaying={isPlayingRewind}
-        onPlayPause={() => setIsPlayingRewind((p) => !p)}
-        />
-
 
         <DemoPilot
           bottomOffset={280}
@@ -1516,6 +1506,32 @@ const entitiesToRender = useMemo(() => {
       )}
 
 
+      {isRewinding && (
+        <div style={{ position: 'absolute', bottom: '200px', left: '10px', zIndex: 9999, background: 'red', padding: '20px' }}>
+          REWIND PANEL IS OPEN
+        </div>
+      )}
+
+{/*
+        <RewindPanel
+        isOpen={isRewinding}
+        onClose={() => {
+            setIsRewinding(false);
+            setIsPlayingRewind(false);
+            setRewindTime(Date.now());
+        }}
+        maxSeconds={300}
+        currentTime={rewindTime}
+        onChangeTime={(t) => {
+            setRewindTime(t);
+            setIsPlayingRewind(false);
+        }}
+        isPlaying={isPlayingRewind}
+        onPlayPause={() => setIsPlayingRewind((p) => !p)}
+        />
+
+*/}
+
       {/* --- NEW OVERLAY TOOLBAR --- */} 
     <div
     className="absolute bottom-0 left-0 right-0 z-[500] rounded-t-2xl px-4 pb-6 pt-4 backdrop-blur-xl"
@@ -1529,17 +1545,23 @@ const entitiesToRender = useMemo(() => {
         <div className="raptor-panel-row">
           {/* Rewind */}
             <button
+            id="toggle-rewind"
             className={`raptor-chip ${isRewinding ? 'active' : ''}`}
             onClick={() => {
+
+              console.log('Button clicked! Current isRewinding:', isRewinding); 
                 const next = !isRewinding;
+
+                console.log('next = ', next, ' isRewinding =',isRewinding); 
                 setIsRewinding(next);
+                setIsPlayingRewind(false);
+
                 if (next) {
-                setRewindTime(Date.now());       // start at live
-                setIsPlayingRewind(false);
-                showNudge('rewind');
-                } else {
-                setIsPlayingRewind(false);
+                  setRewindTime(Date.now());
+                  showNudge('rewind');
                 }
+
+                console.log('next = ', next, ' IsPlayingRewind= ',isPlayingRewind );
             }}
             >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1551,6 +1573,7 @@ const entitiesToRender = useMemo(() => {
 
           {/* Mesh */}
           <button
+            id="toggle-mesh"
             className={`raptor-chip ${showMeshOverlay ? 'active' : ''}`}
             onClick={() => {
               const next = !showMeshOverlay;
@@ -1568,6 +1591,7 @@ const entitiesToRender = useMemo(() => {
 
           {/* Radar */}
           <button
+            id="toggle-radar"
             className={`raptor-chip ${showRadarOverlay ? 'active' : ''}`}
             onClick={toggleRadar}
           >
@@ -1581,6 +1605,7 @@ const entitiesToRender = useMemo(() => {
 
           {/* Chat */}
           <button
+            id="toggle-chat-overlay"
             className={`raptor-chip ${showChatOverlay ? 'active' : ''}`}
             onClick={() => {
               const next = !showChatOverlay;
@@ -1599,6 +1624,7 @@ const entitiesToRender = useMemo(() => {
   {alarmStatus === 'CLEAR' ? (
     <div className="raptor-alarmrow">
       <button
+        id="loud-emergency-state"
         className="raptor-btn-alarm raptor-btn-loud"
         onClick={() => engageEmergencyState('SCREAMING')}
       >
@@ -1610,6 +1636,7 @@ const entitiesToRender = useMemo(() => {
       </button>
 
       <button
+        id="silent-emergency-state"
         className="raptor-btn-alarm raptor-btn-silent"
         onClick={() => engageEmergencyState('SILENT')}
       >
@@ -1624,7 +1651,9 @@ const entitiesToRender = useMemo(() => {
     </div>
   ) : (
     <div className="flex flex-col gap-3">
-      <button onClick={cancelEmergencyState} className="raptor-btn-stop">
+      <button onClick={cancelEmergencyState} 
+            id="cancel-emergency-state"
+            className="raptor-btn-stop">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="raptor-icon-16">
           <line x1="6" y1="6" x2="18" y2="18" />
           <line x1="18" y1="6" x2="6" y2="18" />
@@ -1645,6 +1674,7 @@ const entitiesToRender = useMemo(() => {
       style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}
     >
     <button
+      id="close-toast"
       onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
       className="absolute right-2 top-2 transition-colors"
       style={{ color: 'var(--text-muted)' }}
@@ -1688,6 +1718,7 @@ const entitiesToRender = useMemo(() => {
     >
       <b className="text-sm" style={{ color: 'var(--chat-header-text)' }}>Mesh Chat</b>
       <button
+        id="close-chat"
         onClick={() => setShowChatOverlay(false)}
         style={{ color: 'var(--chat-header-text)', opacity: 0.7 }}
         aria-label="Close chat"
@@ -1722,6 +1753,7 @@ const entitiesToRender = useMemo(() => {
     <div className="flex gap-2 border-t p-3" style={{ borderColor: 'var(--panel-border)' }}>
       <input
         type="text"
+        id="message-to-mesh"
         placeholder="Message the mesh…"
         maxLength={140}
         className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none"
@@ -1732,6 +1764,7 @@ const entitiesToRender = useMemo(() => {
         }}
       />
       <button
+        id="message-to-mesh-btn"
         className="rounded-lg px-4 text-sm font-bold"
         style={{ background: 'var(--chat-send-bg)', color: 'var(--chat-send-text)' }}
         onClick={() => showNudge('chat')}

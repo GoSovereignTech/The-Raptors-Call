@@ -1,9 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
-// 1. IMPORT APP.JSX INSTEAD OF ONBOARDINGFLOW
-import App from './App.jsx'; 
-
+import OnboardingFlow from './pages/app/OnboardingFlow.jsx';
 import AdminApp from './pages/admin/AdminVettingForm.jsx'; 
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
@@ -21,7 +19,7 @@ setWorkerUrl(maplibreWorkerUrl);
 // ─── Set theme before first paint ───
 document.documentElement.setAttribute(
   'data-theme',
-  localStorage.getItem('raptor-theme') || 'desert'
+  localStorage.getItem('raptor-theme') || 'sky-blue'
 );
 /* What to do right now (no hardware): 
 demo solution. */ 
@@ -35,7 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<OnboardingFlow />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route

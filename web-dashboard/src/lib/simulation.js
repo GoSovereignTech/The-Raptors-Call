@@ -182,7 +182,7 @@ export const SimSequences = {
 // ═══════════════════════════════════════════════════════════
 
 // ─── Phase 1: Dacara walks her Friday routine ───
-dacaraWalk: () => _emitPath('SIM_DACARA_01', [
+dacaraWalk: () => _emitPath('DACARA_01', [
   [-0.002000, 0.001200],   // start — southwest of base
   [-0.001600, 0.000900],
   [-0.001200, 0.000600],
@@ -195,7 +195,7 @@ dacaraWalk: () => _emitPath('SIM_DACARA_01', [
 }),
 
 // ─── Phase 2: Enemy car drives up, she gets in ───
-dacaraEnemyCar: () => _emitPath('SIM_ENEMY_CAR_01', [
+dacaraEnemyCar: () => _emitPath('ENEMY_CAR_01', [
   [-0.000800, 0.000200],   // arrives at curb
   [-0.000400,-0.000200],
   [ 0.000000,-0.000700],
@@ -212,7 +212,7 @@ dacaraEnemyCar: () => _emitPath('SIM_ENEMY_CAR_01', [
 
 // ─── Phase 3: Dacara's tag continues broadcasting from inside the car ───
 // Same physical path, offset by ~5m so both icons are visible
-dacaraTagInCar: () => _emitPath('SIM_DACARA_01', [
+dacaraTagInCar: () => _emitPath('DACARA_01', [
   [-0.000770, 0.000230],   // she's inside — offset slightly from car
   [-0.000370,-0.000170],
   [ 0.000030,-0.000670],
@@ -229,7 +229,7 @@ dacaraTagInCar: () => _emitPath('SIM_DACARA_01', [
 
 // ─── Phase 4: Rescue team — 4 responders ───
 // Friend A: drives from NE, blocks the road AHEAD of the car
-dacaraFriendA: () => _emitPath('SIM_DACARA_FRIEND_A', [
+dacaraFriendA: () => _emitPath('DACARA_FRIEND_A', [
   [ 0.003500,-0.003000],   // start — offscreen NE
   [ 0.002800,-0.002700],
   [ 0.002000,-0.002400],
@@ -244,7 +244,7 @@ dacaraFriendA: () => _emitPath('SIM_DACARA_FRIEND_A', [
 }),
 
 // Friend B: drives from W, cuts off BEHIND the enemy car
-dacaraFriendB: () => _emitPath('SIM_DACARA_FRIEND_B', [
+dacaraFriendB: () => _emitPath('DACARA_FRIEND_B', [
   [-0.003000, 0.001000],   // start — offscreen west
   [-0.002200, 0.000600],
   [-0.001400, 0.000200],
@@ -260,7 +260,7 @@ dacaraFriendB: () => _emitPath('SIM_DACARA_FRIEND_B', [
 }),
 
 // Friend C: on foot from the north side
-dacaraFriendC: () => _emitPath('SIM_DACARA_FRIEND_C', [
+dacaraFriendC: () => _emitPath('DACARA_FRIEND_C', [
   [ 0.001800, 0.000800],
   [ 0.001500, 0.000400],
   [ 0.001400, 0.000000],
@@ -276,7 +276,7 @@ dacaraFriendC: () => _emitPath('SIM_DACARA_FRIEND_C', [
 }),
 
 // Friend D: on foot from the south, arrives last
-dacaraFriendD: () => _emitPath('SIM_DACARA_FRIEND_D', [
+dacaraFriendD: () => _emitPath('DACARA_FRIEND_D', [
   [-0.000500, 0.002800],   // start — offscreen south
   [-0.000200, 0.002000],
   [ 0.000200, 0.001200],
@@ -343,29 +343,29 @@ dacaraFullScene: async () => {
 },
 
 // demos 
-  maya: () => _emitPath('SIM_MAYA_01', [
+  maya: () => _emitPath('MAYA_01', [
     [0.0003, 0.0005], [0.0006, 0.0009], [0.0009, 0.0013],
     [0.0012, 0.0017], [0.0015, 0.0021], [0.0018, 0.0025],
   ], { intervalMs: 1400, mot: 'walk', nickname: 'Maya', entityType: 'friend' }),
 
-  marcus: () => _emitPath('SIM_MARCUS_02', [
+  marcus: () => _emitPath('MARCUS_02', [
     [-0.0020, 0.0000], [-0.0014, 0.0005], [-0.0008, 0.0010],
     [-0.0002, 0.0015], [0.0004, 0.0020], [0.0010, 0.0025],
   ], { intervalMs: 900, mot: 'run', nickname: 'Marcus', entityType: 'friend' }),
 
-  tanisha: () => _emitPath('SIM_TANISHA_03', [
+  tanisha: () => _emitPath('TANISHA_03', [
     [0.0030, -0.0030], [0.0020, -0.0018], [0.0010, -0.0006],
     [0.0000, 0.0006], [-0.0010, 0.0018], [-0.0020, 0.0030],
   ], { intervalMs: 700, mot: 'car', nickname: 'Tanisha', entityType: 'friend' }),
 
   // ─── STRANGER — unknown person, slow approach, no name ───
-  stranger: () => _emitPath('SIM_STRANGER_04', [
+  stranger: () => _emitPath('STRANGER_04', [
     [0.0006, -0.0006], [0.0005, -0.0005], [0.0004, -0.0004],
     [0.0003, -0.0003], [0.0002, -0.0002], [0.0001, -0.0001],
   ], { intervalMs: 1200, mot: 'walk', nickname: null, entityType: 'stranger' }),
 
   // ─── ENEMY — fast approach, from a distance, no name ───
-  enemy: () => _emitPath('SIM_ENEMY_05', [
+  enemy: () => _emitPath('ENEMY_05', [
     [0.0050, -0.0050], [0.0038, -0.0038], [0.0026, -0.0026],
     [0.0014, -0.0014], [0.0005, -0.0005], [0.0001, -0.0001],
   ], { intervalMs: 700, mot: 'car', nickname: null, entityType: 'enemy' }),
@@ -378,7 +378,7 @@ dacaraFullScene: async () => {
   // ─── FRIENDS ───
 
   // tasias normal pathway 
-  tasia:() => _emitPath('SIM_TASIA_01',
+  tasia:() => _emitPath('TASIA_01',
     [
       [-0.000457,0.000413],[-0.000141,0.001292],[0.000191,0.002022],
       [0.000407,0.002494],[0.00059,0.002945],
@@ -388,7 +388,7 @@ dacaraFullScene: async () => {
      nickname: 'TASIA', entityType: 'friend' }
   ),
   // a stalker is lingering 
-  potasia: ()=> _emitPath('SIM_POTASIA_01',
+  potasia: ()=> _emitPath('POTASIA_01',
     [
     [0.001029,0.003691],[0.001029,0.003591],
     [0.001029,0.003691],[0.001029,0.003691],
@@ -407,7 +407,7 @@ dacaraFullScene: async () => {
       SimSequences.potasia(),
     ]);
   },
-  rescueTasia1:() => _emitPath('SIM_TASIA_FRIEND_01',
+  rescueTasia1:() => _emitPath('TASIA_FRIEND_01',
     [ [0.001593,-0.003645],[0.000629,-0.003237],
        [0.000463,-0.002078],[0.00028,-0.001499],
        [-0.000268,-0.000727],[-0.000833,-0.000147],
@@ -416,7 +416,7 @@ dacaraFullScene: async () => {
     ], { intervalMs: 1400, mot: 'car', 
       nickname: 'TASIA Friend 1', entityType: 'friend' }
   ),
-  rescueTasia2:() => _emitPath('SIM_TASIA_FRIEND_02',
+  rescueTasia2:() => _emitPath('TASIA_FRIEND_02',
     [
       [0.003354,-0.000877], 
       [0.00038,-0.001735],[0.000047,-0.001113],
@@ -428,7 +428,7 @@ dacaraFullScene: async () => {
     ], { intervalMs: 1400, mot: 'car', 
         nickname: 'TASIA Friend 2', entityType: 'friend' }
   ),
-  rescueTasia3:() => _emitPath('SIM_TASIA_FRIEND_03',
+  rescueTasia3:() => _emitPath('TASIA_FRIEND_03',
     [
       [-0.001165,0.005282],[-0.001231,0.005111],
       [-0.001331,0.004875],
@@ -438,7 +438,7 @@ dacaraFullScene: async () => {
     ], { intervalMs: 1400, mot: 'run', 
       nickname: 'TASIA Friend 3', entityType: 'friend' }
   ),
-  rescueTasia4:() => _emitPath('SIM_TASIA_FRIEND_04',
+  rescueTasia4:() => _emitPath('TASIA_FRIEND_04',
     [
       [-0.000082,0.007911],[-0.000065,0.007696],
       [0.000134,0.006816],[0.000234,0.006301],
@@ -448,7 +448,7 @@ dacaraFullScene: async () => {
     ], { intervalMs: 1400, mot: 'run', 
       nickname: 'TASIA Friend 4', entityType: 'friend' }
   ),
-  rescueTasia5:() => _emitPath('SIM_TASIA_FRIEND_05',
+  rescueTasia5:() => _emitPath('TASIA_FRIEND_05',
   [
     [-0.00069,0.006633],[-0.000574,0.005968],
     [-0.000491,0.005582],[-0.000441,0.005153],

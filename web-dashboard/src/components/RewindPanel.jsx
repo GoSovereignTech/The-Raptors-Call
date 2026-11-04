@@ -13,15 +13,21 @@ export function RewindPanel({
 }) {
   if (!isOpen) return null;
 
+
   // Calculate time ago (e.g., "-2:30")
-  const secondsAgo = Math.floor((Date.now() - currentTime) / 1000);
+  const safeTime = currentTime || Date.now();
+  const secondsAgo = Math.floor((Date.now() - safeTime) / 1000);
   const mins = Math.floor(Math.abs(secondsAgo) / 60);
   const secs = Math.abs(secondsAgo) % 60;
   const timeStr = `-${mins}:${secs.toString().padStart(2, '0')}`;
 
   return (
-    <div className="absolute bottom-24 left-3 right-3 z-[700] rounded-xl border backdrop-blur-xl p-3 shadow-2xl"
-         style={{ background: 'var(--panel-bg)', borderColor: 'var(--panel-border)' }}>
+      <div className="js-rewind-panel-check absolute bottom-36 left-3 right-3 rounded-xl border backdrop-blur-xl p-3 shadow-2xl"
+        style={{ 
+          background: 'var(--panel-bg)', 
+          borderColor: 'var(--panel-border)',
+          zIndex: 9999 // <-- Forces it above everything
+        }}>
       
       <div className="flex items-center justify-between mb-2">
         <div className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
