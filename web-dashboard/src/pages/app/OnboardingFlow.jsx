@@ -353,7 +353,8 @@ function Splash() {
     </BrandBackdrop>
   );
 }
-*/
+ 
+
 function LocationSetup({ onLocated }) {
   const [manual, setManual] = useState('');
   const [loading, setLoading] = useState(false);
@@ -362,7 +363,7 @@ function LocationSetup({ onLocated }) {
   async function saveAndContinue(loc) {
     try {
       localStorage.setItem('user-location', JSON.stringify(loc));
-    } catch (e) { /* ignore storage quota errors */ }
+    } catch (e) {  }
     onLocated(loc);
   }
 
@@ -375,6 +376,7 @@ function LocationSetup({ onLocated }) {
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }
+
 
   async function useManual() {
     if (!manual.trim()) return;
@@ -396,8 +398,7 @@ function LocationSetup({ onLocated }) {
 
   return (
     <BrandBackdrop dim={false}>
-      <div className="flex min-h-screen flex-col">
-        {/* Hero banner using the raptor artwork, faded into the page bg */}
+      <div className="flex min-h-screen flex-col"> 
         <div className="relative h-52 shrink-0 overflow-hidden sm:h-64">
           <img src="/raptor-hero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-raptor-void/30 via-raptor-void/70 to-raptor-void" />
@@ -444,6 +445,7 @@ function LocationSetup({ onLocated }) {
     </BrandBackdrop>
   );
 }
+*/
 
 function HomeField({ location, onOpenSettings }) {
   const live = useLiveLocation(location);
@@ -1833,9 +1835,35 @@ export default function App() {
   if (view === 'splash') {
     return (
       <SplashPage
-        onEnterPrecise={() => setView('setup')}
+        onEnterPrecise={() => {
+          // 1. Ask for GPS immediately
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude, source: 'gps' };
+                setLocation(loc);
+                localStorage.setItem('user-location', JSON.stringify(loc));
+                setView('home');
+              },
+              () => {
+                // 2. Fallback: If they deny permission, load a default map
+                const defaultLoc = { lat: 39.2838, lon: -76.6216, source: 'default' };
+                setLocation(defaultLoc);
+                localStorage.setItem('user-location', JSON.stringify(defaultLoc));
+                setView('home');
+              },
+              { enableHighAccuracy: true, timeout: 10000 }
+            );
+          } else {
+            // 3. Fallback for old browsers
+            const defaultLoc = { lat: 39.2838, lon: -76.6216, source: 'default' };
+            setLocation(defaultLoc);
+            localStorage.setItem('user-location', JSON.stringify(defaultLoc));
+            setView('home');
+          }
+        }}
         onEnterDemo={() => {
-          // Use a fixed demo location (downtown Baltimore in your sim area)
+          // Demo mode (No GPS requested)
           const demoLoc = { lat: 39.2838, lon: -76.6216, source: 'demo', label: 'Demo Mode' };
           localStorage.setItem('user-location', JSON.stringify(demoLoc));
           setLocation(demoLoc);
