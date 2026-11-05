@@ -204,6 +204,41 @@ async function createTables(db) {
         )
     `);
 
+    // 1. Add a wallet balance to the user profile
+    db.exec(`
+        ALTER TABLE profiles ADD COLUMN sparkle_coins INT DEFAULT 0;
+        )
+    `);
+
+   // 2. Create a transactions table to track every coin earned/spent
+    db.exec(`
+        CREATE TABLE coin_transactions (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            user_guid UUID REFERENCES profiles(user_guid),
+            amount INT NOT NULL, -- Positive for earned, negative for spent
+            type VARCHAR(50) NOT NULL, -- 'rescue_bounty', 'purchase', 'refund'
+            status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'settled', 'revoked'
+            threat_id VARCHAR(100), -- The ID of the alarm they responded to
+            crypto_signature TEXT, -- Proof they were actually there
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            );
+        )
+    `);
+
+    // 3. Create an active_alarms table to track bounties in progress
+    db.exec(`
+        CREATE TABLE active_alarms (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            victim_guid UUID REFERENCES profiles(user_guid),
+            lat DECIMAL(9,6) NOT NULL,
+            lon DECIMAL(9,6) NOT NULL,
+            status VARCHAR(20) DEFAULT 'active', -- 'active', 'resolved', 'false_alarm'
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '30 minutes')
+        );
+
+        )
+    `);
     // Seed initial data
     await seedInitialData(db);
 }

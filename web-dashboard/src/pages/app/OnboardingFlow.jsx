@@ -491,6 +491,85 @@ function HomeField({ location, onOpenSettings }) {
 
   // In the HomeField component
   const tracker = useRef(new ActiveNodeTracker());
+
+
+  // BOUNTY CREDITS 1. State to hold active alarms that we are monitoring
+const [activeBounties, setActiveBounties] = useState([]); 
+const [earnedCoins, setEarnedCoins] = useState(0);
+
+const handleAlarmPacket = (packet) => {
+  // Check if this alarm is already being tracked
+  if (activeBounties.find(b => b.id === packet.id)) return;
+
+  // Add to active bounties with a 30-minute expiration
+  const newBounty = {
+    id: packet.id,
+    lat: packet.d.lat,
+    lon: packet.d.lon,
+    expiresAt: Date.now() + (30 * 60 * 1000), // 30 mins
+    claimed: false,
+    victimNickname: packet.d.nickname || 'Unknown',
+  };
+  
+  setActiveBounties(prev => [...prev, newBounty]);
+  
+  // Play siren, show UI message, etc.
+  setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
+  if (packet.d.mode === 'SCR') playSiren();
+};
+
+// 3. The Bounty Checker Engine
+useEffect(() => {
+  // Only run if there are active bounties and we have GPS
+  if (activeBounties.length === 0 || !live.lat || !live.lon) return;
+
+  const checkBounties = () => {
+    setActiveBounties(prev => {
+      return prev.map(bounty => {
+        // Has this bounty already been claimed or expired?
+        if (bounty.claimed || Date.now() > bounty.expiresAt) return bounty;
+
+        // Calculate distance (Haversine formula or Leaflet's built-in distance)
+        const distance = L.latLng(live.lat, live.lon).distanceTo(
+          L.latLng(bounty.lat, bounty.lon)
+        );
+
+        // 🎯 BOUNTY CLAIM CONDITION: Within 30 meters
+        if (distance <= 30) {
+          console.log(`[BOUNTY] Claimed! You are ${distance.toFixed(1)}m from ${bounty.victimNickname}`);
+          
+          // 1. Generate Cryptographic Receipt
+          const receipt = {
+            threat_id: bounty.id,
+            responder_guid: localStorage.getItem('raptor:user-guid'),
+            timestamp: Date.now(),
+            // Sign this locally so it can't be tampered with
+            signature: crypto.randomUUID(), // Replace with actual WebCrypto signature
+          };
+
+          // 2. Save to local SQLite (for offline sync)
+          saveReceiptLocally(receipt); 
+          
+          // 3. Update UI (Give them the coins)
+          setEarnedCoins(prev => prev + 30);
+          msg.event("You arrived on scene. +30 Sparkle Coins secured.", { title: "BOUNTY CLAIMED" });
+
+          // 4. Mark as claimed so we don't trigger it again
+          return { ...bounty, claimed: true };
+        }
+
+        return bounty;
+      });
+    });
+  };
+
+  // Check every 5 seconds while moving
+  const interval = setInterval(checkBounties, 5000);
+  return () => clearInterval(interval);
+}, [activeBounties, live.lat, live.lon]);
+
+   // END BOUNTY 
+
   // Position history per node for trail rendering 
   // --- TOAST / NUDGE STATE ---
   const [toasts, setToasts] = useState([]);
@@ -1820,17 +1899,31 @@ export default function App() {
 
   // Check for stored location on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('user-location');
-      if (stored) {
-        const loc = JSON.parse(stored);
-        if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
-          setLocation(loc);
-          setView('home');
-        }
+      // ─── 1. HANDLE URL PARAMETERS FIRST ───
+      const params = new URLSearchParams(window.location.search);
+      
+      // If ?reset=true, we delete the saved location
+      if (params.get('reset') === 'true') {
+        localStorage.removeItem('user-location');
+        
+        // Clean the URL so it doesn't stay there on refresh
+        // (We keep the ?a= param if it exists so the SplashPage can read it)
+        const newUrl = window.location.pathname + (params.get('a') ? `?a=${params.get('a')}` : '');
+        window.history.replaceState({}, document.title, newUrl);
       }
-    } catch (e) { /* no stored location */ }
-  }, []);
+
+      // ─── 2. CHECK LOCAL STORAGE ───
+      try {
+        const stored = localStorage.getItem('user-location');
+        if (stored) {
+          const loc = JSON.parse(stored);
+          if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+            setLocation(loc);
+            setView('home'); 
+          }
+        }
+      } catch (e) { /* no stored location */ }
+    }, []);
 
   if (view === 'splash') {
     return (

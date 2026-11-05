@@ -235,3 +235,19 @@
   background: var(--map-overlay);
   z-index: 400; /* Just below your UI markers */
 }
+
+
+
+/* Theme switcher */
+.space-y-2.inline-50-pct {
+  display: inline-block;
+}
+
+.space-y-2.inline-50-pct .reset-location-btn {
+  padding: 4px 8px; 
+  margin-left: 16px; 
+  font-size: 12px;;
+  border-radius: 8px;
+  border-color: var(--text-slate-400) !important;
+  border: 1px solid;
+}

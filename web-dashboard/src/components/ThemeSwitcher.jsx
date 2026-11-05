@@ -18,8 +18,14 @@ export function ThemeSwitcher() {
     console.log(" setting data theme =",document.documentElement );
   }, [current]);
 
+  const handleLocationResetButton = (e) => {
+    localStorage.removeItem('user-location');
+    window.location.reload(); // Forces the app to reload and show the SplashPage
+  };
+
   return (
-    <div className="space-y-2">
+    <> 
+    <div className="space-y-2 inline-50-pct">
       <div className="text-[10px] uppercase tracking-widest text-slate-500">Theme</div>
       <div className="flex gap-2">
         {THEMES.map((t) => (
@@ -41,5 +47,16 @@ export function ThemeSwitcher() {
         ))}
       </div>
     </div>
+      
+    <div className="space-y-2 inline-50-pct ">
+       <button 
+       key='reset-location-btn-1'
+       onClick={handleLocationResetButton} 
+        className="flex items-center gap-1 reset-location-btn border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600"
+      >
+        Reset Location
+      </button>
+    </div>
+    </>
   );
 }

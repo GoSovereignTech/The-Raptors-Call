@@ -23,6 +23,8 @@ export default function SettingsPage({ userGuid, meshNodeId, currentProfile, onS
   const [saved, setSaved] = useState(false);
   const fileRef = useRef(null);
 
+
+
   const handleFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -76,6 +78,9 @@ export default function SettingsPage({ userGuid, meshNodeId, currentProfile, onS
       <button onClick={onBack} className="text-sm flex items-center gap-1" style={{ color: 'var(--accent)' }}>
         ← Back to map
       </button>
+
+
+      
 
       <h1 className="text-xl font-bold flex items-center gap-2">
         <User className="h-5 w-5" /> Profile & Settings
