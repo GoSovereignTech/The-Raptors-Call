@@ -1,9 +1,17 @@
 [build]
+  base = "web-dashboard"
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
+# Redirect for TTS API
 [[redirects]]
   from = "/api/tts"
   to = "/.netlify/functions/tts"
+  status = 200
+
+# Catch-all redirect for React Router (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200
