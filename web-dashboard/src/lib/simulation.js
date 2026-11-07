@@ -220,7 +220,7 @@ dacaraTagInCar: () => _emitPath('DACARA_01', [
   [ 0.000830,-0.001570],
   [ 0.001230,-0.001970],
 ], {
-  intervalMs: 1400, mot: 'car',
+  intervalMs: 1400, mot: 'walk',
   nickname: 'Dacara', entityType: 'friend',
   caption: 'She notices the car is not heading toward her destination.',
   captionPriority: 'risk',

@@ -10,29 +10,29 @@ import './../styles/themes.css';
 const AUDIENCES = {
   greek: {
     label: '🎓 Sororities & Fraternities',
-    headline: 'Walk home together. Even when you are alone.',
+    headline: 'Walk together -even when you are alone.',
     pitch: 'Campus life is unpredictable. Whether it’s a late-night walk from the library or a party off-campus, The Raptor’s Call ensures your brothers and sisters see the moment you are in danger. No cell service? No problem.',
     image: '/explainerImages/visuals/frats-and-soros.jpeg',
     stat: '1 in 3 women experience assault. Never walk alone again.'
   },
   community: {
     label: '🏘️ Community Defense Groups',
-    headline: 'Organize your neighborhood. Before the police arrive.',
-    pitch: '911 is reactive. We are proactive. Build a private, encrypted mesh network with your vetted neighbors. When a threat is detected or an alarm is pulled, you are not waiting for strangers—you are activating your own rescue team.',
+    headline: 'Enhance your Community Watch Groups with our tech tool.',
+    pitch: 'Better than 911 the Raptors call has more situational awareness. Your team are vetted neighbors. The enemies actions are in the palm of your hand. See everything before you arrive on site.',
    image: '/explainerImages/stop-the-lynchings.dxfz.jpeg',
     stat: '600,000+ people go missing in the US every year.'
   },
   leaders: {
     label: '⛪ Community Leaders',
-    headline: 'Protect your flock. Coordinate your safety team.',
+    headline: 'Protect your flock. Give your safety team our tech advantge.',
     pitch: 'You care for your congregation or organization. Don’t just hope they get home safe—know it. Equip your most vulnerable members with disguised alarms and give your security team a real-time tactical map.', 
-    image: '/explainerImages/visuals/celebrate-1.jpeg',
+    image: '/explainerImages/flock.jpeg',
     stat: 'Ensure every member is seen and heard, even off-grid.'
   },
   gunclub: {
     label: '🎯 Gun Clubs & Enthusiasts',
-    headline: 'Situational awareness is your best weapon.',
-    pitch: 'You are trained for the fight, but you cannot shoot what you cannot see. Extend your perimeter with 24GHz radar and thermal sensors. See threats through walls and foliage before they ever step into your line of sight.',
+    headline: 'Extend Your Situational Awareness Far Beyond the Line-of-Sight.',
+    pitch: 'You are trained for the fight, but you cannot shoot what you cannot see. Extend your situational awareness with our radar and sensors. See threats through walls and foliage before they ever step into your line of sight.',
     image: '/explainerImages/gunclub-.jpeg',
     stat: 'Never be ambushed. Know who is approaching.'
   },

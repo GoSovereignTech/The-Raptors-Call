@@ -13,15 +13,23 @@ export const MOVEMENT_SVG = {
   walk: `
     <svg viewBox="0 0 24 24" fill="currentColor">
       <circle cx="13" cy="4" r="2.2"/>
+      <!-- Body and Legs -->
       <path d="M13.5 6.5 L10 11.5 L11 15.5 L8 21 L9.3 21 L12 16.5 L13 12.5 L15 16 L14.5 21 L15.8 21 L16.3 15.5 L13.5 11 Z"/>
-      <path d="M11.5 9 L15 12 L18 11 L18 12.3 L14.7 13.5 L11 10.5 Z"/>
+      <!-- Back Arm (swinging down and back) -->
+      <path d="M11 9 L8 9.5 L7 12 L8 12.5 L9.5 10.5 L12 10 Z"/>
+      <!-- Front Arm (bent and raised forward) -->
+      <path d="M12 9 L15 8.5 L17 6 L16 5.5 L14.5 7.5 L11.5 8 Z"/>
     </svg>`,
 
   run: `
     <svg viewBox="0 0 24 24" fill="currentColor">
       <circle cx="15.5" cy="4" r="2"/>
+      <!-- Body and Legs -->
       <path d="M15 6.5 L11 11 L13.5 14 L10 21 L11.3 21 L14.5 15 L16 11.5 L18 15 L17.5 21 L18.8 21 L19.3 15 L15 10 Z"/>
-      <path d="M12.5 9 L16 12 L20 10.5 L20 11.8 L16 13.5 L12 10.5 Z"/>
+      <!-- Back Arm (swinging further back) -->
+      <path d="M12 9 L9 9.5 L7 13 L8.5 13.5 L10 10.5 L12.5 10 Z"/>
+      <!-- Front Arm (raised high and forward) -->
+      <path d="M13 9 L16.5 8 L18.5 4.5 L17 4 L15 7 L12 8 Z"/>
     </svg>`,
 
   bike: `
