@@ -1,7 +1,7 @@
-// netlify/functions/tts.js
-const { Communicate } = require('@andresaya/edge-tts');
+// web-dashboard/netlify/functions/tts.js
+import { Communicate } from '@andresaya/edge-tts';
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -17,7 +17,6 @@ exports.handler = async (event) => {
       voice,
       rate,
       pitch,
-      // You can also add volume: '0%'
     });
 
     const chunks = [];

@@ -35,7 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<OnboardingFlow />} />
-        <Route path="Talk" element={<Talk />} />
+        <Route path="/talk" element={<Talk />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route
