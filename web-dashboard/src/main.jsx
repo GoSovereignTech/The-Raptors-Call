@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import OnboardingFlow from './pages/app/OnboardingFlow.jsx';
-import Tts from './pages/app/tts.jsx';
+import Talk from './pages/app/Talk.jsx';
 import AdminApp from './pages/admin/AdminVettingForm.jsx'; 
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
@@ -35,7 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<OnboardingFlow />} />
-        <Route path="/tts" element={<Tts />} />
+        <Route path="Talk" element={<Talk />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route

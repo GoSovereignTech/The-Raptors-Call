@@ -1,4 +1,4 @@
-// src/pages/app/Tts.jsx
+// src/pages/app/Talk.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { openDB } from 'idb';
 
@@ -57,7 +57,7 @@ const VOICES = [
   { id: 'en-GB-SoniaNeural', label: 'Sonia (UK Female)' },
 ];
 
-export default function Tts() {
+export default function Talk() {
   const [stories, setStories] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // NEW: Fixes the "New Story" button
