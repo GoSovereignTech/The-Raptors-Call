@@ -3,7 +3,7 @@
 // Use for any entity that represents a human (self, friend, unknown, enemy).
 
 import { Marker } from 'react-leaflet';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import L from 'leaflet';
 import {
   MOVEMENT_SVG,
@@ -15,7 +15,7 @@ import {
 // ─── The main marker ───
 // src/components/PersonMarker.jsx
  
-export function PersonMarker({ entity, isRewinding = false, onSelect, highlighted = false }) {
+function PersonMarker({ entity, isRewinding = false, onSelect, highlighted = false }) {
   const markerRef = useRef(null);
 
   // Immutable initial position — react-leaflet never updates the marker
@@ -119,7 +119,7 @@ useEffect(() => {
   if (!markerRef.current) return;
 
   // During rewind: snap instantly, no animation, no jitter filter
-  if (isRewinding) {
+  if (isRewinding || movement === 'idle' ) {
     markerRef.current.setLatLng([newLat, newLng]);
     return;
   }
@@ -134,7 +134,7 @@ useEffect(() => {
   animStartRef.current = performance.now();
   const distance = Math.hypot(newLat - current.lat, newLng - current.lng);
   animDurRef.current = Math.min(2000, Math.max(350, distance * 800000));
-}, [entity.lat, entity.lon, entity.lng, isRewinding]);
+}, [entity.lat, entity.lon, entity.lng, isRewinding, movement]);
 
 // ─── Animation loop ───
 useEffect(() => {
@@ -142,6 +142,9 @@ useEffect(() => {
   let raf;
   const tick = (t) => {
     if (!markerRef.current) return;
+
+
+
     const elapsed = t - animStartRef.current;
     const p = animDurRef.current > 0 ? Math.min(1, elapsed / animDurRef.current) : 1;
     const eased = 1 - Math.pow(1 - p, 3);
@@ -168,6 +171,8 @@ useEffect(() => {
     />
   );
 }
+
+export const MemoizedPersonMarker = memo(PersonMarker);
 
 export function PersonGhost({ entity, ageSec }) {
   const opacity = Math.max(0, 1 - ageSec / 3);

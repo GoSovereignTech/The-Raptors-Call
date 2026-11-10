@@ -1,5 +1,5 @@
 // web-dashboard/netlify/functions/tts.js
-import { Communicate } from '@andresaya/edge-tts';
+import { EdgeTTS } from '@andresaya/edge-tts';
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -13,20 +13,17 @@ export const handler = async (event) => {
       return { statusCode: 400, body: 'Text is required' };
     }
 
-    const communicate = new Communicate(text, {
-      voice,
-      rate,
-      pitch,
+    // 1. Initialize the EdgeTTS class
+    const tts = new EdgeTTS();
+
+    // 2. Use the synthesize method
+    await tts.synthesize(text, voice, {
+      rate: rate,
+      pitch: pitch,
     });
 
-    const chunks = [];
-    for await (const chunk of communicate.stream()) {
-      if (chunk.type === 'audio') {
-        chunks.push(chunk.data);
-      }
-    }
-
-    const audioBuffer = Buffer.concat(chunks);
+    // 3. Export the audio to a raw buffer
+    const audioBuffer = await tts.toRaw();
 
     return {
       statusCode: 200,

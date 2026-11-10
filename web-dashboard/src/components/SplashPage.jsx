@@ -184,7 +184,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={tosConfirmed} onChange={(e) => setTosConfirmed(e.target.checked)} className="h-4 w-4 accent-[#39E0C4]" />
-              I agree to the <a href="/privacy.html" target="_blank" className="text-[#39E0C4] underline">Privacy Policy</a>
+              I agree to the <a href="/privacy.html" target="_blank" className="text-[#39E0C4] underline">Privacy</a> and <a href="data-deletion.html" target="_blank" className="text-[#39E0C4] underline">Data Deletion</a> policies.
             </label>
           </div>
 

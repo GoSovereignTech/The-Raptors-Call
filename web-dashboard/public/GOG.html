@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guardians of Greatness | Sovereignty & Membership</title>
+  <meta name="description" content="Guardians of Greatness is a sovereignty-focused movement for the 6th Region of Africa (the diaspora). Join the social club, access technology, training, and apparel." />
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-light: #f0d77a;
+      --black: #0a0a0a;
+      --black-2: #111;
+      --black-3: #1a1a1a;
+      --white: #f5f5f5;
+      --muted: #b8b8b8;
+      --danger: #b33a3a;
+      --success: #2f7d4f;
+      --radius: 12px;
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--gold-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 1rem; }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #222;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      font-weight: 800;
+      letter-spacing: .3px;
+      color: var(--white);
+    }
+
+    .brand svg { color: var(--gold); flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 1.1rem; font-size: .95rem; color: var(--muted); }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--gold-light); }
+    .menu-btn { display: none; background: transparent; border: 1px solid #333; color: var(--white); border-radius: 8px; padding: .35rem .55rem; font-size: 1.1rem; }
+
+    /* Hero */
+    .hero {
+      padding: 2rem 0 3rem;
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,.14), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(212,175,55,.08), transparent 35%),
+        var(--black);
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    /* Interactive Hero Image */
+    .hero-wrapper {
+      max-width: 90%;
+      aspect-ratio: 21 / 9;
+      overflow: hidden;
+      border-radius: 16px;
+      margin: 0 auto 2rem;
+      position: relative;
+      border: 1px solid #333;
+    }
+    
+    .hero-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.3s ease;
+    }
+
+    .hero-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      padding: 2rem 1rem 1rem;
+      color: var(--white);
+      font-size: 0.95rem;
+      font-weight: 500;
+      /* pointer-events: none; */
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: .75rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(212,175,55,.35);
+      padding: .3rem .65rem;
+      border-radius: 999px;
+    }
+
+    h1 { font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 1rem; }
+    h1 span { color: var(--gold); }
+
+    .hero p { color: var(--muted); font-size: 1.08rem; max-width: 60ch;   }
+    
+    /* Sovereignty chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin: 1.2rem 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: .5rem 1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .chip:hover, .chip:focus-visible {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      outline: none;
+    }
+
+    .chip.active {
+      background: var(--gold);
+      color: var(--black);
+      border-color: var(--gold);
+    }
+
+    /* Dynamic Hero Text Box */
+    .dynamic-hero-box {
+      background: rgba(255,255,255,0.03);
+      border-left: 3px solid var(--gold);
+      padding: 1rem 1.2rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1.5rem;
+      min-height: 120px;
+    }
+    
+    .dynamic-hero-box h3 {
+      color: var(--gold-light);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dynamic-hero-box .stat {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-weight: 700;
+      color: var(--danger);
+      font-size: 0.95rem;
+    }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1rem; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+      padding: .85rem 1.2rem; border-radius: 10px; font-weight: 700; border: 1px solid transparent; cursor: pointer; font-size: .95rem; transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); text-decoration: none; }
+    .btn-primary { background: var(--gold); color: #111; }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-outline { background: transparent; color: var(--white); border-color: #444; }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold-light); }
+
+    .hero-card {
+      background: linear-gradient(145deg, #151515, #0d0d0d);
+      border: 1px solid #262626;
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    .hero-card h3 { color: var(--gold); font-size: 1.05rem; margin-bottom: .75rem; }
+    .hero-card ul { list-style: none; display: grid; gap: .7rem; color: var(--muted); font-size: .95rem; }
+    .hero-card li::before { content: "▸"; color: var(--gold); margin-right: .5rem; }
+
+    /* Sections */
+    section { padding: 4rem 0 1rem; border-bottom: 1px solid #1a1a1a; }
+    .section-head { margin-bottom: 2rem; }
+    .section-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -.5px; margin-bottom: .5rem; }
+    .section-head p { color: var(--muted); max-width: 75ch; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card { background: var(--black-2); border: 1px solid #242424; border-radius: var(--radius); padding: 1.3rem; }
+    .card h3 { color: var(--gold-light); margin-bottom: .55rem; font-size: 1.05rem; }
+    .card p, .card li { color: var(--muted); font-size: .94rem; }
+    .card ul { list-style: none; display: grid; gap: .5rem; margin-top: .6rem; }
+    .card ul li::before { content: "•"; color: var(--gold); margin-right: .45rem; }
+
+    .callout {
+      background: linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.03));
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      margin: 1.5rem 0;
+    }
+    .callout p { color: var(--white); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+
+    /* Product grid & carousel */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+    .product-card { background: var(--black-2); border: 1px solid #242424; border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform .15s, border-color .15s; }
+    .product-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+    .product-card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #1a1a1a; }
+    .product-card .info { padding: .8rem; }
+    .product-card .info h4 { font-size: .95rem; color: var(--white); margin-bottom: .2rem; }
+    .product-card .info .price { color: var(--gold); font-weight: 700; font-size: .9rem; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: var(--black-2); border: 1px solid #333; border-radius: var(--radius); max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 1.5rem; position: relative; }
+    .modal-close { position: absolute; top: .8rem; right: .8rem; background: transparent; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+    .carousel-container { position: relative; margin-bottom: 1rem; }
+    .carousel-container img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; background: #1a1a1a; }
+    .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); color: white; border: none; padding: .5rem .8rem; cursor: pointer; font-size: 1.2rem; border-radius: 6px; }
+    .carousel-nav.prev { left: .5rem; }
+    .carousel-nav.next { right: .5rem; }
+    .carousel-thumbs { display: flex; gap: .5rem; overflow-x: auto; padding: .5rem 0; }
+    .carousel-thumbs img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; opacity: .6; transition: opacity .2s; }
+    .carousel-thumbs img.active, .carousel-thumbs img:hover { opacity: 1; outline: 2px solid var(--gold); }
+
+    /* Footer */
+    footer { padding: 2.5rem 0; color: var(--muted); font-size: .9rem; }
+    .footer-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; align-items: start; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-grid, .two-col, .footer-grid { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      .hero-wrapper { aspect-ratio: 16 / 9; max-width: 100%; }
+    }
+
+    @media (max-width: 700px) {
+      .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; background: #0d0d0d; border-bottom: 1px solid #222; padding: 1rem; flex-direction: column; align-items: flex-start; }
+      .nav-links.open { display: flex; }
+      .menu-btn { display: block; }
+      .grid-3, .form-row { grid-template-columns: 1fr; }
+      section { padding: 3rem 0; }
+      .hero { padding: 2rem 0; }
+    }
+
+
+    .card_main_img_wrap {
+        width:100%;
+        display: block;
+        height: 70px;
+        overflow: hidden;
+        position: relative;
+        border-radius: 12px 12px 0 0;
+    }
+    .card_main_img_wrap .card_main_img {
+        position: relative;
+        width: 100%;
+         height: auto;
+         display:block
+
+      }
+
+
+  .hero-title { 
+
+    font-weight: 900;
+    margin-left: 16px;
+
+    position: absolute;
+    bottom: 0;
+   
+   
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 2rem 1rem 1rem;
+    color: var(--white);
+    font-size: 0.95rem; 
+    pointer-events: none;
+    display:none;
+  }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="#top">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+      <span>Guardians of Greatness</span>
+    </a>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#mission">Mission</a>
+      <a href="#apparel">Apparel</a>
+      <a href="#training">Training</a>
+      <a href="#ebooks">Ebooks</a>
+      <a href="#founder">Founder</a>
+      <a href="#join">Join</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+
+
+  <!-- HERO with SOVEREIGNTY CHIPS -->
+  <section class="hero">
+    <div class="hero-wrapper">
+      <img id="hero-img" class="hero-main-img" src="/explainerImages/visuals/community.jpeg" alt="Guardians of Greatness"/>
+      <div class="hero-title">Guardians Of Sovereignty</div>
+      <div class="hero-caption" id="hero-caption">Sovereignty means we own the systems that keep us alive.</div>
+    </div>
+
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">6th Region of Africa · 400 Million Diaspora</span>
+        <h1>Guardians of <span>Greatness</span></h1>
+
+        <!-- DYNAMIC HERO TEXT -->
+        <div class="dynamic-hero-box" id="dynamic-hero-box">
+          <h3 id="hero-headline">Select a Sovereignty Pillar</h3>
+          <p id="hero-pitch">Click the buttons below to see how we are engineering permanent solutions for our communities.</p>
+          <!--span class="stat" id="hero-stat"></span -->
+        </div>
+
+        <!-- SOVEREIGNTY CHIPS (Now Interactive Buttons) -->
+        <div class="chip-row" id="chip-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#join">Become a Member</a>
+          <a class="btn btn-outline" href="#apparel">Shop Apparel</a>
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <h3>What we are building</h3>
+        <ul>
+          <li>Food: Duckweed bioreactors, biofloc fish farming</li>
+          <li>Defense: Raptor’s Call off‑grid safety network</li>
+          <li>Economy: Alternate currency & public social platform</li>
+          <li>Fuel: Home‑grown ethanol & ICE conversion</li>
+          <li>Family: Millennium Relationships & GOGPersonality</li>
+          <li>Education: Sovereignty library & technical manuals</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- MEMBERSHIP STATEMENT -->
+  <section id="mission">
+    <div class="container">
+      <div class="section-head">
+        <h2>What is Guardians of Greatness?</h2>
+        <p>
+          The Guardians of Greatness are committed to the sovereignty, protection and
+          development of formerly colonized communities globally — specifically the group
+          classified as the 6th Region of Africa: the diaspora who number 400 million in population.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <h3>Benefits of Membership</h3>
+          <ul>
+            <li>Free & exclusive access to sovereignty technology</li>
+            <li>Entry to the sovereignty library (20+ ebooks & manuals)</li>
+            <li>Training in tech‑enabled solutions for your region</li>
+            <li>Apparel purchase = membership status</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3>Knowledge</h3>
+          <p>
+            Our library covers food, fuel, defense, economy, family, and education
+            sovereignty. You get the blueprints, not just theory.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Technology & Training</h3>
+          <p>
+            Raptor’s Call network, Live Free App, ethanol conversion manuals,
+            duckweed farming systems, and more. Training is available for members.
+          </p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>Global distribution:</strong> A partner in Africa has already recognized
+          the beauty of our signature ring and apparel and wants to sell them in Nigeria
+          and Ghana. This page is built to support that effort.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPAREL & RING -->
+  <section id="apparel">
+    <div class="container">
+      <div class="section-head">
+        <h2>Membership Apparel & Support</h2>
+        <p>
+          Every purchase supports the mission. Click any item to see more images,
+          price, and description.
+        </p>
+      </div>
+
+            <div class="product-grid" id="productGrid">
+       
+              
+   
+
+     <!-- Example 1: GOG Unisex Bomber Jacket-->
+        <div class="product-card" 
+             data-name="GOG Unisex Bomber Jacket" 
+             data-price="$70.50" 
+             data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
+             data-images="/gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd398a5b.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd397a84.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd396ad4.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd395aa6.png"
+             data-buy="https://gog.printful.me/product/one-piece-swimsuit">
+          <img src="/gog_products//88/all-over-print-unisex-bomber-jacket-white-front-6af15bd395aa6.png" alt="One-Piece Swimsuit" />
+          <div class="info">
+            <h4>GOG Unisex Bomber Jacket</h4>
+            <div class="price">$70.50</div>
+          </div>
+        </div>
+        
+
+     <!-- Example 2: GOG Unisex Bomber Jacket-->
+        <div class="product-card" 
+             data-name="GOG Unisex Bomber Jacket" 
+             data-price="$70.50" 
+             data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
+             data-images="/gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd398a5b.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd397a84.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd396ad4.png | /gog_products/88/all-over-print-unisex-bomber-jacket-white-front-6af15bd395aa6.png"
+             data-buy="https://gog.printful.me/product/one-piece-swimsuit">
+          <img src="/gog_products//88/all-over-print-unisex-bomber-jacket-white-front-6af15bd396ad4.png" alt="One-Piece Swimsuit" />
+          <div class="info">
+            <h4>GOG Unisex Bomber Jacket</h4>
+            <div class="price">$70.50</div>
+          </div>
+        </div> 
+
+
+       
+        <!-- Example 3: GOG Rash Guard - Men -->
+        <div class="product-card" 
+             data-name="GOG Rash Guard - Men" 
+             data-price="$46.00" 
+             data-desc="Fly like an eagle. Men's GOG Rash guard" 
+             data-images="/gog_products/85/all-over-print-mens-rash-guard-white-front-6af154a2e8dcb.png | /gog_products/85/all-over-print-mens-rash-guard-white-left-6af154a2e91d7.png" 
+             data-buy="https://gog.printful.me/product/fly-like-an-eagle-black-gold-mens-rash-guard-copy">
+          <img src="/gog_products/85/all-over-print-mens-rash-guard-white-front-6af154a2e8dcb.png" alt="GOG Sticker Sheet" />
+          <div class="info">
+            <h4>GOG Rash Guard - Men</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+
+      
+
+
+         <!-- Example 4: GOG Rash Guard - Women -->
+                <div class="product-card" 
+             data-name="GOG Rash Guard - Men's White and Gold" 
+             data-price="$46.00" 
+             data-desc="Fly like an eagle. Women's GOG Rash guard." 
+             data-images="/gog_products/87/all-over-print-mens-rash-guard-white-back-6af1572f83ba8.png | /gog_products/87/all-over-print-mens-rash-guard-white-back-6af1572f84dc2.png | /gog_products/87/all-over-print-mens-rash-guard-white-front-6af1572f8368c.png"
+             data-buy="https://gog.printful.me/product/womens-rash-guard">
+          <img src="/gog_products//87/all-over-print-mens-rash-guard-white-front-6af1572f8368c.png" alt="One-Piece Swimsuit" />
+          <div class="info">
+            <h4>GOG Rash Guard - Men's White and Gold</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+
+       
+
+
+        <!-- Example 5: Women's Rash Guard - Black -->
+        <div class="product-card" 
+             data-name="Women's Rash Guard - Black" 
+             data-price="$46.00" 
+             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
+             data-images="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb00ef.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb122b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb045b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89caf6d3.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cae941.png"
+             data-buy="https://gog.printful.me/product/womens-rash-guard">
+          <img src="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png" alt="Golden Men's Rash Guard" />
+          <div class="info">
+            <h4>Women's Rash Guard - Black</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+        <!-- Example 6: Women's Rash Guard - White -->
+
+        
+        <div class="product-card" 
+             data-name="Women's Rash Guard - White" 
+             data-price="$46.00" 
+             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
+             data-images="/gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe264f90b.png | /gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe2650802.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe264f3f4.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png | /gog_products/81/all-over-print-womens-rash-guard-white-left-front-6aefbe2651934.png | /gog_products/81/all-over-print-womens-rash-guard-white-right-front-6aefbe2651cad.png"
+             data-buy="https://gog.printful.me/product/womens-fly-like-an-eagle-rash-guard">
+          <img src="/gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png" alt="Golden Men's Rash Guard" />
+          <div class="info">
+            <h4>Women's Rash Guard - White</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+
+       
+        <!-- Example 7: Golden Men's Rash Guard -->
+        <div class="product-card" 
+             data-name="Golden Men's Rash Guard" 
+             data-price="$46.00" 
+             data-desc="Don’t let sunburn, wind, sand, or other elements ruin your day!." 
+             data-images= "/gog_products/82/all-over-print-mens-rash-guard-white-back-6aefc018a42d6.png | /gog_products/82/all-over-print-mens-rash-guard-white-back-6aefc018a4536.png | /gog_products/82/all-over-print-mens-rash-guard-white-front-6aefc018a4629.png | /gog_products/82/all-over-print-mens-rash-guard-white-left-6aefc018a4833.png | /gog_products/82/all-over-print-mens-rash-guard-white-right-6aefc018a4947.png" 
+             data-buy="https://gog.printful.me/product/golden-mens-rash-guard">
+          <img src="/gog_products/82/all-over-print-mens-rash-guard-white-front-6aefc018a4629.png" alt="Golden Men's Rash Guard" />
+          <div class="info">
+            <h4>Golden Men's Rash Guard</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+
+        
+
+       <!-- Example 8: GOG Men's Short Sleeve Shirt White   -->
+        <div class="product-card" 
+             data-name="Men's short sleeve shirt " 
+             data-price="$43.00" 
+             data-desc="GOG Men's Short Sleeve Shirt White." 
+             data-images="/gog_products/86/all-over-print-mens-athletic-t-shirt-white-front-6af155d670396.png | /gog_products/86/all-over-print-mens-athletic-t-shirt-white-right-6af155d6707fc.png"
+             data-buy="https://gog.printful.me/product/fly-like-an-eagle-all-over-print-mens-athletic-t-shirt">
+          <img src="/gog_products//86/all-over-print-mens-athletic-t-shirt-white-front-6af155d670396.png" alt="One-Piece Swimsuit" />
+          <div class="info">
+            <h4>Fly Like An Eagle All-Over Print Men's Athletic T-shirt</h4>
+            <div class="price">$43.00</div>
+          </div>
+        </div>
+
+
+       
+
+
+
+        <div class="product-card" 
+             data-name="One-Piece Swimsuit" 
+             data-price="$34.00" 
+             data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
+             data-images="/gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-front-6af3673b31c77.png | /gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-back-6af3673b321fc.png | /gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-back-6af3673b34534.png | /gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-right-back-6af3673b33446.png | /gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-left-6af3673b32bc4.png"
+             data-buy="https://gog.printful.me/product/one-piece-swimsuit">
+          <img src="/gog_products/swimsuit/all-over-print-one-piece-swimsuit-white-right-6af3673b3279d.png" alt="One-Piece Swimsuit" />
+          <div class="info">
+            <h4>One-Piece Swimsuit</h4>
+            <div class="price">$34.00</div>
+          </div>
+        </div>
+        
+  
+        
+
+
+
+
+
+
+        <!-- Add the rest of your Printful items here the same way -->
+        
+      </div>
+    </div>
+  </section>
+
+
+
+   <!-- A RING -->
+  <section id="ring">
+    <div class="container">
+      <div class="section-head">
+        <h2>Membership Ring </h2>
+        <p>
+          Every purchase supports the mission. Click any item to see more images,
+          price, and description.
+        </p>
+      </div>
+
+            <div class="product-grid" id="productGridRing">
+       
+              <!--
+          web-dashboard/public/gog_products/ring/pretty-ring-1--guardians-of-greatness.png web-dashboard/public/gog_products/ring/pretty-ring-3--guardians-of-greatness (1).png web-dashboard/public web-dashboard/public/gog_products/ring/pretty-ring-4--guardians-of-greatness.png web-dashboard/public/gog_products/ring/ring-group-1.jpeg web-dashboard/public/gog_products/ring/ring-group-2.jpeg     
+          -->
+     <!-- Example 1: GOG Unisex Bomber Jacket-->
+        <div class="product-card" 
+             data-name="GOG Signature Ring" 
+             data-price="TBD" 
+             data-desc="The GOG Signature Ring is a sign of commitment to a better future for our next generations." 
+             data-images="/gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png | /gog_products/ring/pretty-ring-4--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-3--guardians-of-greatness (1).png"
+             data-buy="#contactus">
+          <img src="/gog_products/ring/ring-group-1.jpeg" alt="Ring" />
+          <div class="info">
+            <h4>Membership Ring</h4>
+            <div class="price">Contact Us</div>
+          </div>
+        </div>
+        
+
+     <!-- Example 2: GOG Unisex Bomber Jacket-->
+        <div class="product-card" 
+             data-name="GOG Signature Ring" 
+             data-price="TBD" 
+             data-desc="The GOG Signature Ring is a sign of commitment to a better future for our next generations." 
+             data-images="/gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png | /gog_products/ring/pretty-ring-4--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-3--guardians-of-greatness (1).png"
+             data-buy="#contactus">
+          <img src="/gog_products/ring/ring-group-2.jpeg" alt="Membership Ring" />
+          <div class="info">
+            <h4>Membership Ring </h4>
+            <div class="price">Contact Us</div>
+          </div>
+        </div> 
+
+
+        <!-- Example 3: GOG Rash Guard - Men -->
+        <div class="product-card" 
+             data-name="GOG Signature Ring" 
+             data-price="TBD" 
+             data-desc="The GOG Signature Ring is a sign of commitment to a better future for our next generations." 
+             data-images="/gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png | /gog_products/ring/pretty-ring-4--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-3--guardians-of-greatness (1).png"
+             data-buy="#contactus">
+          <img src="/gog_products/ring/group-ring.jpeg" alt="GOG Membership Ring" />
+          <div class="info">
+            <h4>Membership Ring</h4>
+            <div class="price">Contact Us</div>
+          </div>
+        </div>
+
+         <!-- Example 4: GOG Rash Guard - Women -->
+        <div class="product-card" 
+             data-name="GOG Signature Ring" 
+             data-price="TBD" 
+             data-desc="The GOG Signature Ring is a sign of commitment to a better future for our next generations." 
+             data-images="/gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png | /gog_products/ring/pretty-ring-4--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-1--guardians-of-greatness (1).png |  /gog_products/ring/pretty-ring-3--guardians-of-greatness (1).png"
+             data-buy="#contactus">
+          <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" alt="Membership Ring" />
+          <div class="info">
+            <h4>Membership Ring</h4>
+            <div class="price">Contact Us - varies with market & material</div>
+          </div>
+        </div>
+
+ 
+
+
+
+
+
+
+        <!-- Add the rest of your Printful items here the same way -->
+        
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- MODAL CAROUSEL -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div class="carousel-container">
+        <img id="modalMainImage" src="" alt="Product" />
+        <button class="carousel-nav prev" id="carouselPrev">&#10094;</button>
+        <button class="carousel-nav next" id="carouselNext">&#10095;</button>
+      </div>
+      <div class="carousel-thumbs" id="carouselThumbs"></div>
+      <h2 id="modalTitle"></h2>
+      <p class="price" id="modalPrice" style="color:var(--gold);font-weight:700;font-size:1.2rem;"></p>
+      <p id="modalDesc" style="color:var(--muted);margin-top:.5rem;"></p>
+      <div style="margin-top:1rem;">
+        <a class="btn btn-primary" href="#" id="modalBuyBtn" target="_blank" rel="noopener">Buy / Support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAINING / TECH OPPORTUNITIES -->
+  <section id="training">
+    <div class="container">
+      <div class="section-head">
+        <h2>Membership Training & Tech Opportunities</h2>
+        <p>Each sovereignty area has a training track. Members can learn to deploy these systems in their own regions.</p>
+      </div>
+
+ 
+      <div class="grid-3">
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>🌾 Food Sovereignty</h3>
+          <p>Duckweed bioreactors, biofloc fish & shrimp farming, agroforestry. Hands‑on training available.</p>
+        </article>
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>🛡️ Defense Sovereignty</h3>
+          <p>Raptor’s Call network setup, mesh radios, radar/PIR sensors, community watch protocols.</p>
+        </article>
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>💰 Economic Sovereignty</h3>
+          <p>Alternate currency design, public social platform ownership, circulating Black dollars.</p>
+        </article>
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>⛽ Fuel Sovereignty</h3>
+          <p>Ethanol production from local crops, ICE conversion manuals, biogas systems.</p>
+        </article>
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>👨‍👩‍👧‍👦 Family & Culture</h3>
+          <p>Millennium Relationships curriculum, GOGPersonality app training, family restoration.</p>
+        </article>
+        <article class="card">
+          <div class="card_main_img_wrap">
+            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+          </div>
+          <h3>📚 Educational Sovereignty</h3>
+          <p>Curriculum design, literacy programs, technical manuals, and sovereignty library access.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- EBOOKS -->
+  <section id="ebooks">
+    <div class="container">
+      <div class="section-head">
+        <h2>Membership Ebooks, Manuals & Novels</h2>
+        <p>Your membership includes access to our sovereignty library. Individual titles are also available on Gumroad.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <h3>The Greatest Renaissance of the New Millennium</h3>
+          <p>The flagship book by Stephen Sutherland, MD. Blueprint for ending epidemic statistics.</p>
+          <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Get on Gumroad →</a>
+        </article>
+        <article class="card">
+          <h3>Raptor’s Call Technical Manual</h3>
+          <p>How to build an off‑grid community defense network with LoRa, mesh, and solar.</p>
+          <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Get on Gumroad →</a>
+        </article>
+        <article class="card">
+          <h3>Duckweed & Biofloc Farming Guide</h3>
+          <p>Step‑by‑step food sovereignty for villages and urban farms.</p>
+          <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Get on Gumroad →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDER -->
+  <section id="founder">
+    <div class="container two-col">
+      <div>
+        <div class="section-head">
+          <h2>About the Founder</h2>
+          <p>Stephen Sutherland, MD — Howard University College of Medicine, Class of 2014.</p>
+        </div>
+
+        <p>
+          Before medical school, Dr. Sutherland worked as a high school and elementary school
+          teacher, a web developer, and a music school founder. After graduating in 2014,
+          during the nationwide Black Lives Matter protests, he discovered severe epidemic
+          statistics in Black communities that were never taught.
+        </p>
+        
+        <p style="margin-top:1rem;">
+          He had a choice: work in hospitals, earn good money, live comfortably, and leave the big problems to someone else; or dedicate his entire career to solving the socioeconomic crises destroying Black communities globally. He chose the latter.
+        </p>
+
+        <p style="margin-top:1rem;">
+          He found that most of these epidemics are relatively new. In the 1950s, Black Americans were not doing epidemic gang violence anywhere in the USA. Black communities were filled with the sound of happy children, not the sound of guns. The trend lines are getting worse in every category.
+        </p>
+
+        <p style="margin-top:1rem;">
+          He decided that solving these problems is the most important thing to do with his
+          career. To start, he researched and wrote the book <em>Guardians of Greatness:
+          The Greatest Renaissance of the New Millennium</em>. He has since run social
+          experiments and projects in Baltimore, Haiti, and Nigeria.
+        </p>
+
+        <blockquote style="border-left:3px solid var(--gold);padding-left:1rem;color:var(--muted);font-style:italic;margin:1rem 0;">
+          “I refuse to watch another generation of Black children grow up in trauma. I refuse to accept that imperialism and exploitation are inevitable. Someone has to build the future. Someone has to create the solutions. That someone is me.”
+        </blockquote>
+        
+        <p>
+           "I'm not here to get rich. I'm here to stop the dying."
+        </p>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Credentials & Experience</h3>
+          <ul>
+            <li>MD, Howard University College of Medicine, 2014</li>
+            <li>Former high school & elementary school teacher</li>
+            <li>Full‑stack developer & systems designer</li>
+            <li>Founder, Guardians of Greatness</li>
+            <li>Author, <em>Guardians of Greatness Presents the Greatest Renaissance of the New Millennium</em></li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+          <h3>Core Conclusion</h3>
+          <p>
+            Black leaders and Black initiatives have failed by the numbers. All the numbers
+            are the worst and peaking. Why? They had no specific goals for reducing these
+            numbers. We are changing that with public, measurable targets.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN / CONTACT -->
+  
+  <section id="join">
+    <div class="container">
+      <div  id="contactus" class="section-head">
+        <h2>Join Us</h2>
+        <p>
+          Fill out the form to join the mailing list. You will receive bi‑monthly progress
+          updates. Indicate any skills you want to contribute or projects you want to join.
+        </p>
+      </div>
+
+      <form name="guardians-contact" method="POST" data-netlify="true" action="/thank-you">
+        <input type="hidden" name="form-name" value="guardians-contact" />
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required style="width:100%;padding:.8rem;background:#0c0c0c;border:1px solid #333;color:var(--white);border-radius:8px;" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required style="width:100%;padding:.8rem;background:#0c0c0c;border:1px solid #333;color:var(--white);border-radius:8px;" />
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Tell us how you want to help, or ask a question." style="width:100%;min-height:120px;padding:.8rem;background:#0c0c0c;border:1px solid #333;color:var(--white);border-radius:8px;"></textarea>
+        </div>
+
+        <button class="btn btn-primary" type="submit" style="margin-top:1rem;">Join Guardians of Greatness</button>
+        <p style="font-size:.82rem;color:#888;margin-top:.5rem;">Prefer Text/Call? 240‑424‑0163.</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <div class="brand" style="margin-bottom:.6rem;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <span>Guardians of Greatness</span>
+      </div>
+      <p>
+        Sovereignty-focused leadership for the 6th Region of Africa.
+        Food, defense, economy, fuel, family, and education.
+      </p>
+    </div>
+
+    <div>
+      <h3 style="color:var(--gold-light);font-size:1rem;margin-bottom:.6rem;">Links</h3>
+      <div class="footer-links">
+        <a href="#apparel">Apparel</a>
+        <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Gumroad</a>
+        <a href="#join">Join</a>
+      </div>
+      <p style="margin-top:1rem;font-size:.8rem;">© <span id="year"></span> Guardians of Greatness.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- AUDIENCES DATA (Sovereignty Pillars) ----------
+  const AUDIENCES = {
+    food: {
+      label: '🌾 Food Sovereignty',
+      headline: 'Protein Sovereignty. No Imports required.',
+      pitch: 'Our 10-tier fully automated protein producer. 88x more protein per acre than soybeans.  Our protein sovereignty system produces complete protein in 48 hours without farmland, fertilizers, or foreign supply chains.',
+      image: '/explainerImages/visuals/food-sov.jpeg', // Replace with your image
+      caption: 'Protein Sovereignty:  Our 10-tier fully automated protein producer delivers 88x more protein per acre than soybeans. Stops malnutrition & Saves Protein import costs.',
+     // stat: 'The DRC has enough arable land to feed the world, yet millions face kwashiorkor.'
+    },
+    defense: {
+      label: '🛡️ Defense Sovereignty',
+      headline: 'Early Warning Saves Lives.',
+      pitch: 'Militia groups massacre villages with impunity because communities have no early warning. Our Raptor’s Call network uses off-grid mesh radios, radar, and encrypted communications to detect threats 3km away.',
+      image: '/explainerImages/800px-strange-fruit-hanging.png',
+      caption: 'Defense Sovereignty: Our Raptors Call system ensure our people are never ambushed again.',
+     // stat: 'Over 6,000 killed in Benue and Plateau in just two years. All preventable.'
+    },
+    economic: {
+      label: '💰 Economic Sovereignty',
+      headline: 'We Do Not Need Foreign Currency to Survive.',
+      pitch: 'We should not require foreign currency to exchange resources in countries blessed with abundance. We have solutions.',
+      image: '/explainerImages/visuals//time-currency--re.png',
+      caption: 'Economic Sovereignty: Our Time-based currency system & other strategies creates economic activity without dependency on foreign economic control.',
+     // stat: 'Only 2% of Black discretionary spending currently circulates within Black-owned businesses.'
+    },
+    fuel: {
+      label: '⛽ Fuel Sovereignty',
+      headline: 'End the Reliance on Foreign Oil.',
+      pitch: 'We can end the reliance on foreign oil imports by using home-grown ethanol and converting ICE cars to run on it. Ethanol is abundantly created from our duckweed system and can grow freely to create fuel and food sovereignty.',
+      image: '/explainerImages/visuals/Gemini_Generated_Image_xnoiqaxnoiqaxnoi.png',
+      caption: 'Fuel Sovereignty: Our locally grown duckweed system is converted to ethanol. Ethanol fuels converted vehicles and generators.',
+    //  stat: 'Foreign fuel imports drain billions in forex annually. We have the solution growing locally.'
+    },
+    family: {
+      label: '👨‍👩‍👧‍👦 Family & Culture',
+      headline: 'Ending Generational Trauma.',
+      pitch: 'Neo-colonization and systemic trauma have destroyed the Black family structure. In the 1950s, 95% of Black families were two-parent homes. Today, it is 65% single-parent. Our Millennium Relationship system restores the family unit.',
+      image: '/explainerImages/visuals/Millennium Family.png',
+      caption: 'Family & Culture Sovereignty: A system that prevents imposed culture from damaging or families & relationships.',
+    //  stat: 'Black child suicide rates are rising while all other groups drop. Family restoration is the cure.'
+    },
+    education: {
+      label: '📚 Education Sovereignty',
+      headline: 'Educating Our Own Citizens.',
+      pitch: 'We should not require foreign-controlled currency to educate our community completely. 20+ million Nigerian children are out of school, making them prime targets for terrorist recruitment. We use time-based currency to guarantee education without cash.',
+      image: '/explainerImages/visuals/time-currency--re.png',
+      caption: 'Education Sovereignty: Time-based currency guarantees education for all, regardless of cash availability.',
+    //  stat: '80% of militia fighters have only 1-2 years of education or are completely illiterate.'
+    }
+  };
+
+  // ---------- INTERACTIVE HERO LOGIC ----------
+  const chipContainer = document.getElementById('chip-container');
+  const heroImg = document.getElementById('hero-img');
+  const heroCaption = document.getElementById('hero-caption');
+  const heroHeadline = document.getElementById('hero-headline');
+  const heroPitch = document.getElementById('hero-pitch');
+  //const heroStat = document.getElementById('hero-stat');
+
+  // 1. Generate Chips dynamically
+  Object.keys(AUDIENCES).forEach((key, index) => {
+    const data = AUDIENCES[key];
+    const btn = document.createElement('button');
+    btn.className = `chip ${index === 0 ? 'active' : ''}`; // Set first as active
+    btn.textContent = data.label;
+    btn.setAttribute('data-audience', key);
+    btn.setAttribute('aria-pressed', index === 0 ? 'true' : 'false');
+    
+    btn.addEventListener('click', () => handleShowHeroImgCategory(key, btn));
+    chipContainer.appendChild(btn);
+  });
+
+  // 2. Handler function
+  const handleShowHeroImgCategory = (key, activeBtn) => {
+    const data = AUDIENCES[key];
+    
+    // Update Image with fade effect
+    heroImg.style.opacity = 0;
+    setTimeout(() => {
+      heroImg.src = data.image;
+      heroImg.alt = data.headline;
+      heroImg.style.opacity = 1;
+    }, 150);
+
+    // Update Text
+    heroCaption.textContent = data.caption;
+    heroHeadline.textContent = data.headline;
+    heroPitch.textContent = data.pitch;
+   // heroStat.textContent = `⚠ ${data.stat}`;
+
+    // Update Active Button State
+    document.querySelectorAll('.chip').forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+    });
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-pressed', 'true');
+  };
+
+  // Initialize with the first item's data on load
+  const firstBtn = chipContainer.querySelector('.chip');
+  if (firstBtn) {
+    const firstKey = firstBtn.getAttribute('data-audience');
+    // Trigger without animation delay for initial load
+    const data = AUDIENCES[firstKey];
+    heroImg.src = data.image;
+    heroCaption.textContent = data.caption;
+    heroHeadline.textContent = data.headline;
+    heroPitch.textContent = data.pitch;
+   // heroStat.textContent = `⚠ ${data.stat}`;
+  }
+
+  // ---------- OTHER UI LOGIC ----------
+  // Mobile nav
+  const menuBtn = document.getElementById('menuBtn');
+  const navLinks = document.getElementById('navLinks');
+  menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- PRODUCT MODAL CAROUSEL ----------
+  const modal = document.getElementById('productModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalPrice = document.getElementById('modalPrice');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalMainImage = document.getElementById('modalMainImage');
+  const carouselThumbs = document.getElementById('carouselThumbs');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  const buyBtn = document.getElementById('modalBuyBtn');
+
+  let currentImages = [];
+  let currentIndex = 0;
+
+  function openModal(card) {
+    const name = card.dataset.name;
+    const price = card.dataset.price;
+    const desc = card.dataset.desc;
+    const images = card.dataset.images.split('|');
+    const buyLink = card.dataset.buy || '#join';
+
+    modalTitle.textContent = name;
+    modalPrice.textContent = price;
+    modalDesc.textContent = desc;
+    currentImages = images;
+    currentIndex = 0;
+    updateModalImage();
+    buildThumbs();
+
+    buyBtn.href = buyLink;
+
+    modal.classList.add('active');
+  }
+
+  function updateModalImage() {
+    modalMainImage.src = currentImages[currentIndex];
+    const thumbs = carouselThumbs.querySelectorAll('img');
+    thumbs.forEach((img, idx) => {
+      img.classList.toggle('active', idx === currentIndex);
+    });
+  }
+
+  function buildThumbs() {
+    carouselThumbs.innerHTML = '';
+    currentImages.forEach((src, idx) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.addEventListener('click', () => {
+        currentIndex = idx;
+        updateModalImage();
+      });
+      carouselThumbs.appendChild(img);
+    });
+  }
+
+  prevBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+    updateModalImage();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    updateModalImage();
+  });
+
+  modalClose.addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+  });
+</script>
+
+</body>
+</html>

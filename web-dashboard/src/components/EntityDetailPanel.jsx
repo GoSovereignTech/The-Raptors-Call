@@ -2,7 +2,7 @@
 // Universal entity detail panel — friends, unknowns, enemies.
 // Supports category switching, cycling, pictures, alarm status.
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {
   ChevronLeft, ChevronRight, Bell, BellOff, MapPin,
   Crosshair, CheckCircle2, XCircle, AlertTriangle, Users
@@ -24,7 +24,7 @@ function classifyEntity(entity) {
   return 'unknown';
 }
 
-export function EntityDetailPanel({
+function EntityDetailPanel({
   entity,
   allEntities = [],
   activeCategory = 'friend',
@@ -268,3 +268,5 @@ export function EntityDetailPanel({
     </div>
   );
 }
+
+export const MemoizedEntityDetailPanel = memo(EntityDetailPanel);

@@ -60,7 +60,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,mp3}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,mp3,wasm}'],
+        additionalManifestEntries: [
+          { url: '/sqlite3.wasm', revision: null },
+        ],
         runtimeCaching: [
         {
           urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,

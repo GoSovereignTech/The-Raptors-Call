@@ -4,13 +4,24 @@
   publish = "dist"
   functions = "netlify/functions"
 
-# Redirect for TTS API
+# TTS API
 [[redirects]]
   from = "/api/tts"
   to = "/.netlify/functions/tts"
   status = 200
 
-# Catch-all redirect for React Router (SPA)
+# Legal pages — pretty URLs rewrite to the static .html files
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from = "/data-deletion"
+  to = "/data-deletion.html"
+  status = 200
+
+# Catch-all for SPA — MUST be last; first matching rule wins
 [[redirects]]
   from = "/*"
   to = "/index.html"

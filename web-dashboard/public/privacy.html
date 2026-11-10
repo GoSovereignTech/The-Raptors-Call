@@ -5,42 +5,453 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Privacy Policy — The Raptor's Call</title>
 <style>
-  body { background: #0a0e1c; color: #cbd5e1; font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
-  h1 { color: #f8fafc; font-size: 22px; }
-  h2 { color: #22d3ee; font-size: 15px; margin-top: 32px; text-transform: uppercase; letter-spacing: 0.15em; }
-  a { color: #22d3ee; }
-  code { background: #111834; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-  .updated { color: #64748b; font-size: 12px; }
+  :root {
+    --bg: #0a0e1c;
+    --bg2: #111834;
+    --panel: #0f1528;
+    --text: #cbd5e1;
+    --heading: #f8fafc;
+    --accent: #22d3ee;
+    --muted: #64748b;
+    --line: #1e293b;
+    --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    line-height: 1.65;
+    font-size: 15px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 12.5px; }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    max-width: 1080px;
+    margin: 0 auto;
+    gap: 0;
+  }
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* Sidebar nav */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 40px 16px 40px 0;
+    border-right: 1px solid var(--line);
+  }
+  @media (max-width: 820px) {
+    nav.toc {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 0;
+    }
+  }
+  nav.toc h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    margin: 0 0 12px 12px;
+    font-weight: 600;
+  }
+  nav.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+  }
+  nav.toc ol li { margin: 0; }
+  nav.toc ol a {
+    display: block;
+    padding: 6px 12px;
+    color: var(--text);
+    border-left: 2px solid transparent;
+    opacity: 0.8;
+    transition: opacity 0.15s, border-color 0.15s, background 0.15s;
+  }
+  nav.toc ol a:hover {
+    opacity: 1;
+    text-decoration: none;
+    background: var(--panel);
+  }
+  nav.toc ol a.active {
+    opacity: 1;
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--panel);
+  }
+
+  /* Main content */
+  main {
+    padding: 40px 24px 80px 32px;
+    min-width: 0;
+  }
+  @media (max-width: 820px) {
+    main { padding: 24px 20px 60px; }
+  }
+  h1 {
+    color: var(--heading);
+    font-size: 24px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .updated { color: var(--muted); font-size: 12.5px; margin: 0 0 28px; }
+  h2 {
+    color: var(--accent);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin: 40px 0 12px;
+    padding-top: 8px;
+    scroll-margin-top: 20px;
+    font-weight: 600;
+  }
+  h3 {
+    color: var(--heading);
+    font-size: 15px;
+    margin: 22px 0 8px;
+    scroll-margin-top: 20px;
+    font-weight: 600;
+  }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  .callout {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px;
+    border-radius: 6px;
+    margin: 14px 0 18px;
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout strong { color: var(--heading); }
+
+  .qa { margin: 8px 0 16px; }
+  .qa dt {
+    color: var(--heading);
+    font-weight: 600;
+    margin-top: 14px;
+    font-size: 14.5px;
+  }
+  .qa dd {
+    margin: 4px 0 0 0;
+    padding-left: 0;
+  }
+
+  .pill {
+    display: inline-block;
+    background: var(--bg2);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer a { color: var(--accent); }
 </style>
 </head>
 <body>
-  <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: 2026</p>
+<div class="layout">
 
-  <h2>What we collect</h2>
-  <p>When you grant precise location, your GPS coordinates are shared with vetted members of your community on a peer-to-peer mesh network. We do not store these coordinates on any central server.</p>
+  <!-- ─────────────  LEFT NAV  ───────────── -->
+  <nav class="toc" aria-label="Table of contents">
+    <h2>Privacy Policy</h2>
+    <ol>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#collect">What we collect</a></li>
+      <li><a href="#visibility">Who sees your location</a></li>
+      <li><a href="#identity">Your identity</a></li>
+      <li><a href="#storage">Where data lives</a></li>
+      <li><a href="#vetting">Vetting disclosures</a></li>
+      <li><a href="#legal-basis">Legal basis</a></li>
+      <li><a href="#third-parties">Third parties</a></li>
+      <li><a href="#retention">Retention</a></li>
+      <li><a href="#rights">Your rights</a></li>
+      <li><a href="#age">Age requirement</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#changes">Changes</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+    <h2 style="margin-top:24px;">Related</h2>
+    <ol>
+      <li><a href="/data-deletion.html">Data Deletion Policy →</a></li>
+    </ol>
+  </nav>
 
-  <h2>Who can see your location</h2>
-  <p>Only members who have completed in-person vetting and a background check. Known abusers are refused access. All visibility is reciprocal — if you can see someone, they can see you.</p>
+  <!-- ─────────────  MAIN CONTENT  ───────────── -->
+  <main>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 2026 · Applies to The Raptor's Call web app, mesh network, and community vetting process.</p>
 
-  <h2>Your identity</h2>
-  <p>Your map presence is an anonymous ID, not your name. Nobody knows who is who except by your own choice to reveal.</p>
+    <!-- ─────────── 1. SUMMARY ─────────── -->
+    <h2 id="summary">1. Summary</h2>
+    <p>This policy explains what we collect, why we collect it, who can see it, how long we keep it, and how you can delete it. Plain-language highlights:</p>
+    <ul>
+      <li><strong>Location data</strong> is shared peer-to-peer over a mesh network. It is <em>not</em> stored on a central server.</li>
+      <li><strong>Only vetted members</strong> can see your map presence. All visibility is reciprocal.</li>
+      <li><strong>Your identity on the map</strong> is an anonymous ID. Nobody knows who you are unless you choose to reveal it.</li>
+      <li><strong>Vetting records</strong> (interview notes, collateral references, background-check status) <em>are</em> stored on a secured server — never on the mesh — and only reviewers can access them.</li>
+      <li><strong>We do not sell, share, or transmit</strong> your data to advertisers, analytics providers, or any third party for marketing.</li>
+      <li><strong>You can delete your data.</strong> See the <a href="/data-deletion.html">Data Deletion Policy</a> for exactly what is removed, what is retained, and how to submit a request.</li>
+    </ul>
 
-  <h2>Where your data lives</h2>
-  <p>All operational data stays on your device (local SQLite) and inside the mesh network. No central server, no analytics, no advertising profiles.</p>
+    <!-- ─────────── 2. SCOPE ─────────── -->
+    <h2 id="scope">2. Scope</h2>
+    <p>This policy applies to:</p>
+    <ul>
+      <li>The <strong>Raptor's Call web app</strong> and any future native app built from the same codebase.</li>
+      <li>The <strong>mesh network</strong> (LoRa / Meshtastic devices, blind-relay nodes, and mesh chat).</li>
+      <li>The <strong>community vetting process</strong> (intake forms, behavioural interviews, collateral references, background checks, incident logs).</li>
+    </ul>
+    <p>It does <strong>not</strong> apply to third-party websites or services you may reach through links in the app.</p>
 
-  <h2>Third parties</h2>
-  <p>We do not sell, share, or transmit your data to any third party. There are no tracking pixels, no ad networks, no analytics services.</p>
+    <!-- ─────────── 3. WHAT WE COLLECT ─────────── -->
+    <h2 id="collect">3. What we collect</h2>
 
-  <h2>Age requirement</h2>
-  <p>You must be 13 years or older to use this service. Users under 18 require parental consent.</p>
+    <h3>3.1 Location data (operational)</h3>
+    <p>When you grant precise-location permission, your GPS coordinates are broadcast to vetted members of your community over the mesh. Coordinates are used to place you on the shared map and to detect proximity to alarms and teammates. They are <strong>not</strong> uploaded to a central server.</p>
 
-  <h2>Your rights</h2>
-  <p>You can clear your location data at any time by clearing your browser storage. There is no account to delete.</p>
+    <h3>3.2 Vetting and membership data (server-side)</h3>
+    <p>To become a vetted member, you provide the following. This is the only category of data stored on our secured server.</p>
+    <ul>
+      <li><strong>Identity and contact details</strong>: full legal name, address, phone, emergency contact, time in the area.</li>
+      <li><strong>Collateral references</strong>: 2–3 independent contacts and their answers to behavioural questions about you.</li>
+      <li><strong>Interview notes</strong>: your answers to structured behavioural questions, recorded by the interviewer.</li>
+      <li><strong>Reviewer decision record</strong>: the reviewer's outcome, reason category, and (if applicable) severity of any concern.</li>
+      <li><strong>Background-check status</strong>: pass/flag status and high-level category only. The underlying consumer report is held by the screening agency, not by us.</li>
+      <li><strong>Incident log</strong>: any incident reports filed about you or by you, with timestamps and severity.</li>
+    </ul>
 
-  <h2>Contact</h2>
-  <p>Questions: <a href="mailto:DrSutherlandMD@proton.me">DrSutherlandMD@proton.me</a></p>
+    <h3>3.3 Compatibility profile (voluntary, server-side, separate from vetting)</h3>
+    <p>You may optionally complete a compatibility profile used <strong>only to match you with compatible travel partners</strong>. This data is <strong>never</strong> used in clearance decisions and is stored in a separate table from your vetting record. It includes:</p>
+    <ul>
+      <li>Big Five self-assessment (for team balance)</li>
+      <li>Attachment style (to anticipate stress response during travel)</li>
+      <li>Communication style preferences</li>
+      <li>Hobbies, interests, goals, and planned activities</li>
+      <li>Self-reported travel routines (walking, driving, studying, work travel)</li>
+    </ul>
+    <p>You can decline the compatibility profile and still be vetted. You will simply receive less precise matching suggestions.</p>
 
-  <p style="margin-top: 40px;"><a href="/">← Back to app</a></p>
+    <h3>3.4 Operational telemetry</h3>
+    <p>Your device may collect transient operational data — mesh packet counters, node health, battery level, and similar — to keep the network stable. This data stays on your device and inside the mesh and is not sent to a central server.</p>
+
+    <!-- ─────────── 4. VISIBILITY ─────────── -->
+    <h2 id="visibility">4. Who sees your location</h2>
+    <p>Only members who have completed vetting — including a behavioural interview, independent collateral checks, and a background check — can see your map presence.</p>
+    <p><strong>Visibility is reciprocal.</strong> If you can see another member on the map, that member can see you. There is no "invisible observer" role.</p>
+    <p>Members who are suspended, not cleared, or under active investigation are <strong>removed from the mesh routing tables</strong> and cannot see your location. See <a href="#vetting">Section 7</a> for how removal works.</p>
+
+    <!-- ─────────── 5. IDENTITY ─────────── -->
+    <h2 id="identity">5. Your identity on the map</h2>
+    <p>Your map presence is an <strong>anonymous mesh node ID</strong> (derived from your hardware, not from your name). Other members see you as "F: 0.8" or a node ID, not as "Jane Doe."</p>
+    <p>If you choose to set a nickname, that nickname is visible to other members. You can change or clear it at any time in Settings.</p>
+    <p><strong>We never attach your legal name, address, phone, or email to your mesh node ID.</strong> The link between your identity and your mesh presence exists only in the server-side vetting record, which only reviewers can access.</p>
+
+    <!-- ─────────── 6. STORAGE ─────────── -->
+    <h2 id="storage">6. Where your data lives</h2>
+
+    <h3>6.1 On your device</h3>
+    <p>Location history, saved settings, chat logs, and your cached map tiles live in your browser's local storage and IndexedDB. They never leave your device unless you explicitly export them or share them through the app.</p>
+
+    <h3>6.2 On the mesh</h3>
+    <p>Real-time location broadcasts, alarms, and chat messages travel through the mesh as encrypted packets. Mesh nodes that do not hold the channel's key repeat the packets as <strong>blind relays</strong> — they cannot read them. No mesh node stores your data persistently.</p>
+
+    <h3>6.3 On our server (vetting records only)</h3>
+    <p>Vetting records are stored on a secured server with database-level row-level security. Only authenticated reviewers can read them. The rubric, scoring cutoffs, and decision logic live <strong>exclusively on the server</strong> and are never sent to the client — web or native app.</p>
+
+    <!-- ─────────── 7. VETTING DISCLOSURES ─────────── -->
+    <h2 id="vetting">7. Vetting disclosures</h2>
+    <p>Because vetting involves reviewing information about you, we disclose the following. If you have a question not answered here, contact us at <a href="mailto:DrSutherlandMD@proton.me">DrSutherlandMD@proton.me</a>.</p>
+
+    <h3>7.1 What vetting is</h3>
+    <p>Vetting is a structured process to reduce the risk of predatory, manipulative, or violent behaviour entering the community. It has four components:</p>
+    <ol>
+      <li><strong>A structured behavioural interview</strong> — consistent questions about how you handle boundaries, conflict, responsibility, and vulnerable people.</li>
+      <li><strong>Independent collateral references</strong> — 2–3 contacts of your choosing, asked the same behavioural questions about you.</li>
+      <li><strong>A background check</strong> — run only after you sign a separate written consent, with a disclosure that complies with the Fair Credit Reporting Act (FCRA) for volunteers.</li>
+      <li><strong>Ongoing incident logging</strong> — after you join, any member can file an incident report. Severity determines whether you are asked to review, suspended, or removed.</li>
+    </ol>
+
+    <h3>7.2 What vetting is not</h3>
+    <ul>
+      <li><strong>It is not a mental-health assessment.</strong> We do not diagnose, treat, or screen for mental-health conditions. Personality and mood inventories are not part of the clearance decision.</li>
+      <li><strong>It is not a guarantee of safety.</strong> No screening process can guarantee that a member will never cause harm. The primary protective value comes from group presence, clear norms, and ongoing accountability — not from predicting behaviour at intake.</li>
+      <li><strong>It is not a substitute for law enforcement.</strong> If you are in immediate danger, call 911. Vetting reduces risk; it does not respond to emergencies.</li>
+      <li><strong>It is not a criminal record check for employment purposes.</strong> We are a volunteer community. Background checks are for volunteer screening only, under FCRA volunteer provisions.</li>
+    </ul>
+
+    <h3>7.3 What we look at</h3>
+    <p>Our reviewers assess the following categories, based on <em>behavioural evidence</em> you and your references provide — not on personality scores:</p>
+    <ul>
+      <li>How you respond when someone sets a boundary or tells you "no."</li>
+      <li>How you describe your own role in past conflicts (accountability vs. blame).</li>
+      <li>How you speak about vulnerable people.</li>
+      <li>How you describe handling anger and de-escalation.</li>
+      <li>Whether your answers are specific, consistent, and corroborated by your references.</li>
+    </ul>
+
+    <h3>7.4 Why the rubric and questions are not published</h3>
+    <div class="callout warn">
+      <strong>Why this section is short on specifics.</strong> Publishing the exact interview questions or the scoring thresholds would let a bad actor rehearse answers and defeat the purpose of the interview. We therefore publish the <em>categories</em> (above) but not the <em>anchors</em> or <em>cutoffs</em>. This is a deliberate security decision, not a lack of transparency. The rubric is documented internally and applied consistently by trained reviewers.
+    </div>
+
+    <h3>7.5 Appeals</h3>
+    <p>If you are not cleared, you may request a review by a second reviewer who did not see your original file. You may submit any additional references or context you believe was overlooked. The appeal outcome is final for the current cycle, but you may re-apply after 90 days.</p>
+
+    <h3>7.6 Ongoing accountability</h3>
+    <p>Clearance is not permanent. Every member has an incident log that any member can contribute to. Repeated low-level concerns trigger a review. A single credible serious concern triggers immediate suspension pending investigation. <strong>This is our most important safeguard</strong> — the one that does not depend on getting intake right the first time.</p>
+
+    <h3>7.7 Questions you may have</h3>
+    <dl class="qa">
+      <dt>Will my references know what I said in my interview?</dt>
+      <dd>No. References are asked about you; they are not shown your answers. The reviewer compares the two sets of answers for consistency.</dd>
+
+      <dt>Can I see my own vetting file?</dt>
+      <dd>Yes. You may request a copy of your vetting record at any time. See the <a href="/data-deletion.html">Data Deletion Policy</a> for how to submit an access request.</dd>
+
+      <dt>Will a "flagged" background check automatically disqualify me?</dt>
+      <dd>No. A background check is one input among several. You will receive a pre-adverse notice with a copy of the report and a reasonable waiting period to respond before any decision is finalized.</dd>
+
+      <dt>Can I decline the compatibility profile and still be vetted?</dt>
+      <dd>Yes. The compatibility profile is voluntary and is never used in clearance decisions.</dd>
+
+      <dt>What happens to my data if I am not cleared?</dt>
+      <dd>Your vetting record is retained for the period required to demonstrate FCRA compliance and to support any appeal. After that, it is deleted. See the <a href="/data-deletion.html">Data Deletion Policy</a>.</dd>
+    </dl>
+
+    <!-- ─────────── 8. LEGAL BASIS ─────────── -->
+    <h2 id="legal-basis">8. Legal basis and consent</h2>
+    <p>We collect and process your data on the following bases:</p>
+    <ul>
+      <li><strong>Consent</strong> — for the compatibility profile, for background checks, and for any optional features. You may withdraw consent at any time.</li>
+      <li><strong>Legitimate interest</strong> — for safety vetting, incident logging, and network security. Vetting protects the community, and we have a legitimate interest in reducing the risk of harm.</li>
+      <li><strong>Legal obligation</strong> — for FCRA-required disclosures and adverse action notices, and for any law-enforcement requests we are legally required to comply with.</li>
+    </ul>
+    <p>If you are in the EU, UK, or another jurisdiction with GDPR-style protections, you have additional rights described in <a href="#rights">Section 11</a>.</p>
+
+    <!-- ─────────── 9. THIRD PARTIES ─────────── -->
+    <h2 id="third-parties">9. Third parties</h2>
+    <p>We do not sell, share, or transmit your data to any third party for marketing or analytics. The limited third parties we use are:</p>
+    <ul>
+      <li><strong>Background-check provider</strong> — receives your name, address, and consent, and returns pass/flag status. The underlying report is held by the provider, not by us.</li>
+      <li><strong>Map tile provider</strong> — receives your approximate map view (not your precise location) when tiles are fetched. Tiles are cached on your device to reduce repeat requests.</li>
+      <li><strong>Hosting provider</strong> — stores vetting records under a data-processing agreement with row-level security enforced.</li>
+    </ul>
+    <p>We do not use tracking pixels, ad networks, or analytics services.</p>
+
+    <!-- ─────────── 10. RETENTION ─────────── -->
+    <h2 id="retention">10. Data retention</h2>
+    <ul>
+      <li><strong>Active vetting records</strong>: retained while you are an active member.</li>
+      <li><strong>Inactive members</strong>: retained for 12 months after your last active participation, then deleted or anonymized.</li>
+      <li><strong>Not-cleared applicants</strong>: retained for the period required to demonstrate FCRA compliance and support any appeal (typically up to 24 months), then deleted.</li>
+      <li><strong>Incident reports</strong>: retained for 3 years after the incident, or longer if required by law or an active investigation.</li>
+      <li><strong>FCRA adverse action notices</strong>: retained for the period required to demonstrate compliance (typically up to 5 years).</li>
+    </ul>
+    <p>See the <a href="/data-deletion.html">Data Deletion Policy</a> for what is deleted, what is anonymized, and what must be retained.</p>
+
+    <!-- ─────────── 11. RIGHTS ─────────── -->
+    <h2 id="rights">11. Your rights</h2>
+    <p>You have the following rights over your data:</p>
+    <ul>
+      <li><strong>Access</strong> — request a copy of your vetting record and any other data we hold about you.</li>
+      <li><strong>Correction</strong> — request correction of inaccurate data.</li>
+      <li><strong>Deletion</strong> — request deletion, subject to the retention exceptions in <a href="/data-deletion.html">the Data Deletion Policy</a>.</li>
+      <li><strong>Withdraw consent</strong> — for the compatibility profile and any optional features, at any time.</li>
+      <li><strong>Appeal</strong> — appeal a not-cleared decision to a second reviewer (see <a href="#vetting">Section 7.5</a>).</li>
+      <li><strong>Portability</strong> — request your data in a machine-readable format.</li>
+      <li><strong>Complaint</strong> — lodge a complaint with your local data-protection authority (EU/UK) or state attorney general (US).</li>
+    </ul>
+    <p>To exercise any of these rights, email <a href="mailto:DrSutherlandMD@proton.me">DrSutherlandMD@proton.me</a> with the subject line "Data Request."</p>
+
+    <!-- ─────────── 12. AGE ─────────── -->
+    <h2 id="age">12. Age requirement</h2>
+    <p>You must be 13 years or older to use this service. Members under 18 must have verifiable parental consent on file before participating in vetting, group matching, or any in-person activity. We do not knowingly collect data from children under 13.</p>
+
+    <!-- ─────────── 13. SECURITY ─────────── -->
+    <h2 id="security">13. Security</h2>
+    <p>We use the following safeguards:</p>
+    <ul>
+      <li>Encrypted mesh channels (AES-256 pre-shared keys for private squad communication).</li>
+      <li>Database-level row-level security (RLS) on all server-side vetting records.</li>
+      <li>The rubric, scoring cutoffs, and decision logic are stored exclusively on the server and never shipped to the client.</li>
+      <li>Blind-relay mesh topology — nodes without the channel key cannot read packets they repeat.</li>
+      <li>Replay-attack protection on all mesh-triggered commands.</li>
+    </ul>
+    <p>No system is perfectly secure. If we discover a breach affecting your data, we will notify affected members within 72 hours, describing what was affected, what we are doing, and what you should do.</p>
+
+    <!-- ─────────── 14. CHANGES ─────────── -->
+    <h2 id="changes">14. Changes to this policy</h2>
+    <p>We may update this policy as the service evolves. Material changes will be announced in the app and by email to active members at least 14 days before taking effect. Continued use after the effective date constitutes acceptance.</p>
+
+    <!-- ─────────── 15. CONTACT ─────────── -->
+    <h2 id="contact">15. Contact</h2>
+    <p>Questions, requests, or complaints:</p>
+    <p><strong>Email:</strong> <a href="mailto:DrSutherlandMD@proton.me">DrSutherlandMD@proton.me</a></p>
+    <p>For data deletion specifically, see the <a href="/data-deletion.html">Data Deletion Policy</a>.</p>
+
+    <div class="footer">
+      <a href="/">← Back to app</a> · <a href="/data-deletion.html">Data Deletion Policy</a>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Scroll-spy for the left nav
+  (function () {
+    const links = document.querySelectorAll('nav.toc a[href^="#"]');
+    const map = new Map();
+    links.forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) map.set(el, a);
+    });
+    const sections = Array.from(map.keys());
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const a = map.get(entry.target);
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(s => observer.observe(s));
+  })();
+</script>
 </body>
 </html>

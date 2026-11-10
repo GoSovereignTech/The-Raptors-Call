@@ -18,9 +18,10 @@ import { RewindPanel } from '../../components/RewindPanel.jsx';
 import { DemoPilot } from '../../components/DemoPilot.jsx';
 import SplashPage from '../../components/SplashPage.jsx';
 import { FusionDetailPanel, FusionPacketMarker } from '../../components/FusionPacketOverlay.jsx';
-import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
 import { MeshHardwareNode } from '../../components/MeshHardwareNode';
-import { EntityDetailPanel } from '../../components/EntityDetailPanel.jsx';
+
+import { OffScreenIndicators } from '../../components/OffScreenIndicators.jsx';
+import { MemoizedEntityDetailPanel } from '../../components/EntityDetailPanel.jsx';
 // Add at the top of the file
 import { DeviceDetector } from '../../lib/deviceDetector';
 import { registerSimHandler, registerClearHandler, setSimBase } from '../../lib/simulation.js';
@@ -31,7 +32,7 @@ import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { useFunnelStatus, markFunnelStepDone } from '../../hooks/useFunnelStatus.js';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@maplibre/maplibre-gl-leaflet'; 
-import { PersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
+import { MemoizedPersonMarker, PersonGhost } from '../../components/PersonMarker.jsx';
 import { movementFromSpeed } from '../../lib/personIcons.js';
 
 import { enrichEntity, sortEntities, setProfileDb } from '../../lib/entityProfiles.js';
@@ -733,6 +734,9 @@ useEffect(() => {
 
   // -- send 
   // After your other hooks:
+    const currentLocRef = useRef({ lat: live.lat, lon: live.lon });
+    useEffect(() => { currentLocRef.current = { lat: live.lat, lon: live.lon }; }, [live.lat, live.lon]);
+
 
     const allEntities = useMemo(() => {
       const friends = activeNodes
@@ -749,8 +753,8 @@ useEffect(() => {
         _type: 'fusion',
         _packet: p,
       }));
-      return sortEntities([...friends, ...fusions], { lat: live.lat, lon: live.lon });
-    }, [activeNodes, fusionPackets, live.lat, live.lon]);
+      return sortEntities([...friends, ...fusions], currentLocRef.current);
+    }, [activeNodes, fusionPackets ]);
 
 const navigateCategory = (direction) => {
   const current = detailEntity;
@@ -1377,7 +1381,7 @@ useEffect(() => {
   {entitiesToRender
     .filter((e) => e._type === 'node' && !e.isInfrastructure)
     .map((node) => (
-      <PersonMarker
+      <MemoizedPersonMarker
         key={node.id}
         entity={node}
         isRewinding={isRewinding} // <-- CRITICAL: Tells the marker to snap, not animate
@@ -1488,7 +1492,7 @@ useEffect(() => {
       {/* Detail panel is OUTSIDE LiveMap — it's a floating panel, not a marker */}
       
       {detailEntity && (
-  <EntityDetailPanel
+  <MemoizedEntityDetailPanel
     entity={detailEntity}
     allEntities={allEntities}
     activeCategory={detailCategory}
