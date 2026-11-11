@@ -549,7 +549,8 @@ useEffect(() => {
           };
 
           // 2. Save to local SQLite (for offline sync)
-          saveReceiptLocally(receipt); 
+          // saveReceiptLocally(receipt); 
+          console.log('[SQLite Stub] Saved receipt locally:', receipt);
           
           // 3. Update UI (Give them the coins)
           setEarnedCoins(prev => prev + 30);
@@ -897,9 +898,8 @@ const openDetail = (entity) => {
 
       // ─── ALM: emergency alarm ───
       if (packet.typ === 'ALM') {
-        setAlarmStatus(packet.d.mode === 'SCR' ? 'SCREAMING' : 'SILENT');
-        if (packet.d.mode === 'SCR') playSiren();
-        return;
+        handleAlarmPacket(packet); // <--- ADD THIS LINE
+        return; // (Removed the old setAlarmStatus and playSiren lines since handleAlarmPacket does it for you)
       }
 
       // ─── HBT: heartbeat / GPS update ───
