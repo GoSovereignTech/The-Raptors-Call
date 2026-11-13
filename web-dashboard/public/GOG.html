@@ -112,6 +112,7 @@
       grid-template-columns: 1.2fr .8fr;
       gap: 2.5rem;
       align-items: center;
+      align-items: flex-start;
     }
 
     .eyebrow {
@@ -175,6 +176,7 @@
       border-radius: 0 8px 8px 0;
       margin-bottom: 1.5rem;
       min-height: 120px;
+      display: none;
     }
     
     .dynamic-hero-box h3 {
@@ -355,12 +357,14 @@
       <div class="hero-title">Guardians Of Sovereignty</div>
       <div class="hero-caption" id="hero-caption">Sovereignty means we own the systems that keep us alive.</div>
     </div>
-
+ 
     <div class="container hero-grid">
       <div>
+        <!--
         <span class="eyebrow">6th Region of Africa · 400 Million Diaspora</span>
         <h1>Guardians of <span>Greatness</span></h1>
-
+        -->
+        <h1>Our  <span> Services</span></h1>
         <!-- DYNAMIC HERO TEXT -->
         <div class="dynamic-hero-box" id="dynamic-hero-box">
           <h3 id="hero-headline">Select a Sovereignty Pillar</h3>
@@ -373,10 +377,6 @@
           <!-- Populated by JS -->
         </div>
 
-        <div class="btn-row">
-          <a class="btn btn-primary" href="#join">Become a Member</a>
-          <a class="btn btn-outline" href="#apparel">Shop Apparel</a>
-        </div>
       </div>
 
       <aside class="hero-card">
@@ -400,8 +400,7 @@
         <h2>What is Guardians of Greatness?</h2>
         <p>
           The Guardians of Greatness are committed to the sovereignty, protection and
-          development of formerly colonized communities globally — specifically the group
-          classified as the 6th Region of Africa: the diaspora who number 400 million in population.
+          development of neocolonized communities globally. We offer tech solutions to reach these goals.
         </p>
       </div>
 
@@ -433,13 +432,21 @@
         </article>
       </div>
 
-      <div class="callout">
+
+
+      <!-- div class="callout">
         <p>
           <strong>Global distribution:</strong> A partner in Africa has already recognized
           the beauty of our signature ring and apparel and wants to sell them in Nigeria
           and Ghana. This page is built to support that effort.
         </p>
-      </div>
+      </div -->
+
+
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#join">Become a Member</a>
+          <a class="btn btn-outline" href="#apparel">Shop Apparel</a>
+        </div>
     </div>
   </section>
 
@@ -460,7 +467,8 @@
    
 
      <!-- Example 1: GOG Unisex Bomber Jacket-->
-        <div class="product-card" 
+     <!--  
+     <div class="product-card" 
              data-name="GOG Unisex Bomber Jacket" 
              data-price="$70.50" 
              data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
@@ -472,10 +480,10 @@
             <div class="price">$70.50</div>
           </div>
         </div>
-        
+      -->
 
      <!-- Example 2: GOG Unisex Bomber Jacket-->
-        <div class="product-card" 
+      <!--   <div class="product-card" 
              data-name="GOG Unisex Bomber Jacket" 
              data-price="$70.50" 
              data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
@@ -487,6 +495,38 @@
             <div class="price">$70.50</div>
           </div>
         </div> 
+      -->
+
+
+        <!-- Example 5: Women's Rash Guard - Black -->
+        <div class="product-card" 
+             data-name="Women's Rash Guard - Black" 
+             data-price="$46.00" 
+             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
+             data-images="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb00ef.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb122b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb045b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89caf6d3.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cae941.png"
+             data-buy="https://gog.printful.me/product/womens-rash-guard">
+          <img src="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png" alt="Golden Men's Rash Guard" />
+          <div class="info">
+            <h4>Women's Rash Guard - Black</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
+
+        <!-- Example 6: Women's Rash Guard - White -->
+
+        
+        <div class="product-card" 
+             data-name="Women's Rash Guard - White" 
+             data-price="$46.00" 
+             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
+             data-images="/gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe264f90b.png | /gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe2650802.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe264f3f4.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png | /gog_products/81/all-over-print-womens-rash-guard-white-left-front-6aefbe2651934.png | /gog_products/81/all-over-print-womens-rash-guard-white-right-front-6aefbe2651cad.png"
+             data-buy="https://gog.printful.me/product/womens-fly-like-an-eagle-rash-guard">
+          <img src="/gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png" alt="Golden Men's Rash Guard" />
+          <div class="info">
+            <h4>Women's Rash Guard - White</h4>
+            <div class="price">$46.00</div>
+          </div>
+        </div>
 
 
        
@@ -525,38 +565,6 @@
 
        
 
-
-        <!-- Example 5: Women's Rash Guard - Black -->
-        <div class="product-card" 
-             data-name="Women's Rash Guard - Black" 
-             data-price="$46.00" 
-             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
-             data-images="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb00ef.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb122b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89cb045b.png | /gog_products/77/all-over-print-womens-rash-guard-white-back-6aefb89caf6d3.png | /gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cae941.png"
-             data-buy="https://gog.printful.me/product/womens-rash-guard">
-          <img src="/gog_products/77/all-over-print-womens-rash-guard-white-front-6aefb89cb0eca.png" alt="Golden Men's Rash Guard" />
-          <div class="info">
-            <h4>Women's Rash Guard - Black</h4>
-            <div class="price">$46.00</div>
-          </div>
-        </div>
-
-        <!-- Example 6: Women's Rash Guard - White -->
-
-        
-        <div class="product-card" 
-             data-name="Women's Rash Guard - White" 
-             data-price="$46.00" 
-             data-desc="78% polyester, 22% elastane. Slim-fitted with flat ergonomic seams. Fly Like An Eagle." 
-             data-images="/gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe264f90b.png | /gog_products/81/all-over-print-womens-rash-guard-white-back-6aefbe2650802.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe264f3f4.png | /gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png | /gog_products/81/all-over-print-womens-rash-guard-white-left-front-6aefbe2651934.png | /gog_products/81/all-over-print-womens-rash-guard-white-right-front-6aefbe2651cad.png"
-             data-buy="https://gog.printful.me/product/womens-fly-like-an-eagle-rash-guard">
-          <img src="/gog_products/81/all-over-print-womens-rash-guard-white-front-6aefbe2651261.png" alt="Golden Men's Rash Guard" />
-          <div class="info">
-            <h4>Women's Rash Guard - White</h4>
-            <div class="price">$46.00</div>
-          </div>
-        </div>
-
-
        
         <!-- Example 7: Golden Men's Rash Guard -->
         <div class="product-card" 
@@ -594,7 +602,7 @@
 
 
 
-        <div class="product-card" 
+        <!-- div class="product-card" 
              data-name="One-Piece Swimsuit" 
              data-price="$34.00" 
              data-desc="Add a little zing to your wardrobe with this vibrant All-Over Print Bomber Jacket." 
@@ -605,7 +613,7 @@
             <h4>One-Piece Swimsuit</h4>
             <div class="price">$34.00</div>
           </div>
-        </div>
+        </div -->
         
   
         
@@ -620,6 +628,9 @@
       </div>
     </div>
   </section>
+  <div class="callout">
+     <p> For more apparel, visit our online store at <a href="https://gog.printful.me/" target="_blank">https://gog.printful.me/</a></p>
+  </div>
 
 
 
@@ -712,6 +723,7 @@
 
 
 
+
   <!-- MODAL CAROUSEL -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
@@ -735,7 +747,7 @@
   <section id="training">
     <div class="container">
       <div class="section-head">
-        <h2>Membership Training & Tech Opportunities</h2>
+        <h2>Membership Training & Tech Transfer Opportunities</h2>
         <p>Each sovereignty area has a training track. Members can learn to deploy these systems in their own regions.</p>
       </div>
 
@@ -743,17 +755,17 @@
       <div class="grid-3">
         <article class="card">
           <div class="card_main_img_wrap">
-            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+            <img src="/explainerImages/visuals/food-sov.jpeg" class="card_main_img"/>
           </div>
           <h3>🌾 Food Sovereignty</h3>
           <p>Duckweed bioreactors, biofloc fish & shrimp farming, agroforestry. Hands‑on training available.</p>
         </article>
         <article class="card">
           <div class="card_main_img_wrap">
-            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+            <img src="/explainerImages/visuals/celebrate-1.jpeg" class="card_main_img"/>
           </div>
           <h3>🛡️ Defense Sovereignty</h3>
-          <p>Raptor’s Call network setup, mesh radios, radar/PIR sensors, community watch protocols.</p>
+          <p>Learn to protect your communities from 4th-gnerattion warfare (4FW). The Raptor’s Call network setup, mesh radios, radar/PIR sensors, community watch protocols.</p>
         </article>
         <article class="card">
           <div class="card_main_img_wrap">
@@ -764,29 +776,41 @@
         </article>
         <article class="card">
           <div class="card_main_img_wrap">
-            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+            <img src="/explainerImages/visuals/Gemini_Generated_Image_xnoiqaxnoiqaxnoi.png" class="card_main_img"/>
           </div>
           <h3>⛽ Fuel Sovereignty</h3>
           <p>Ethanol production from local crops, ICE conversion manuals, biogas systems.</p>
         </article>
         <article class="card">
           <div class="card_main_img_wrap">
-            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+            <img src="/explainerImages/COVER-Purple Sky Book Cover (15).png" class="card_main_img"/>
           </div>
-          <h3>👨‍👩‍👧‍👦 Family & Culture</h3>
-          <p>Millennium Relationships curriculum, GOGPersonality app training, family restoration.</p>
+          <h3>👨‍👩‍👧‍👦 Family & Culture Sovereignty</h3>
+          <p>Learn to protect your family culture from strife created by external policies - also known as 5th gneration warefare (5GW).</p>
         </article>
         <article class="card">
           <div class="card_main_img_wrap">
-            <img src="/gog_products/ring/pretty-ring-4--guardians-of-greatness.png" class="card_main_img"/>
+            <img src="/explainerImages/students-eth.jpg" class="card_main_img"/>
           </div>
           <h3>📚 Educational Sovereignty</h3>
           <p>Curriculum design, literacy programs, technical manuals, and sovereignty library access.</p>
         </article>
       </div>
     </div>
-  </section>
+  </section> 
 
+  <!-- 
+<div class="callout">
+
+  <div>
+    <table class="nOQsj">
+      <tbody><tr class="l2uqvb" style="" data-visible="1" data-sfc-cp="" jsaction="" jscontroller="zVAPJb#QvDBvf" data-sfc-root="c" jsuid="dsTyMb_67" data-ved="2ahUKEwiT7t2FpIOYAxUVMlkFHTyWMGgQw4oVegoIAggACAIIGRAC"><th class="BSFG4e" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="qmn2r#iLQbnd" data-sfc-root="c" jsuid="dsTyMb_68">Generation </th><th class="BSFG4e" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="qmn2r#iLQbnd" data-sfc-root="c" jsuid="dsTyMb_69">Primary Focus</th><th class="BSFG4e" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="qmn2r#iLQbnd" data-sfc-root="c" jsuid="dsTyMb_6a">Key Tactics &amp; Weapons</th><th class="BSFG4e" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="qmn2r#iLQbnd" data-sfc-root="c" jsuid="dsTyMb_6b">Target</th></tr><tr class="l2uqvb" style="" data-visible="1" data-sfc-cp="" jsaction="" jscontroller="zVAPJb#QvDBvf" data-sfc-root="c" jsuid="dsTyMb_6c" data-ved="2ahUKEwiT7t2FpIOYAxUVMlkFHTyWMGgQw4oVegoIAggACAIIGRAD"><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6d"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6e">4th Generation (4GW)</strong></td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6f"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6g">Asymmetric &amp; Insurgency Warfare</strong> </td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6h">Guerrilla tactics, terrorism, insurgency, and political/economic pressure. Blurs the line between soldiers and civilians.</td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6i">Enemy morale, culture, and political will to fight.</td></tr>
+        <tr class="l2uqvb" style="" data-visible="1" data-sfc-cp="" jsaction="" jscontroller="zVAPJb#QvDBvf" data-sfc-root="c" jsuid="dsTyMb_6j" data-ved="2ahUKEwiT7t2FpIOYAxUVMlkFHTyWMGgQw4oVegoIAggACAIIGRAE"><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6k"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6l">5th Generation (5GW)></strong></td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6m"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6n">Information &amp; Perception Warfare</strong></td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6o">Disinformation, social media manipulation, psychological operations, cyberattacks, and social engineering.</td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6p"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6q">Culture, identity, trust, and the civilian mind</strong>. Often invisible and non-violent. </td> </tr><tr class="l2uqvb" style="" data-visible="1" data-sfc-cp="" jsaction="" jscontroller="zVAPJb#QvDBvf" data-sfc-root="c" jsuid="dsTyMb_6r" data-ved="2ahUKEwiT7t2FpIOYAxUVMlkFHTyWMGgQw4oVegoIAggACAIIGRAF"><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6s"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6t">6th Generation (6GW)</strong></td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6u"><strong class="rQesXe MPyX" data-sfc-cp="" jsaction="" jscontroller="tP2kf#s32ZS" data-sfc-root="c" jsuid="dsTyMb_6v">Autonomous &amp; Systemic Warfare</strong> (Theoretical)</td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6w">AI-driven autonomous systems, robotics, space/cyber dominance, and systemic technological sabotage.</td><td class="Vk1lqb" style="" colspan="undefined" data-sfc-cp="" jsaction="" jscontroller="v76eI#SQTCXd" data-sfc-root="c" jsuid="dsTyMb_6x">Critical infrastructure, technical systems, and societal collapse via technological disruption.</td></tr></tbody></table>
+    
+  </div> 
+
+</div>
+-->
   <!-- EBOOKS -->
   <section id="ebooks">
     <div class="container">
@@ -815,20 +839,22 @@
     </div>
   </section>
 
+    <div class="callout">
+     <p> For our technology, manuals and educational novels, visit our online library at<a href="https://sparklesNovel.gumroad.com/" target="_blank">sparklesNovel.gumroad.com</a></p>
+    </div>
   <!-- FOUNDER -->
   <section id="founder">
     <div class="container two-col">
       <div>
         <div class="section-head">
           <h2>About the Founder</h2>
-          <p>Stephen Sutherland, MD — Howard University College of Medicine, Class of 2014.</p>
+          <p><strong>Stephen Sutherland, MD </strong> — Howard University College of Medicine, Class of 2014.</p>
         </div>
 
         <p>
-          Before medical school, Dr. Sutherland worked as a high school and elementary school
-          teacher, a web developer, and a music school founder. After graduating in 2014,
-          during the nationwide Black Lives Matter protests, he discovered severe epidemic
-          statistics in Black communities that were never taught.
+          Before medical school, Dr. Sutherland worked primarily as a corp-to corp web developer & musician.   After graduating from Howard University College of Medicine (2010 - 2014),
+          the Black Lives Matter raged on. He discovered severe epidemic
+          statistics in Black communities that were never taught and rarely dsicussed.
         </p>
         
         <p style="margin-top:1rem;">
@@ -836,7 +862,16 @@
         </p>
 
         <p style="margin-top:1rem;">
-          He found that most of these epidemics are relatively new. In the 1950s, Black Americans were not doing epidemic gang violence anywhere in the USA. Black communities were filled with the sound of happy children, not the sound of guns. The trend lines are getting worse in every category.
+          He found that most of these epidemics are relatively new. In the 1950s, Black Americans were not doing epidemic gang violence anywhere in the USA. 
+          In the 1950s, Black communities were filled with the sound of happy children, not the sound of guns. 
+          <br/><br/>
+          Most of all, trend lines of our statistics were 
+           getting worse in every category.
+           <br/>
+           Today, in the USA there are 120 categories of racial 
+           discrimination statistics. These problems are global.
+           As they continue, childhood trauma gets worse in every generation.
+            
         </p>
 
         <p style="margin-top:1rem;">
@@ -847,11 +882,15 @@
         </p>
 
         <blockquote style="border-left:3px solid var(--gold);padding-left:1rem;color:var(--muted);font-style:italic;margin:1rem 0;">
-          “I refuse to watch another generation of Black children grow up in trauma. I refuse to accept that imperialism and exploitation are inevitable. Someone has to build the future. Someone has to create the solutions. That someone is me.”
+          “I refuse to watch another generation of Black children grow up in trauma. I refuse to accept that imperialism and exploitation are inevitable. 
+          Someone has to build wor kout side the dominant system - and create a better future. 
+          The Guardians of Greatness was created to answer the call. Ultimaely Sovereignty is the Cur. 
+          Therefore, we assemble to globlly to present Sovereignty Solutions in key categories."
+           
         </blockquote>
         
         <p>
-           "I'm not here to get rich. I'm here to stop the dying."
+           "I'm not here to get rich. I'm here to stop the killings and exploitation - and deliver tech solutions to create a proud future."
         </p>
       </div>
 
@@ -885,9 +924,10 @@
     <div class="container">
       <div  id="contactus" class="section-head">
         <h2>Join Us</h2>
-        <p>
+        <p>Pick a Sovereignty Area to participate in.<br/><br/>
           Fill out the form to join the mailing list. You will receive bi‑monthly progress
-          updates. Indicate any skills you want to contribute or projects you want to join.
+          updates. <br/><br/>
+          Indicate any skills you want to contribute or develop.
         </p>
       </div>
 
@@ -985,7 +1025,7 @@
       label: '👨‍👩‍👧‍👦 Family & Culture',
       headline: 'Ending Generational Trauma.',
       pitch: 'Neo-colonization and systemic trauma have destroyed the Black family structure. In the 1950s, 95% of Black families were two-parent homes. Today, it is 65% single-parent. Our Millennium Relationship system restores the family unit.',
-      image: '/explainerImages/visuals/Millennium Family.png',
+      image: '/explainerImages/COVER-Purple Sky Book Cover (15).png',
       caption: 'Family & Culture Sovereignty: A system that prevents imposed culture from damaging or families & relationships.',
     //  stat: 'Black child suicide rates are rising while all other groups drop. Family restoration is the cure.'
     },
@@ -993,7 +1033,7 @@
       label: '📚 Education Sovereignty',
       headline: 'Educating Our Own Citizens.',
       pitch: 'We should not require foreign-controlled currency to educate our community completely. 20+ million Nigerian children are out of school, making them prime targets for terrorist recruitment. We use time-based currency to guarantee education without cash.',
-      image: '/explainerImages/visuals/time-currency--re.png',
+      image: '/explainerImages/students-eth.jpg',
       caption: 'Education Sovereignty: Time-based currency guarantees education for all, regardless of cash availability.',
     //  stat: '80% of militia fighters have only 1-2 years of education or are completely illiterate.'
     }

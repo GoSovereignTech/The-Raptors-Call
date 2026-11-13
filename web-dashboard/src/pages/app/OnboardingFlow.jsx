@@ -8,6 +8,7 @@ import {
 import { PointSampler } from '../../components/PointSampler.jsx';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { msg } from '../../lib/messageCenter.js'; 
 import { Crosshair, Bell } from 'lucide-react';
 import { Settings, MapPin, Compass, Radio, AlertTriangle, Loader2 } from 'lucide-react';
 import RaptorMark from '../../components/RaptorMark.jsx';
@@ -521,52 +522,64 @@ const handleAlarmPacket = (packet) => {
 
 // 3. The Bounty Checker Engine
 useEffect(() => {
-  // Only run if there are active bounties and we have GPS
+  // Only run if there are active unclaimed bounties and we have GPS
   if (activeBounties.length === 0 || !live.lat || !live.lon) return;
 
   const checkBounties = () => {
-    setActiveBounties(prev => {
-      return prev.map(bounty => {
-        // Has this bounty already been claimed or expired?
-        if (bounty.claimed || Date.now() > bounty.expiresAt) return bounty;
+    const bountiesToClaim = [];
 
-        // Calculate distance (Haversine formula or Leaflet's built-in distance)
-        const distance = L.latLng(live.lat, live.lon).distanceTo(
-          L.latLng(bounty.lat, bounty.lon)
-        );
+    // 1. Find all unclaimed bounties within range
+    activeBounties.forEach(bounty => {
+      if (bounty.claimed || Date.now() > bounty.expiresAt) return;
 
-        // 🎯 BOUNTY CLAIM CONDITION: Within 30 meters
-        if (distance <= 30) {
-          console.log(`[BOUNTY] Claimed! You are ${distance.toFixed(1)}m from ${bounty.victimNickname}`);
-          
-          // 1. Generate Cryptographic Receipt
-          const receipt = {
-            threat_id: bounty.id,
-            responder_guid: localStorage.getItem('raptor:user-guid'),
-            timestamp: Date.now(),
-            // Sign this locally so it can't be tampered with
-            signature: crypto.randomUUID(), // Replace with actual WebCrypto signature
-          };
+      const distance = L.latLng(live.lat, live.lon).distanceTo(
+        L.latLng(bounty.lat, bounty.lon)
+      );
 
-          // 2. Save to local SQLite (for offline sync)
-          // saveReceiptLocally(receipt); 
-          console.log('[SQLite Stub] Saved receipt locally:', receipt);
-          
-          // 3. Update UI (Give them the coins)
-          setEarnedCoins(prev => prev + 30);
-          msg.event("You arrived on scene. +30 Sparkle Coins secured.", { title: "BOUNTY CLAIMED" });
-
-          // 4. Mark as claimed so we don't trigger it again
-          return { ...bounty, claimed: true };
-        }
-
-        return bounty;
-      });
+      if (distance <= 30) {
+        bountiesToClaim.push(bounty);
+      }
     });
+
+    // 2. If nothing to claim, exit early
+    if (bountiesToClaim.length === 0) return;
+
+    // 3. Process claims safely (Side Effects)
+    bountiesToClaim.forEach(bounty => {
+      console.log(`[BOUNTY] Claimed! You are within range of ${bounty.victimNickname || 'Unknown'}`);
+      
+      // Generate Cryptographic Receipt
+      const receipt = {
+        threat_id: bounty.id,
+        responder_guid: localStorage.getItem('raptor:user-guid'),
+        timestamp: Date.now(),
+        signature: crypto.randomUUID(), // Replace with actual WebCrypto signature
+      };
+
+      // Save to local SQLite (Stub)
+      console.log('[SQLite Stub] Saved receipt locally:', receipt);
+      
+      // Update UI (Give them the coins)
+      setEarnedCoins(prev => prev + 30);
+      
+      // Broadcast the message
+      msg.event("You arrived on scene. +30 Sparkle Coins secured.", { title: "BOUNTY CLAIMED" });
+    });
+
+    // 4. Update state ONCE to mark them as claimed safely
+    setActiveBounties(prev => 
+      prev.map(b => 
+        bountiesToClaim.some(tc => tc.id === b.id) 
+          ? { ...b, claimed: true } 
+          : b
+      )
+    );
   };
 
-  // Check every 5 seconds while moving
-  const interval = setInterval(checkBounties, 5000);
+  // Run immediately, then set interval to check every 2 seconds
+  checkBounties();
+  const interval = setInterval(checkBounties, 2000);
+
   return () => clearInterval(interval);
 }, [activeBounties, live.lat, live.lon]);
 

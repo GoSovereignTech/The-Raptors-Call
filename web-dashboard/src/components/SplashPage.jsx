@@ -57,7 +57,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
   const [selectedAudience, setSelectedAudience] = useState(getInitialAudience);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [tosConfirmed, setTosConfirmed] = useState(false);
-
+  const [disclaimers, setDisclaimers] = useState(false);
   const canProceed = ageConfirmed && tosConfirmed;
   const activeAudience = AUDIENCES[selectedAudience];
   return (
@@ -172,6 +172,7 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
           </div>
         </div>
       </section>
+ 
 
       {/* ─── STICKY CTA FOOTER ─── */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#0C1A28]/95 backdrop-blur-lg border-t border-slate-700 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-50">
@@ -184,8 +185,12 @@ export default function SplashPage({ onEnterPrecise, onEnterDemo }) {
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={tosConfirmed} onChange={(e) => setTosConfirmed(e.target.checked)} className="h-4 w-4 accent-[#39E0C4]" />
-              I agree to the <a href="/privacy.html" target="_blank" className="text-[#39E0C4] underline">Privacy</a> and <a href="data-deletion.html" target="_blank" className="text-[#39E0C4] underline">Data Deletion</a> policies.
+              I agree to the <a href="/privacy.html" target="_blank" className="text-[#39E0C4] underline">Privacy</a> 
+               <a href="/data-deletion.html" target="_blank" className="text-[#39E0C4] underline">Data Deletion</a> and 
+               <a href="/disclaimers.html" target="_blank" className="text-[#39E0C4] underline">the Development Stage, Regulatory, and Assumption of Risk Disclaimers. </a>.
             </label>
+ 
+           
           </div>
 
           {/* Action Buttons */}

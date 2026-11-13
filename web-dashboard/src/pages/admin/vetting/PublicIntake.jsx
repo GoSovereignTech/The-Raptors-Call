@@ -9,7 +9,7 @@ export function PublicIntake({ onSubmit, onCancel, initial = {} }) {
       name: '', relationship: '', phone: '',
       q1: '', q2: '', q3: '', q4: '',
     })),
-    behavioral: { q1: '', q2: '', q3: '', q4: '' },
+    behavioral: { q1: '', q2: '', q3: '', q4: '', q5: '', q6: '' },
     schoolOrEmployer: '', fieldOfStudy: '', regularRoutes: '',
     hobbies: '', goals: '', upcomingTravel: '',
     aloneWalking: false, aloneDriving: false,

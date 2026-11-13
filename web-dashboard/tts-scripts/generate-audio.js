@@ -3,12 +3,18 @@ import fs from 'fs';
 import path from 'path';
 /*
 faves
+
+MAN 
+
 block 6 byr faster
+
+FEMALE 
  block 7
  block 13
- block 17 ng
+  block 14 - en-KE-AsiliaNeural
+ block 17 ng ezeneural 
  block 20 
-  block 21 
+  block 21  andrew neurwal 
    block 22 
    block 27 
    - 30 emma multilingual neural
@@ -18,7 +24,7 @@ block 6 byr faster
 */
 async function generateFromCSV() {
     // 1. Read the CSV file
-    const csvPath = path.join(process.cwd(), 'tts-scripts', 'stories.csv');
+    const csvPath = path.join(process.cwd(), 'tts-scripts', 'story-2.csv');
     
     if (!fs.existsSync(csvPath)) {
         console.error(`❌ Could not find ${csvPath}. Make sure the file exists!`);
@@ -50,20 +56,40 @@ async function generateFromCSV() {
 
         const voice = line.substring(0, firstCommaIndex).trim();
         let text = line.substring(firstCommaIndex + 1).trim();
+ 
+        let rate = '0%';
+        let pitch = '0Hz';
 
-        // Remove surrounding quotes from the text if they exist
-        if (text.startsWith('"') && text.endsWith('"')) {
-            text = text.slice(1, -1);
+        // 1. Extract Pitch FIRST (it is at the very end of the line)
+        const pitchMatch = text.match(/,\s*['"]?([+-]?\d+Hz)['"]?\s*$/);
+        if (pitchMatch) {
+            pitch = pitchMatch[1];
+            text = text.replace(pitchMatch[0], ''); // Remove from text
+        }
+        
+        // 2. Extract Rate SECOND (now that pitch is gone, rate is at the end)
+        const rateMatch = text.match(/,\s*['"]?([+-]?\d+%)['"]?\s*$/);
+        if (rateMatch) {
+            rate = rateMatch[1];
+            text = text.replace(rateMatch[0], ''); // Remove from text
         }
 
-        const filename = `block-${String(i + 1).padStart(2, '0')}.mp3`;
+        // 3. Clean up surrounding quotes (handles both " and ')
+        text = text.replace(/^["']|["']$/g, '').trim();
+
+        console.log('text = ' + text);
+        console.log('rate = ' + rate);
+        console.log('pitch = ' + pitch);
+
+
+        const filename = `long-block-${String(i + 1).padStart(2, '0')}.mp3`;
         const outputPath = path.join(outputDir, filename);
 
         try {
             console.log(`🎙️ Block ${i + 1} [${voice}]: "${text.substring(0, 30)}..."`);
             
             const tts = new EdgeTTS();
-            await tts.synthesize(text, voice, { rate: '0%', pitch: '0Hz' });
+            await tts.synthesize(text, voice, { rate: rate , pitch: pitch });
             await tts.toFile(outputPath);
             
             console.log(`✅ Saved: tts-scripts/output/${filename}\n`);
@@ -77,6 +103,11 @@ async function generateFromCSV() {
 
 generateFromCSV();
 
+/*
+
+called via node tts-scripts/generate-audio.js;
+
+*/
 /*
 
  - ar-DZ-AminaNeural

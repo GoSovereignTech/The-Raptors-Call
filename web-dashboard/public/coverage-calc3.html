@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perimeter Defense Coverage Calculator</title>
+    <style>
+        :root {
+            --bg-dark: #12181b;
+            --panel-bg: #1e262c;
+            --accent-green: #00e676;
+            --accent-blue: #00b0ff;
+            --accent-orange: #ff9100;
+            --accent-red: #ff5252;
+            --text-main: #e0e6ed;
+            --text-dim: #90a4ae;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        .panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #2a353d; }
+        h2 { margin-top: 0; color: var(--accent-green); font-size: 1.25rem; text-transform: uppercase; border-bottom: 1px solid #2a353d; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 5px; font-weight: 600; }
+        input[type="number"], select { width: 100%; padding: 8px 12px; background: #12181b; border: 1px solid #37474f; color: var(--text-main); border-radius: 4px; box-sizing: border-box; font-size: 0.95rem; }
+        input[type="range"] { width: 100%; accent-color: var(--accent-green); }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 10px; cursor: pointer; }
+        .stat-card { background: #12181b; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--accent-green); }
+        .stat-val { font-size: 1.6rem; font-weight: bold; color: var(--accent-green); }
+        .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
+        canvas { width: 100%; height: 500px; background: #0a0d0f; border-radius: 8px; border: 1px solid #2a353d; display: block; }
+        .instructions { margin-top: 15px; font-size: 0.85rem; line-height: 1.4; color: var(--text-dim); background: #12181b; padding: 12px; border-radius: 4px; }
+        .legend { display: flex; gap: 15px; margin-top: 10px; font-size: 0.75rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="panel">
+        <h2>System Configuration</h2>
+        <div class="form-group">
+            <label for="persons">Number of Operators</label>
+            <input type="number" id="persons" value="4" min="1" max="12">
+        </div>
+        <div class="form-group">
+            <label for="extraNodes">Extra Nodes (Per Operator)</label>
+            <input type="number" id="extraNodes" value="0" min="0" max="5">
+        </div>
+        <div class="form-group">
+            <label for="nodeDistance">Distance Between Nodes (Meters): <span id="distVal">85</span>m</label>
+            <input type="range" id="nodeDistance" min="10" max="150" value="85" step="5">
+        </div>
+        <div class="form-group">
+            <label for="environment">Environment Type</label>
+            <select id="environment">
+                <option value="1.0">Open Field (Max Range)</option>
+                <option value="0.75" selected>Suburban (Light Structures)</option>
+                <option value="0.50">Dense Urban / Heavy Forest</option>
+            </select>
+        </div>
+        <label class="checkbox-group">
+            <input type="checkbox" id="radarDongle" checked>
+            <span>Include UWB Radar (Wall Penetration)</span>
+        </label>
+
+        <div class="stat-card" style="border-left-color: var(--accent-blue);">
+            <div class="stat-label">Trilateration Error Diameter</div>
+            <div class="stat-val" id="errorDisplay" style="color: var(--accent-blue);">0 m</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Effective Coverage Area</div>
+            <div class="stat-val" id="areaDisplay">0 sq ft</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Tactical Layout & Mesh Visualizer</h2>
+        <canvas id="canvas"></canvas>
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background: var(--accent-green);"></div> Operator</div>
+            <div class="legend-item"><div class="dot" style="background: var(--accent-red);"></div> Sensor Node</div>
+            <div class="legend-item"><div class="dot" style="background: rgba(0, 176, 255, 0.8);"></div> Error Polygon</div>
+        </div>
+        <div class="instructions" id="layoutInstructions"></div>
+    </div>
+</div>
+
+<script>
+    const BASE_SEISMIC = 70; // meters
+    const BASE_PIR = 40; // meters
+    
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const distSlider = document.getElementById('nodeDistance');
+    const distVal = document.getElementById('distVal');
+
+    function getInputs() {
+        return {
+            persons: parseInt(document.getElementById('persons').value) || 1,
+            extraNodes: parseInt(document.getElementById('extraNodes').value) || 0,
+            nodeDist: parseInt(distSlider.value),
+            envFactor: parseFloat(document.getElementById('environment').value),
+            hasRadar: document.getElementById('radarDongle').checked
+        };
+    }
+
+    function calculate() {
+        const inp = getInputs();
+        distVal.innerText = inp.nodeDist;
+
+        const rSeismic = BASE_SEISMIC * inp.envFactor;
+        const rPIR = BASE_PIR * inp.envFactor;
+
+        // Total hardware deployed
+        const totalNodes = (inp.persons * 3) + inp.extraNodes;
+
+        // TRILATERATION ERROR MATH
+        // GDOP increases as nodes get closer (curves parallel) or too far (blind spots).
+        // We assume a sensor accuracy (sigma) of roughly 10% of range.
+        let errorDiameter = 0;
+        const maxRange = rSeismic * 2; 
+        
+        if (inp.nodeDist >= maxRange) {
+            errorDiameter = -1; // Indicates blind spot
+        } else {
+            const sigma = rSeismic * 0.10; 
+            // Formula: Error = (2 * sigma * Range) / NodeDistance
+            errorDiameter = Math.max(0.5, (2 * sigma * rSeismic) / inp.nodeDist);
+        }
+
+        // Coverage Area Math
+        // Polygon area + overlapping seismic circles
+        const areaPerTriangle = (Math.sqrt(3) / 4) * Math.pow(inp.nodeDist, 2);
+        const totalAreaSqm = (totalNodes * areaPerTriangle * 0.75) + (inp.persons * Math.PI * Math.pow(rPIR, 2) * 0.5);
+
+        // Formatting
+        let displayArea = Math.round(totalAreaSqm * 10.7639).toLocaleString() + ' sq ft';
+        let displayError = errorDiameter > 0 ? (errorDiameter * 3.28084).toFixed(1) + ' ft' : "BLIND SPOTS";
+        
+        document.getElementById('areaDisplay').innerText = displayArea;
+        document.getElementById('errorDisplay').innerText = displayError;
+
+        // Instructions
+        let text = `<strong>Tactical Note:</strong> Nodes are spaced <strong>${inp.nodeDist}m</strong> apart. `;
+        if (errorDiameter === -1) {
+            text += `<span style="color:var(--accent-red)">WARNING: Nodes are too far apart. Blind spots exist between sensors.</span>`;
+        } else if (inp.nodeDist <= 30) {
+            text += `Extremely high precision (small error polygon), but very tight coverage area. Perfect for a demo where the camera needs to see everything.`;
+        } else {
+            text += `Optimal balance of precision and coverage. Intruders inside this mesh will be pinpointed within an error margin of ±${displayError}.`;
+        }
+        
+        document.getElementById('layoutInstructions').innerHTML = text;
+        drawCanvas(inp, totalNodes, rSeismic, rPIR, errorDiameter);
+    }
+
+    function drawCanvas(inp, totalNodes, rSeismic, rPIR, errorDiameter) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        const cX = canvas.width / 2;
+        const cY = canvas.height / 2;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dynamic Scaling: Fit the mesh on screen based on distance
+        const maxVisual = Math.max(rSeismic * 1.5, (inp.nodeDist * 2)) * 1.2;
+        const scale = (Math.min(canvas.width, canvas.height) / 2.5) / maxVisual;
+
+        // Draw Grid
+        ctx.strokeStyle = '#1e262c';
+        ctx.lineWidth = 1;
+        for(let i = 0; i < canvas.width; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+        for(let j = 0; j < canvas.height; j += 40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke(); }
+
+        // Calculate Radius based on Polygon geometry (R = D / (2 * sin(pi/N)))
+        const actualRadiusMeters = inp.nodeDist / (2 * Math.sin(Math.PI / totalNodes));
+        const visualRadius = Math.max(actualRadiusMeters, 15) * scale; // Ensure it doesn't collapse to center
+
+        // Draw Operators (Center Cluster)
+        const opRadius = 15 * scale;
+        for (let i = 0; i < inp.persons; i++) {
+            const angle = (i * (2 * Math.PI / inp.persons)) - (Math.PI / 2);
+            const pX = cX + (inp.persons === 1 ? 0 : opRadius * Math.cos(angle));
+            const pY = cY + (inp.persons === 1 ? 0 : opRadius * Math.sin(angle));
+            
+            // Draw Radar Zone (if checked)
+            if(inp.hasRadar) {
+                ctx.beginPath(); ctx.arc(pX, pY, (BASE_PIR * 0.8) * scale, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(0, 176, 255, 0.15)'; ctx.fill();
+                ctx.strokeStyle = 'rgba(0, 176, 255, 0.5)'; ctx.stroke();
+            }
+
+            // Draw Operator Dot
+            ctx.beginPath(); ctx.arc(pX, pY, 6, 0, Math.PI*2);
+            ctx.fillStyle = '#00e676'; ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+
+        // Draw Nodes (Surrounding Ring)
+        for (let i = 0; i < totalNodes; i++) {
+            const angle = i * (2 * Math.PI / totalNodes);
+            const nX = cX + visualRadius * Math.cos(angle);
+            const nY = cY + visualRadius * Math.sin(angle);
+
+            // Seismic Range
+            ctx.beginPath(); ctx.arc(nX, nY, rSeismic * scale, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255, 82, 82, 0.03)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 82, 82, 0.15)'; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+
+            // PIR Range
+            ctx.beginPath(); ctx.arc(nX, nY, rPIR * scale, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255, 145, 0, 0.04)'; ctx.fill();
+            
+            // Node Dot
+            ctx.beginPath(); ctx.arc(nX, nY, 5, 0, Math.PI*2);
+            ctx.fillStyle = '#ff5252'; ctx.fill();
+            
+            // Link to center
+            ctx.beginPath(); ctx.moveTo(cX, cY); ctx.lineTo(nX, nY);
+            ctx.strokeStyle = 'rgba(255, 82, 82, 0.1)'; ctx.stroke();
+        }
+
+        // Draw Trilateration Error Polygon (Center)
+        if (errorDiameter > 0) {
+            ctx.beginPath(); ctx.arc(cX, cY, (errorDiameter * scale) / 2, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(0, 176, 255, 0.3)'; ctx.fill();
+            ctx.strokeStyle = '#00b0ff'; ctx.lineWidth = 2; ctx.stroke();
+        }
+    }
+
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+    window.addEventListener('resize', calculate);
+    calculate();
+</script>
+</body>
+</html>
