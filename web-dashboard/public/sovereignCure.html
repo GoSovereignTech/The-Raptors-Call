@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Raptors Call — Active Sovereignty & Rescue Network</title>
+    <style>
+        :root {
+            --bg-dark: #0F1726;
+            --card-bg: #162235;
+            --card-border: #24354D;
+            --accent-orange: #F25D27;
+            --accent-red-orange: #F24C3D;
+            --accent-blue: #11A0D9;
+            --text-offwhite: #D9CCC5;
+            --text-main: #FFFFFF;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-offwhite);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, rgba(242, 93, 39, 0.15) 0%, rgba(15, 23, 38, 0) 100%);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+        }
+
+        .hero h1 span {
+            color: var(--accent-orange);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-offwhite);
+            max-width: 750px;
+            margin: 0 auto 30px auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--accent-orange);
+            color: #fff;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 14px rgba(242, 93, 39, 0.4);
+        }
+
+        .cta-button:hover {
+            background-color: var(--accent-red-orange);
+            transform: translateY(-2px);
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-offwhite);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            opacity: 0.85;
+        }
+
+        /* Origin Story & Problem Grid */
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .story-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+        }
+
+        .story-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+        }
+
+        .story-content p {
+            color: var(--text-offwhite);
+            margin-bottom: 15px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--accent-red-orange);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+        }
+
+        .stat-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .stat-desc {
+            color: var(--text-offwhite);
+            font-size: 0.95rem;
+        }
+
+        /* Solution Comparison */
+        .comparison-box {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #101c2e 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 40px;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-table {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-col {
+            background-color: rgba(15, 23, 38, 0.7);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid var(--card-border);
+        }
+
+        .comparison-col.active-rescue {
+            border-color: var(--accent-blue);
+        }
+
+        .comparison-col h4 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .comparison-col ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .comparison-col li {
+            margin-bottom: 12px;
+            color: var(--text-offwhite);
+            font-size: 0.95rem;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .comparison-col li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent-red-orange);
+        }
+
+        .comparison-col.active-rescue li::before {
+            color: var(--accent-blue);
+        }
+
+        /* Product Showcase Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-orange);
+        }
+
+        .product-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-top: auto;
+            margin-bottom: 15px;
+        }
+
+        .product-link {
+            display: block;
+            text-align: center;
+            background-color: var(--card-border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .product-link:hover {
+            background-color: var(--accent-orange);
+            color: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-offwhite);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--card-border);
+            margin-top: 60px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Sovereignty is the Cure: <br><span>Active Rescue & Defense Infrastructure</span></h1>
+            <p>Built from a decade of frontline humanitarian experience and advanced technical innovation. We don't just track threats after they happen—we deploy off-grid mesh networks and automated radar sensors to anticipate and intercept them.</p>
+            <a href="#products" class="cta-button">Explore Founding Loadouts</a>
+        </header>
+
+        <!-- Origin Story Section -->
+        <section>
+            <h2>The Mission & Origin Story</h2>
+            <p class="section-subtitle">Why we moved from passive idealism to building uncompromised sovereign protection.</p>
+            
+            <div class="story-grid">
+                <div class="story-content">
+                    <h3>From Humanitarian Idealist to Hi-Tech Protector</h3>
+                    <p>After graduating from Howard University College of Medicine in 2014, I witnessed firsthand how systemic vulnerabilities—from urban crime in American cities to relentless rural ambushes across developing regions—trap communities in cycles of violence and trauma.</p>
+                    <p>Professional and government interventions were failing. Security cannot be outsourced; it must be owned. That realization birthed <strong>The Raptors Call</strong> and our complete suite of sovereign infrastructure.</p>
+                </div>
+                <div class="story-content">
+                    <h3>Why Community Sovereignty Matters</h3>
+                    <p>Whether protecting families against urban stalking and domestic threats or safeguarding remote agricultural villages against forest militia ambushes, survival relies on absolute self-reliance.</p>
+                    <p>Our tools operate completely off-grid, requiring no cellular towers, no corporate subscriptions, and no compromises on your privacy.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics & Threat Realities -->
+        <section>
+            <h2>The Reality We Face</h2>
+            <p class="section-subtitle">The data is pervasive. Understanding the threat is the first step to neutralizing it.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">29,000+</div>
+                    <div class="stat-title">Civilian Casualties (Nigeria & Sahel)</div>
+                    <div class="stat-desc">Killed by armed militia hiding in forests for ambush between Jan 2024 and Nov 2026 without early monitoring.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">443,634</div>
+                    <div class="stat-title">Annual Assaults in the U.S.</div>
+                    <div class="stat-desc">Violent attacks happening outside the immediate line of sight and sound of potential helpers.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12 Million</div>
+                    <div class="stat-title">Domestic Violence Incidents</div>
+                    <div class="stat-desc">Requiring rapid, reliable, trusted community response systems that bypass slow reactive emergency channels.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active vs Passive Comparison -->
+        <section>
+            <div class="comparison-box">
+                <h2>The Fundamental Difference: Active Rescue vs. Passive Tracking</h2>
+                <p class="section-subtitle" style="margin-bottom: 20px;">Why consumer apps like Life360 fail when danger strikes.</p>
+                
+                <div class="comparison-table">
+                    <div class="comparison-col">
+                        <h4>❌ Passive Tracking (Life360 / Find My)</h4>
+                        <ul>
+                            <li>Relies entirely on cell towers and internet.</li>
+                            <li>Shows your family where to find your body after an event.</li>
+                            <li>Fails completely in dead zones, or if your phone is smashed or jammed.</li>
+                            <li>Requires your family to manually watch and panic.</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-col active-rescue">
+                        <h4>✅ Active Rescue (The Raptors Call)</h4>
+                        <ul>
+                            <li>Powered by off-grid, encrypted LoRa mesh radio waves.</li>
+                            <li>24GHz radar and perimeter sensors detect threats 1km–10km out.</li>
+                            <li>Instant pin-pull or panic button triggers simultaneous team alerts and maps.</li>
+                            <li>Built for sovereign community and family defense.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Product Showcase -->
+        <section id="products">
+            <h2>Founding Member Loadouts & Offerings</h2>
+            <p class="section-subtitle">Equip your team, protect your family, and secure your independence.</p>
+            
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-info">
+                        <div class="product-title">Loadout #1: Personal Alarm & Beacon Tag</div>
+                        <p class="product-desc" style="color: var(--text-offwhite); font-size: 0.9rem; margin-bottom: 15px; opacity: 0.85;">Wearable, disguised personal security tag with 130dB siren and emergency mesh broadcast.</p>
+                        <div class="product-price">$109</div>
+                        <a href="https://sparklesnovel.gumroad.com/l/personalAlarm" class="product-link" target="_blank">View Details & Buy</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-info">
+                        <div class="product-title">Loadout #2: Raptor-C2 Smartphone Attachment</div>
+                        <p class="product-desc" style="color: var(--text-offwhite); font-size: 0.9rem; margin-bottom: 15px; opacity: 0.85;">Turns the Android phone you already own into an encrypted off-grid mesh radio station.</p>
+                        <div class="product-price">$99</div>
+                        <a href="https://sparklesnovel.gumroad.com" class="product-link" target="_blank">View Details & Buy</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-info">
+                        <div class="product-title">Loadout #5: Complete Tactical Command System</div>
+                        <p class="product-desc" style="color: var(--text-offwhite); font-size: 0.9rem; margin-bottom: 15px; opacity: 0.85;">Full hardware bundle including C2 dongle, 5-sensor perimeter node, and tactical field manual.</p>
+                        <div class="product-price">$1,112</div>
+                        <a href="https://sparklesnovel.gumroad.com" class="product-link" target="_blank">View Details & Buy</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-info">
+                        <div class="product-title">The Millennium Relationship & Family System</div>
+                        <p class="product-desc" style="color: var(--text-offwhite); font-size: 0.9rem; margin-bottom: 15px; opacity: 0.85;">Comprehensive vetting framework, novel, and system designed to prevent 100+ common relationship tragedies.</p>
+                        <div class="product-price">$0.99+</div>
+                        <a href="https://sparklesnovel.gumroad.com/l/MillenniumFamily" class="product-link" target="_blank">View Details & Buy</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Stephen Sutherland MD / GoSovereignTech. All rights reserved.</p>
+        </footer>
+    </div>
+
+</body>
+</html>

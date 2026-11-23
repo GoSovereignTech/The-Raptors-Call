@@ -16,20 +16,14 @@ const QUEUE = [
     arg: null,
     caption: 'Press the play button to watch a rescue scenario. Each scene runs at your current location.',
   },
-  // ── SCENE 1 ─────────────────────────────────────────
-  {
-    scene: 'Routine Walk',
-    fn: 'sequence',
-    arg: ['maya'],
-    caption: 'Scene 1 — Maya walks her usual route home. All normal.',
-  },
+
 
   // ── SCENE 2 ─────────────────────────────────────────
   {
     scene: 'Dacara Rescue',
     fn: 'sequence',
     arg: ['dacaraFullScene'],
-    caption: 'Scene 2 — Dacara is lured into a vehicle. She pulls the pin. Team rescues.',
+    caption: 'Scene 1 — How We Stop Kidnapping and Rescue.',
   },
 
   // ── SCENE 3 ─────────────────────────────────────────
@@ -37,7 +31,15 @@ const QUEUE = [
     scene: 'Ambush Intercept',
     fn: 'sequence',
     arg: ['ambushSetupRescueAllAtOnce'],
-    caption: 'Scene 3 — Stalker ambush. Five teammates converge in under 90 seconds.',
+    caption: 'Scene 2 — How We Detect Stalker ambush and Stop it.',
+  },
+
+    // ── SCENE 1 ─────────────────────────────────────────
+  {
+    scene: 'Routine Walk',
+    fn: 'sequence',
+    arg: ['maya'],
+    caption: 'Scene 3 — Maya walks her usual route home. All normal.',
   },
 
   // ── SCENE 4 ─────────────────────────────────────────
