@@ -9,12 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Delicate cartographic / map-inspired palette */
     --map-bg: #E9ECEF;
     --map-park: #DCE3D6;
     --map-road: #F5A67E;
     --map-road-border: #D47448;
-    --map-water: #4BA3E3;
     --navy: #0C1A28;
     --navy2: #142A3E;
     --navy3: #1B3750;
@@ -31,7 +29,7 @@
   }
 
   html {
-    scroll-padding-top: env(safe-area-inset-top, 0px);
+    scroll-padding-top: 68px;
     scroll-behavior: smooth;
   }
 
@@ -52,9 +50,9 @@
     background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
     color: var(--ink);
     font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    line-height: 1.55;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    padding-bottom: 92px;
+    padding-bottom: 108px;
   }
 
   h1, h2, h3, .display {
@@ -76,14 +74,14 @@
   .wrap {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 18px;
   }
 
-  /* ─── Top Navigation & Live Credit Pill ─── */
+  /* ─── Top Bar ─── */
   .topbar {
     background: var(--navy);
     color: var(--cream);
-    padding: 12px 0;
+    padding: 11px 0;
     border-bottom: 2px solid var(--map-road-border);
     position: sticky;
     top: 0;
@@ -95,15 +93,16 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
 
   .brand {
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
     font-family: 'Anton', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     letter-spacing: 0.5px;
   }
 
@@ -111,19 +110,19 @@
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     color: var(--teal);
-    font-size: 0.65rem;
-    letter-spacing: 1.3px;
+    font-size: 0.62rem;
+    letter-spacing: 1.1px;
   }
 
   .topbar-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
   }
 
   .sub-brand {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 600;
     color: var(--teal);
   }
@@ -136,9 +135,6 @@
     border-radius: 99px;
     font-size: 0.78rem;
     font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .credit-pill span {
@@ -149,47 +145,46 @@
   /* ─── Hero ─── */
   .hero-photo {
     width: 100%;
-    height: 50vw;
-    max-height: 460px;
-    min-height: 250px;
+    height: 52vw;
+    max-height: 450px;
+    min-height: 230px;
     object-fit: cover;
-    object-position: 50% 30%;
+    object-position: 50% 25%;
   }
 
   .hero-band {
     background: var(--navy);
     color: var(--cream);
-    padding: 38px 0 44px;
+    padding: 34px 0 38px;
     border-bottom: 3px solid var(--map-road);
-    box-shadow: inset 0 -2px 0 var(--map-road-border);
   }
 
   .hero-band h1 {
     color: #fff;
-    font-size: clamp(2rem, 5.6vw, 3.4rem);
+    font-size: clamp(1.95rem, 5.5vw, 3.3rem);
     margin: 0 0 8px;
   }
 
   .hero-band p.lede {
     max-width: 640px;
-    font-size: 1.02rem;
+    font-size: 1rem;
     color: #D9E2E8;
-    margin: 0 0 22px;
+    margin: 0 0 20px;
   }
 
   .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
   }
 
   .chip {
     border: 1px solid rgba(57, 224, 196, 0.5);
     color: var(--teal);
-    padding: 6px 13px;
+    padding: 6px 12px;
     border-radius: 99px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     text-decoration: none;
     display: inline-block;
@@ -202,19 +197,19 @@
   .cta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
   }
 
   .btn {
     display: inline-block;
-    padding: 13px 24px;
+    padding: 12px 20px;
     border-radius: 10px;
     font-weight: 800;
     text-decoration: none;
-    font-size: 0.96rem;
+    font-size: 0.92rem;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.14s ease, background 0.14s ease;
   }
 
   .btn:hover {
@@ -243,40 +238,53 @@
     border-color: rgba(255, 255, 255, 0.45);
   }
 
+  .btn-toggle {
+    background: var(--navy3);
+    color: var(--teal);
+    border: 1.5px solid rgba(57, 224, 196, 0.55);
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-toggle:hover {
+    background: #224463;
+  }
+
   /* ─── Sections & Cards ─── */
   section {
-    padding: 48px 0;
-    position: relative;
+    padding: 40px 0;
   }
 
   .section-title {
-    font-size: clamp(1.7rem, 4.4vw, 2.35rem);
-    margin: 0 0 12px;
+    font-size: clamp(1.65rem, 4.4vw, 2.3rem);
+    margin: 0 0 10px;
     color: var(--navy);
   }
 
   .section-subtitle {
-    font-size: clamp(1.1rem, 3.2vw, 1.55rem);
+    font-size: clamp(1.1rem, 3.2vw, 1.5rem);
     margin: 4px 0 4px;
     color: var(--cream);
   }
 
   .section-lede {
     max-width: 660px;
-    font-size: 1rem;
-    margin: 0 0 28px;
+    font-size: 0.96rem;
+    margin: 0 0 22px;
     color: var(--muted-ink);
   }
 
-  /* Roadway-bordered dark navy cards inspired by the map aesthetic */
   .card-soft {
     background: var(--navy2);
     color: var(--cream);
     border-radius: 16px;
-    padding: 24px 26px;
-    margin: 0 0 26px;
+    padding: 20px 22px;
+    margin: 0 0 22px;
     border: 1.5px solid rgba(212, 116, 72, 0.55);
-    box-shadow: 0 10px 26px rgba(12, 26, 40, 0.14);
+    box-shadow: 0 10px 24px rgba(12, 26, 40, 0.14);
   }
 
   .card-soft h2,
@@ -286,24 +294,18 @@
 
   .card-soft h3 {
     color: var(--teal);
-    font-size: 1.25rem;
-    margin: 0 0 10px;
+    font-size: 1.2rem;
+    margin: 0 0 8px;
   }
 
   .card-soft p,
   .card-soft li {
     color: #DCE5EC;
-    font-size: 0.96rem;
+    font-size: 0.94rem;
   }
 
-  .card-soft .section-lede {
-    color: #E7EEF2;
-    margin-bottom: 12px;
-  }
-
-  /* Highlighted text clues for the 3 quiz questions */
   .quiz-highlight {
-    background: rgba(245, 166, 126, 0.2);
+    background: rgba(245, 166, 126, 0.22);
     border-bottom: 2px solid var(--map-road);
     color: #FFF8F0;
     padding: 1px 5px;
@@ -311,23 +313,23 @@
     font-weight: 700;
   }
 
-  /* ─── Video 1 & Video 2 Panels ─── */
+  /* ─── Video & Toggleable Panel ─── */
   .video-panel {
     background: var(--navy);
     color: var(--cream);
     border-radius: 18px;
-    padding: 24px;
+    padding: 20px;
     border: 2px solid var(--map-road-border);
-    box-shadow: 0 12px 30px rgba(12, 26, 40, 0.18);
+    box-shadow: 0 12px 28px rgba(12, 26, 40, 0.18);
     display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 24px;
+    grid-template-columns: 300px 1fr;
+    gap: 22px;
     align-items: center;
   }
 
   .video-frame-wrap {
     width: 100%;
-    max-width: 320px;
+    max-width: 300px;
     margin: 0 auto;
     border-radius: 14px;
     overflow: hidden;
@@ -338,33 +340,39 @@
   .video-frame-wrap video {
     width: 100%;
     height: auto;
-    max-height: 420px;
+    max-height: 390px;
     object-fit: cover;
   }
 
   .video-copy h2 {
     color: #fff;
-    font-size: clamp(1.5rem, 3.8vw, 2rem);
-    margin: 0 0 10px;
+    font-size: clamp(1.45rem, 3.8vw, 1.95rem);
+    margin: 6px 0 8px;
   }
 
   .video-copy p {
     color: #D9E2E8;
-    margin: 0 0 14px;
-    font-size: 0.96rem;
+    margin: 0 0 12px;
+    font-size: 0.92rem;
   }
 
-  .reward-callout {
-    background: rgba(57, 224, 196, 0.1);
+  .collapsible-drawer {
+    display: none;
+    margin-top: 12px;
+    background: rgba(57, 224, 196, 0.09);
     border: 1px solid rgba(57, 224, 196, 0.45);
     border-left: 4px solid var(--map-road);
     border-radius: 10px;
-    padding: 12px 15px;
+    padding: 12px 14px;
     font-size: 0.86rem;
     color: #E7EEF2;
   }
 
-  .reward-callout strong {
+  .collapsible-drawer.open {
+    display: block;
+  }
+
+  .collapsible-drawer strong {
     color: var(--teal);
   }
 
@@ -374,15 +382,15 @@
     }
   }
 
-  /* ─── Interactive Quiz Panels ─── */
+  /* ─── Quiz Panels ─── */
   .quiz-panel {
     background: linear-gradient(145deg, var(--navy) 0%, var(--navy2) 100%);
     color: var(--cream);
     border-radius: 16px;
-    padding: 24px 26px;
-    margin: 28px 0;
+    padding: 20px 22px;
+    margin: 24px 0;
     border: 2px solid var(--map-road-border);
-    box-shadow: 0 12px 28px rgba(12, 26, 40, 0.18);
+    box-shadow: 0 12px 26px rgba(12, 26, 40, 0.18);
   }
 
   .quiz-header {
@@ -390,43 +398,42 @@
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
 
   .quiz-badge {
     background: var(--map-road);
     color: var(--navy);
     font-weight: 800;
-    font-size: 0.76rem;
-    padding: 4px 12px;
+    font-size: 0.74rem;
+    padding: 4px 11px;
     border-radius: 99px;
-    letter-spacing: 0.4px;
     text-transform: uppercase;
   }
 
   .quiz-status {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--teal);
   }
 
   .quiz-panel h3 {
     color: #fff;
-    font-size: 1.35rem;
-    margin: 0 0 8px;
+    font-size: 1.28rem;
+    margin: 0 0 6px;
   }
 
   .quiz-hint {
-    font-size: 0.86rem;
+    font-size: 0.84rem;
     color: #B8C7D4;
-    margin: 0 0 14px;
+    margin: 0 0 12px;
   }
 
   .quiz-options {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 9px;
   }
 
   .quiz-opt {
@@ -434,13 +441,12 @@
     color: var(--cream);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
     border-radius: 10px;
-    padding: 12px 16px;
+    padding: 11px 14px;
     text-align: left;
     font-family: inherit;
-    font-size: 0.94rem;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
   }
 
   .quiz-opt:hover:not(:disabled) {
@@ -461,10 +467,10 @@
   }
 
   .quiz-feedback {
-    margin-top: 14px;
-    padding: 12px 14px;
+    margin-top: 12px;
+    padding: 11px 13px;
     border-radius: 10px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     display: none;
   }
 
@@ -485,11 +491,11 @@
   }
 
   .reward-unlock-box {
-    margin-top: 16px;
+    margin-top: 14px;
     background: rgba(57, 224, 196, 0.12);
     border: 2px solid var(--teal);
     border-radius: 12px;
-    padding: 18px;
+    padding: 16px;
     display: none;
   }
 
@@ -500,7 +506,7 @@
   .reward-unlock-box h4 {
     margin: 0 0 6px;
     color: var(--teal);
-    font-size: 1.12rem;
+    font-size: 1.06rem;
   }
 
   .coupon-row {
@@ -508,7 +514,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   .coupon-code {
@@ -517,63 +523,65 @@
     color: var(--map-road);
     font-weight: 800;
     letter-spacing: 1px;
-    padding: 8px 14px;
+    padding: 8px 13px;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
 
   /* ─── Stats Grid ─── */
   .stat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
 
   .stat {
     background: var(--navy2);
     color: var(--cream);
     border-radius: 14px;
-    padding: 20px 18px;
+    padding: 18px 16px;
     border-top: 3px solid var(--map-road);
+  }
+
+  .stat.extra-stat {
+    display: none;
+  }
+
+  .stat.extra-stat.show {
+    display: block;
   }
 
   .stat .num {
     font-family: 'Anton', sans-serif;
-    font-size: 2.05rem;
+    font-size: 1.95rem;
     color: var(--teal);
     display: block;
     margin: 4px 0;
   }
 
   .stat .lbl {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     color: #C9D4DA;
   }
 
   @media (max-width: 760px) {
     .stat-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .stat-grid {
       grid-template-columns: 1fr;
     }
   }
 
-  /* ─── Layers & Full-Width Presentation ─── */
+  /* ─── Layers & Full-Width Sections ─── */
   .layer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 28px;
+    gap: 24px;
     align-items: center;
-    margin-bottom: 34px;
+    margin-bottom: 28px;
   }
 
   .layer.single-full {
     grid-template-columns: 1fr;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
   }
 
   .layer:nth-child(even):not(.single-full) .layer-img {
@@ -582,26 +590,25 @@
 
   .layer-img img {
     border-radius: 16px;
-    box-shadow: 0 12px 28px rgba(12, 26, 40, 0.16);
+    box-shadow: 0 12px 26px rgba(12, 26, 40, 0.16);
     width: 100%;
-    height: 270px;
+    height: 260px;
     object-fit: cover;
     border: 1.5px solid rgba(212, 116, 72, 0.45);
   }
 
   .layer-img.full-width {
     width: 100%;
-    margin: 0 0 34px;
+    margin: 0 0 28px;
   }
 
   .layer-img.full-width img {
     width: 100%;
     height: auto;
-    max-height: 520px;
+    max-height: 500px;
     object-fit: cover;
     border-radius: 16px;
     border: 2px solid var(--map-road-border);
-    box-shadow: 0 14px 32px rgba(12, 26, 40, 0.2);
   }
 
   .layer-tag {
@@ -610,10 +617,10 @@
     color: var(--teal);
     border: 1px solid var(--map-road);
     font-weight: 700;
-    font-size: 0.75rem;
-    padding: 5px 12px;
+    font-size: 0.72rem;
+    padding: 4px 11px;
     border-radius: 99px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   @media (max-width: 760px) {
@@ -624,45 +631,46 @@
       order: 0;
     }
     .layer-img img {
-      height: 220px;
+      height: 215px;
     }
   }
 
-  /* ─── Watch Panel ─── */
+  /* ─── Watch & Privacy ─── */
   .watch-panel {
     background: var(--navy);
     color: var(--cream);
     border-radius: 18px;
-    padding: 30px;
+    padding: 24px;
     border: 1.5px solid var(--map-road-border);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
   .watch-panel h3 {
     color: #fff;
-    font-size: 1.4rem;
-    margin: 0 0 12px;
+    font-size: 1.32rem;
+    margin: 0 0 10px;
   }
 
   .watch-panel ul {
     margin: 0;
-    padding-left: 20px;
+    padding-left: 18px;
     color: #E7EEF2;
+    font-size: 0.92rem;
   }
 
   .watch-panel li {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .watch-panel-footer {
     grid-column: 1 / -1;
     border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding-top: 16px;
+    padding-top: 14px;
     margin: 0;
     color: var(--teal);
-    font-size: 1.2rem;
+    font-size: 1.12rem;
   }
 
   @media (max-width: 720px) {
@@ -671,7 +679,6 @@
     }
   }
 
-  /* ─── Privacy Section ─── */
   .privacy-sec {
     background: var(--navy);
     color: var(--cream);
@@ -686,26 +693,26 @@
   .priv-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 20px;
   }
 
   .priv-card {
     background: var(--navy2);
     border-radius: 14px;
-    padding: 18px;
+    padding: 16px;
     border-top: 3px solid var(--teal);
   }
 
   .priv-card h4 {
-    margin: 0 0 8px;
-    font-size: 1.02rem;
+    margin: 0 0 6px;
+    font-size: 0.98rem;
     color: #fff;
   }
 
   .priv-card p {
     margin: 0;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     color: #C9D4DA;
   }
 
@@ -725,14 +732,14 @@
     background: rgba(57, 224, 196, 0.1);
     border: 1px solid rgba(57, 224, 196, 0.45);
     border-radius: 14px;
-    padding: 20px 22px;
+    padding: 16px 18px;
+    font-size: 0.9rem;
   }
 
   .priv-note strong {
     color: var(--teal);
     display: block;
-    margin-bottom: 6px;
-    font-size: 1.02rem;
+    margin-bottom: 4px;
   }
 
   .priv-note p {
@@ -740,17 +747,17 @@
     color: #E7EEF2;
   }
 
-  /* ─── Trust Wrap ─── */
+  /* ─── Trust, Funnel & Pricing ─── */
   .trust-wrap {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
-    gap: 28px;
+    gap: 24px;
     align-items: center;
   }
 
   .trust-img img {
     border-radius: 16px;
-    height: 270px;
+    height: 250px;
     object-fit: cover;
     width: 100%;
     border: 1.5px solid var(--map-road-border);
@@ -763,39 +770,35 @@
     .trust-img {
       order: -1;
     }
-    .trust-img img {
-      height: 210px;
-    }
   }
 
-  /* ─── Funnel 5 Steps ─── */
   .funnel-list {
     list-style: none;
     padding: 0;
-    margin: 26px 0 0;
+    margin: 20px 0 0;
   }
 
   .funnel-step {
     display: grid;
-    grid-template-columns: 56px 1fr;
-    gap: 18px;
+    grid-template-columns: 52px 1fr;
+    gap: 16px;
     background: var(--navy);
     color: var(--cream);
     border-radius: 16px;
-    padding: 22px 24px;
-    margin-bottom: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
     align-items: start;
     border-left: 4px solid var(--map-road);
   }
 
   .funnel-num {
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: var(--teal);
     color: var(--navy);
     font-family: 'Anton', sans-serif;
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -803,80 +806,74 @@
 
   .funnel-body h3 {
     color: #fff;
-    font-size: 1.25rem;
-    margin: 0 0 6px;
+    font-size: 1.18rem;
+    margin: 0 0 4px;
   }
 
   .funnel-body p {
     color: #C9D4DA;
-    font-size: 0.96rem;
-    margin: 0 0 14px;
+    font-size: 0.92rem;
+    margin: 0 0 12px;
   }
 
   .funnel-body .funnel-note {
     color: var(--teal);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-style: italic;
     margin: 0;
   }
 
   .funnel-body .btn {
-    padding: 10px 18px;
-    font-size: 0.88rem;
+    padding: 9px 16px;
+    font-size: 0.86rem;
   }
 
   @media (max-width: 520px) {
     .funnel-step {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
     }
   }
 
-  /* ─── Pricing & Get Started ─── */
   .price-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-top: 22px;
+    gap: 16px;
+    margin-top: 20px;
   }
 
   .price-card {
     background: var(--navy);
     color: var(--cream);
     border-radius: 16px;
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     text-decoration: none;
     border: 1.5px solid var(--map-road-border);
-    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   }
 
-  .price-card:hover,
-  .price-card:focus-visible {
-    transform: translateY(-3px);
+  .price-card:hover {
     border-color: var(--teal);
-    box-shadow: 0 12px 26px rgba(12, 26, 40, 0.25);
   }
 
   .price-card .amt {
     font-family: 'Anton', sans-serif;
     color: var(--teal);
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     margin: 6px 0;
   }
 
   .price-card h4 {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: #fff;
   }
 
   .price-card p {
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     color: #C9D4DA;
     margin: 0;
-    flex-grow: 1;
   }
 
   @media (max-width: 760px) {
@@ -885,26 +882,26 @@
     }
   }
 
-  /* ─── Final CTA & Footer ─── */
   .final-cta {
     background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
     color: var(--cream);
     border-radius: 20px;
-    padding: 40px 28px;
+    padding: 34px 22px;
     text-align: center;
     border: 2px solid var(--map-road-border);
   }
 
   .final-cta h2 {
     color: #fff;
-    font-size: clamp(1.65rem, 4.4vw, 2.35rem);
-    margin: 0 0 12px;
+    font-size: clamp(1.6rem, 4.4vw, 2.25rem);
+    margin: 0 0 10px;
   }
 
   .final-cta p {
     max-width: 540px;
-    margin: 0 auto 24px;
+    margin: 0 auto 20px;
     color: #D9E2E8;
+    font-size: 0.94rem;
   }
 
   .final-cta .cta-row {
@@ -914,8 +911,8 @@
   footer {
     background: var(--navy);
     color: #9FB0BC;
-    padding: 30px 0;
-    font-size: 0.85rem;
+    padding: 26px 0;
+    font-size: 0.84rem;
     border-top: 2px solid var(--map-road-border);
   }
 
@@ -923,8 +920,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 12px;
-    align-items: center;
+    gap: 10px;
   }
 
   footer strong {
@@ -947,12 +943,12 @@
   .hr-style {
     border: 0;
     border-top: 1px dashed rgba(245, 166, 126, 0.55);
-    margin: 14px auto;
+    margin: 12px auto;
   }
 
   .curved-rad.hero-photo {
-    border-radius: 18px;
-    margin: 16px auto 24px;
+    border-radius: 16px;
+    margin: 14px auto 20px;
   }
 
   .white-italics {
@@ -971,17 +967,18 @@
     z-index: 40;
     background: var(--navy);
     border-top: 2px solid var(--map-road-border);
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.35);
     display: flex;
-    gap: 10px;
-    padding: 10px max(12px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
+    gap: 8px;
+    padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
   }
 
   .sticky-cta a {
     flex: 1;
     text-align: center;
-    padding: 11px 10px;
-    font-size: 0.88rem;
+    padding: 10px 8px;
+    font-size: 0.82rem;
+    line-height: 1.25;
   }
 
   @media (min-width: 640px) {
@@ -991,6 +988,7 @@
     .sticky-cta a {
       flex: none;
       min-width: 220px;
+      font-size: 0.9rem;
     }
   }
 </style>
@@ -1002,24 +1000,28 @@
     <div class="brand">THE RAPTOR'S CALL <small>OFF-GRID COMMUNITY DEFENSE</small></div>
     <div class="topbar-right">
       <span class="sub-brand">A Go Sovereign Tech Project</span>
-      <div class="credit-pill" id="top-credit-pill">Credits: <span id="credit-count">0</span> / 15 (<span id="discount-count">0%</span> Off)</div>
+      <div class="credit-pill">Credits: <span id="credit-count">0</span> / 15 (<span id="discount-count">0%</span> Off)</div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ 1. VIDEO 1 PANEL + 3-QUESTION REWARD INTRO ═══════════════ -->
-<section style="padding-top: 28px; padding-bottom: 28px;">
+<!-- ═══════════════ VIDEO 1 + COLLAPSIBLE INTRO/QUIZ GUIDE ═══════════════ -->
+<section style="padding-top: 22px; padding-bottom: 20px;">
   <div class="wrap">
     <div class="video-panel">
       <div class="video-frame-wrap">
         <video src="/placeholder.mp4" controls playsinline preload="metadata"></video>
       </div>
       <div class="video-copy">
-        <span class="layer-tag">Welcome Walkthrough · Video 1</span>
-        <h2>Watch This Quick Intro &amp; Earn 15% Off</h2>
-        <p>Glad you made it to the explainer page. Before you scroll through the system, watch this quick walkthrough to see how off-grid community response works in real time.</p>
-        <div class="reward-callout">
-          <strong>How to earn 15 Credits (= 15% Off your loadout):</strong> As you read down this page, answer <strong>3 quick multiple-choice questions</strong>. Key answers are <span class="quiz-highlight">highlighted in the text</span> so they are easy to spot. Each answer unlocks <strong>5 Credits (5% off)</strong> — complete all 3 to unlock your full <strong>15% discount code</strong>.
+        <span class="layer-tag">Video 1 · Quick Intro</span>
+        <h2>See How Community Defense Works</h2>
+        <p>Tap play for a quick walkthrough—or answer 3 short questions as you scroll to earn <strong>15 credits (15% off)</strong>.</p>
+        <button type="button" class="btn-toggle" id="toggle-intro-btn" aria-expanded="false" aria-controls="intro-drawer">
+          + Read 15% Quiz &amp; Intro Notes
+        </button>
+        <div class="collapsible-drawer" id="intro-drawer">
+          <p style="margin:0 0 6px;"><strong>How to earn 15 Credits (= 15% Off):</strong> Answer <strong>3 quick multiple-choice questions</strong> along the way. Key clues are <span class="quiz-highlight">highlighted in the text</span> so you don't have to hunt.</p>
+          <p style="margin:0;">Each answer adds <strong>+5 Credits (5% off)</strong>, unlocking code <strong>RAPTOR15</strong> at the end.</p>
         </div>
       </div>
     </div>
@@ -1049,9 +1051,9 @@
     </div>
 
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Support the launch (GoFundMe)</a>
-      <a class="btn btn-ghost" href="#why-we-exist">Why this project exists</a>
-      <a class="btn btn-ghost" href="#how-it-works">See How it works</a>
+      <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Support the launch</a>
+      <a class="btn btn-ghost" href="#why-we-exist">Why we exist</a>
+      <a class="btn btn-ghost" href="#how-it-works">How it works</a>
     </div>
   </div>
 </div>
@@ -1067,71 +1069,78 @@
       <div class="stat">
         <h3 class="section-subtitle">to stop hate crimes</h3>
         <span class="num">11,679</span>
-        <span class="lbl">hate crimes reported to the FBI in 2024 — anti-Black bias remains the most common single category, year after year.</span>
+        <span class="lbl">FBI-reported hate crimes in 2024 — anti-Black bias remains the most common single category.</span>
       </div>
 
-      <div class="stat">
-        <h3 class="section-subtitle">to stop assaults</h3>
-        <span class="num">443,634</span>
-        <span class="lbl">An estimated 443,634 rapes and sexual assaults occur annually in the U.S. among people ages 12 and older, according to RAINN.</span>
-      </div>
 
-      <div class="stat">
-        <h3 class="section-subtitle">to prevent missing persons</h3>
-        <span class="num">600,000+</span>
-        <span class="lbl">people reported missing in the U.S. every year (NCIC).</span>
-      </div>
-
-      <div class="stat">
-        <h3 class="section-subtitle">to prevent &amp; stop human trafficking</h3>
-        <span class="num">21,457</span>
-        <span class="lbl">The National Human Trafficking Hotline identified 15,085 cases involving 21,457 individual victims in recent annual tracking data.</span>
-      </div>
-
-      <div class="stat">
-        <h3 class="section-subtitle">to stop domestic violence</h3>
-        <span class="num">Up to 12,000,000</span>
-        <span class="lbl">Up to 12,000,000 individuals in the U.S. report experiencing intimate partner violence annually, including physical violence, rape, or stalking.</span>
-      </div>
-
-      <div class="stat">
-        <h3 class="section-subtitle">to stop Elder Abuse</h3>
-        <span class="num">5 million</span>
-        <span class="lbl">As many as 5 million seniors are abused each year in the U.S. About 75% of elders in domestic settings live alone.</span>
-      </div>
-
-      <div class="stat">
-        <h3 class="section-subtitle">to stop Stalking</h3>
-        <span class="num">13,400,000</span>
-        <span class="lbl">Over 13,400,000 individuals in the U.S. report being victims of stalking each year, most often when they are alone.</span>
-      </div>
-
-      <div class="stat">
-        <h3 class="section-subtitle">to stop burglary and home invasion</h3>
-        <span class="num">1,343,180</span>
-        <span class="lbl">In 2023, there were 1,343,180 household burglaries or trespassing incidents. Living alone increases vulnerability.</span>
-      </div>
 
       <div class="stat">
         <h3 class="section-subtitle">to stop kidnappings</h3>
         <span class="num">50,654</span>
-        <span class="lbl">The FBI recorded 50,654 abductions and kidnappings in the U.S. over a recent 12-month period.</span>
+        <span class="lbl">FBI-recorded abductions and kidnappings in the U.S. over a recent 12-month period.</span>
+      </div>
+      
+     <div class="stat">
+        <h3 class="section-subtitle">to prevent missing persons</h3>
+        <span class="num">600,000+</span>
+        <span class="lbl">People reported missing in the U.S. every year (NCIC).</span>
+      </div>
+
+      <div class="stat extra-stat">
+        <h3 class="section-subtitle">to stop assaults</h3>
+        <span class="num">443,634</span>
+        <span class="lbl">Estimated annual rapes and sexual assaults in the U.S. (ages 12+, RAINN).</span>
+      </div>
+      <div class="stat  extra-stat"> 
+        <h3 class="section-subtitle">to stop domestic violence</h3>
+        <span class="num">Up to 12,000,000</span>
+        <span class="lbl">U.S. individuals reporting intimate partner violence annually (including stalking &amp; abuse).</span>
+      </div>
+ 
+      <div class="stat extra-stat">
+        <h3 class="section-subtitle">to prevent human trafficking</h3>
+        <span class="num">21,457</span>
+        <span class="lbl">Individual victims identified across 15,085 cases tracked by the National Hotline.</span>
+      </div>
+
+      <div class="stat extra-stat">
+        <h3 class="section-subtitle">to stop Elder Abuse</h3>
+        <span class="num">5 million</span>
+        <span class="lbl">Seniors abused each year in the U.S.; ~75% in domestic settings live alone.</span>
+      </div>
+
+      <div class="stat extra-stat">
+        <h3 class="section-subtitle">to stop Stalking</h3>
+        <span class="num">13,400,000</span>
+        <span class="lbl">U.S. stalking victims annually, most often targeted when alone.</span>
+      </div>
+
+      <div class="stat extra-stat">
+        <h3 class="section-subtitle">to stop home invasions</h3>
+        <span class="num">1,343,180</span>
+        <span class="lbl">Household burglaries or trespassing incidents in 2023; living alone raises risk.</span>
       </div>
     </div>
 
-    <!-- QUESTION 1 PANEL -->
+    <div style="margin-top: 14px;">
+      <button type="button" class="btn-toggle" id="toggle-stats-btn" aria-expanded="false">
+        + Show All 9 Statistics
+      </button>
+    </div>
+
+    <!-- QUESTION 1 -->
     <div class="quiz-panel" id="quiz-panel-1" data-q="1">
       <div class="quiz-header">
-        <span class="quiz-badge">Question 1 of 3 · Worth 5 Credits (5% Off)</span>
-        <span class="quiz-status" id="q1-status">Not answered yet (+5 Credits available)</span>
+        <span class="quiz-badge">Question 1 of 3 · +5 Credits (5% Off)</span>
+        <span class="quiz-status" id="q1-status">Not answered yet</span>
       </div>
       <h3>1. Who are you looking to protect first with The Raptor's Call?</h3>
-      <p class="quiz-hint">Pick the group that best describes your community — any valid selection awards your first 5 credits.</p>
+      <p class="quiz-hint">Any valid choice earns your first 5 credits.</p>
       <div class="quiz-options">
         <button type="button" class="quiz-opt" data-valid="true">A) Myself &amp; my immediate household / family</button>
         <button type="button" class="quiz-opt" data-valid="true">B) A campus chapter, fraternity, sorority, or church group</button>
         <button type="button" class="quiz-opt" data-valid="true">C) A neighborhood watch, gun club, or community defense team</button>
-        <button type="button" class="quiz-opt" data-valid="true">D) An anti-trafficking or humanitarian field organization</button>
+        <button type="button" class="quiz-opt" data-valid="true">D) An anti-trafficking or community safety group</button>
       </div>
       <div class="quiz-feedback" id="q1-feedback"></div>
     </div>
@@ -1144,33 +1153,25 @@
     <h2 class="section-title">How does it work?</h2>
 
     <div class="card-soft">
-      <h3>We create safety by giving you our</h3>
-      <ol>
-        <li><p><b>Silent &amp; Loud Personal Alarm</b></p></li>
-        <li><p><b>and/or our Smartphone app with electronic attachments.</b></p></li>
-      </ol>
-      <p class="section-lede"><b>Each piece works alone. Together, they turn a group of neighbors into a real-time safety net.</b></p>
-      <p><b>Just Press the Alarm Button or Pull the Pin and we'll be there.</b></p>
+      <h3>Two pieces working together</h3>
+      <p style="margin:0 0 8px;">1. <b>Silent &amp; Loud Personal Alarm</b> &nbsp;·&nbsp; 2. <b>Smartphone App with Off-Grid Mesh Hardware</b></p>
+      <p style="margin:0;">Each works on its own—and together they turn trusted neighbors into a fast response net.</p>
     </div>
 
-    <!-- Full-width Personal Alarm presentation (hairpin removed) -->
     <div class="layer single-full">
       <div class="card-soft" style="margin-bottom: 0;">
-        <span class="layer-tag">Our Personal Alarm — In Disguise</span>
-        <h3>Our Alarm can be disguised as everyday items.</h3>
-        <p><b>For example, wearable jewelry pieces, bags, keychains, dolls, or toys.</b> If you have an emergency, your team can quickly locate your live beacon and reach you.</p>
-        <br>
-        <p>This is fundamentally different from passive tracking where a person can be attacked while neighbors sleep. Even if their line-of-sight is blocked by foggy windows or walls, their phones' alarm sounds and shows your position and nearby teammates on the map. The app handles the mesh routing automatically — all you have to do is:</p>
-        <ol>
-          <li><span class="quiz-highlight">Press the alarm button</span>, or</li>
+        <span class="layer-tag">Personal Alarm — In Disguise</span>
+        <h3>Disguised as everyday items—not a lone siren.</h3>
+        <p>Styled as <b>jewelry, keychains, bags, dolls, or toys</b> so your team can locate your live beacon quickly in an emergency.</p>
+        <p style="margin-top:10px;">Even through walls or behind closed doors, teammates' phones sound an alert and show your live map position when you:</p>
+        <ol style="margin:6px 0 0; padding-left:20px;">
+          <li><span class="quiz-highlight">Press the alarm button</span>,</li>
           <li><span class="quiz-highlight">Pull the physical pin</span>, or</li>
-          <li><span class="quiz-highlight">Say the voice trigger word</span> — notifying your rescue team faster than dialing 911.</li>
+          <li><span class="quiz-highlight">Say the voice trigger word</span> — faster than dialing 911.</li>
         </ol>
-        <p><small>You can trigger the alarm directly inside the app or on your disguised personal alarm tag.</small></p>
       </div>
     </div>
 
-    <!-- Full-width image below -->
     <div class="layer-img full-width">
       <img src="/explainerImages/800px-primary-alarm.jpeg" alt="The Raptor's Call personal alarm hardware and off-grid mesh alert system">
     </div>
@@ -1178,11 +1179,8 @@
     <div class="layer">
       <div class="card-soft" style="margin-bottom: 0;">
         <span class="layer-tag">The App</span>
-        <h3>Turns your phone into a command center</h3>
-        <p>A compact electronic device plugs into your smartphone and puts your whole team on one live map.<br>
-           See where everyone is,<br>
-           <span class="quiz-highlight">Send messages over off-grid LoRa radio that never touch cell towers or the internet</span>,<br>
-           Get alerts even while the app runs quietly in the background.</p>
+        <h3>Your phone becomes a live team map</h3>
+        <p>Plug in the mesh dongle to see your team in real time, <span class="quiz-highlight">send messages over off-grid LoRa radio without cell towers or internet</span>, and get background alerts.</p>
       </div>
       <div class="layer-img">
         <img src="/explainerImages/the-raptors-key.jpeg" alt="Using The Raptor's Call app and mesh key dongle">
@@ -1192,25 +1190,25 @@
     <div class="layer">
       <div class="card-soft" style="margin-bottom: 0;">
         <span class="layer-tag">The Network</span>
-        <h3>Our Sensors see what you can't see.</h3>
-        <p>Motion, heat, footsteps, and presence behind walls — up to a kilometer away or farther across mesh relays. Add perimeter nodes over time to widen your team's vision.</p>
+        <h3>Sensors extend awareness past line of sight</h3>
+        <p>Detect motion, heat, and movement behind walls or across perimeter nodes—and expand coverage over time.</p>
       </div>
       <div class="layer-img">
         <img src="/explainerImages/the-raptors-key.jpeg" alt="Sensor dashboard from The Raptor's Call grid network">
       </div>
     </div>
 
-    <!-- QUESTION 2 PANEL -->
+    <!-- QUESTION 2 -->
     <div class="quiz-panel" id="quiz-panel-2" data-q="2">
       <div class="quiz-header">
-        <span class="quiz-badge">Question 2 of 3 · Worth 5 Credits (5% Off)</span>
-        <span class="quiz-status" id="q2-status">Not answered yet (+5 Credits available)</span>
+        <span class="quiz-badge">Question 2 of 3 · +5 Credits (5% Off)</span>
+        <span class="quiz-status" id="q2-status">Not answered yet</span>
       </div>
-      <h3>2. How does The Raptor's Call trigger an alert and send it when cell towers fail?</h3>
-      <p class="quiz-hint">Check the highlighted text in "How does it work?" right above.</p>
+      <h3>2. How do you trigger an alert and send it when cell towers fail?</h3>
+      <p class="quiz-hint">Check the highlighted clues in "How does it work?" above.</p>
       <div class="quiz-options">
-        <button type="button" class="quiz-opt" data-valid="false">A) It only works when you have 5G cellular service and Wi-Fi</button>
-        <button type="button" class="quiz-opt" data-valid="false">B) You have to type out a long text message manually</button>
+        <button type="button" class="quiz-opt" data-valid="false">A) It requires 5G cell data and Wi-Fi to send any alert</button>
+        <button type="button" class="quiz-opt" data-valid="false">B) You have to type out a text message before help is notified</button>
         <button type="button" class="quiz-opt" data-valid="true">C) Press the button, pull the pin, or say the word — sent over off-grid LoRa radio without cell towers</button>
       </div>
       <div class="quiz-feedback" id="q2-feedback"></div>
@@ -1224,15 +1222,14 @@
     <div class="watch-panel">
       <div>
         <p class="white-italics">What if you cannot press the alarm?</p>
-        <h3>The App is watching your back too</h3>
-        <p style="color:#E7EEF2; margin:0;">The Raptor's Call quietly notices when something's off — an unexpected route, stalkers trailing you, or sudden impact.</p>
+        <h3>The App watches your back too</h3>
+        <p style="color:#E7EEF2; margin:0; font-size:0.92rem;">Spots unusual routes, trailing threats, or signal drops—and remembers your last known location in dead zones.</p>
       </div>
       <ul>
-        <li>If it detects a real risk, it asks for confirmation.</li>
-        <li>If it can't confirm you're okay, it can sound the alarm on your behalf.</li>
-        <li>If you lose signal in a basement, tunnel, or elevator, the network remembers your last known location and keeps retrying until team members receive the message.</li>
+        <li>Prompts for confirmation when risk is detected, and can alert your team if you don't respond.</li>
+        <li>Stores and retries alerts when moving through basements, tunnels, or low-signal spots.</li>
       </ul>
-      <h3 class="watch-panel-footer">The App can hear you say, "Help", or "Call The Raptors!" and sound the alarm to your team.</h3>
+      <h3 class="watch-panel-footer">Voice triggers like "Help" or "Call The Raptors!" alert your team hands-free.</h3>
     </div>
   </div>
 </section>
@@ -1241,54 +1238,52 @@
 <section class="privacy-sec">
   <div class="wrap">
     <h2 class="section-title">Privacy: You decide who sees you</h2>
-    <p style="color:#D9E2E8; margin-bottom:20px;"><b>Privacy Options in the Settings Page</b></p>
-
     <div class="priv-grid">
       <div class="priv-card">
         <h4>Always visible</h4>
-        <p>Your team sees your real location at all times. Built for members actively on watch.</p>
+        <p>Your team sees your live location while you're actively on watch.</p>
       </div>
       <div class="priv-card">
         <h4>Hidden near home</h4>
-        <p><span class="quiz-highlight">Your icon disappears automatically within a radius you set around your home</span>, and reappears everywhere else.</p>
+        <p><span class="quiz-highlight">Your icon disappears automatically inside your set home zone</span>.</p>
       </div>
       <div class="priv-card">
         <h4>Ghost mode</h4>
-        <p><span class="quiz-highlight">Always hidden from the map</span> during calm moments. Built for neighbors who carry higher personal risk.</p>
+        <p><span class="quiz-highlight">Stays hidden on the map</span> during calm moments for higher-risk users.</p>
       </div>
       <div class="priv-card">
         <h4>Minor accounts</h4>
-        <p><span class="quiz-highlight">Anyone under 18 is automatically locked to ghost mode</span> — no exceptions, no opt-out.</p>
+        <p><span class="quiz-highlight">Under-18 accounts lock to ghost mode automatically</span>.</p>
       </div>
     </div>
 
     <div class="priv-note">
       <strong>Emergency Override:</strong>
-      <p>The instant it matters, everyone becomes visible — whether you pull your own alarm, a teammate raises it for you because they see you in danger, or the network itself flags a serious threat. Hidden is a setting for calm moments, never for emergencies.</p>
+      <p>When an SOS or serious threat triggers, visibility opens to your team so responders can reach you fast.</p>
     </div>
 
-    <!-- QUESTION 3 PANEL (UNLOCKS ALL 15 CREDITS = 15% OFF) -->
+    <!-- QUESTION 3 -->
     <div class="quiz-panel" id="quiz-panel-3" data-q="3">
       <div class="quiz-header">
-        <span class="quiz-badge">Question 3 of 3 · Worth 5 Credits (Unlocks Full 15% Off)</span>
-        <span class="quiz-status" id="q3-status">Not answered yet (+5 Credits available)</span>
+        <span class="quiz-badge">Question 3 of 3 · +5 Credits (Unlocks 15% Off)</span>
+        <span class="quiz-status" id="q3-status">Not answered yet</span>
       </div>
-      <h3>3. How does The Raptor's Call protect your privacy when there is no emergency?</h3>
-      <p class="quiz-hint">Check the highlighted privacy modes right above to unlock your final 5 credits.</p>
+      <h3>3. How does privacy work during calm moments vs. emergencies?</h3>
+      <p class="quiz-hint">Check the highlighted privacy cards right above to unlock your final 5 credits.</p>
       <div class="quiz-options">
-        <button type="button" class="quiz-opt" data-valid="false">A) It broadcasts your home address publicly on the internet</button>
-        <button type="button" class="quiz-opt" data-valid="false">B) Everyone on your team can track you inside your house 24/7 with no controls</button>
-        <button type="button" class="quiz-opt" data-valid="true">C) You can hide near home, stay invisible in Ghost Mode (locked for minors), and only appear during an emergency</button>
+        <button type="button" class="quiz-opt" data-valid="false">A) Your location is broadcast publicly online at all times</button>
+        <button type="button" class="quiz-opt" data-valid="false">B) There is no way to hide near home or lock minor accounts</button>
+        <button type="button" class="quiz-opt" data-valid="true">C) You can use Hidden Near Home or Ghost Mode (automatic for minors), and visibility activates in an emergency</button>
       </div>
       <div class="quiz-feedback" id="q3-feedback"></div>
 
       <div class="reward-unlock-box" id="reward-unlock-box">
-        <h4>Congratulations! You've answered all 3 questions and earned 15 Credits (= 15% Off)!</h4>
-        <p style="margin:0; color:#E7EEF2; font-size:0.92rem;">Use your 15% discount code at checkout on Gumroad when ordering your loadout or hardware bundle:</p>
+        <h4>All 3 Questions Complete — 15 Credits (15% Off) Unlocked!</h4>
+        <p style="margin:0; color:#E7EEF2; font-size:0.9rem;">Use code <strong>RAPTOR15</strong> at checkout on Gumroad for 15% off your loadout:</p>
         <div class="coupon-row">
           <span class="coupon-code" id="promo-code-text">RAPTOR15</span>
-          <button type="button" class="btn btn-road" id="copy-code-btn" style="padding:9px 16px; font-size:0.86rem;">Copy 15% Code</button>
-          <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener" style="padding:9px 18px; font-size:0.86rem;">Claim 15% Off on Gumroad →</a>
+          <button type="button" class="btn btn-road" id="copy-code-btn" style="padding:8px 14px; font-size:0.84rem;">Copy Code</button>
+          <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener" style="padding:8px 16px; font-size:0.84rem;">Shop Loadouts →</a>
         </div>
       </div>
     </div>
@@ -1298,18 +1293,17 @@
 <!-- ═══════════════ VETTED TEAM ═══════════════ -->
 <section>
   <div class="wrap">
-    <h2 class="section-title" style="margin-bottom:14px;">Who is on your Team?<br>Carefully vetted friends and neighbors.</h2>
+    <h2 class="section-title" style="margin-bottom:12px;">Vetted friends &amp; neighbors</h2>
     <div class="trust-wrap">
       <div class="card-soft" style="margin-bottom:0;">
-        <p style="margin-bottom:14px; font-weight:700; color:var(--teal);">Anyone can be watched over. Not anyone gets to watch.</p>
-        <ul>
-          <li>Every applicant is checked through references, a personal interview, and a background check before they can see anyone's location.</li>
-          <li>New members start on probation with limited visibility until they've proven reliable.</li>
-          <li>Unusual behavior is flagged automatically, and repeat problems mean quiet, permanent removal (with an organized appeal process).</li>
+        <p style="margin-bottom:10px; font-weight:700; color:var(--teal);">Anyone can be protected. Not everyone gets access.</p>
+        <ul style="margin:0; padding-left:18px;">
+          <li>References, personal screening, and background checks before location access.</li>
+          <li>Probationary start and fast removal if trust is broken (with an appeal path).</li>
         </ul>
       </div>
       <div class="trust-img">
-        <img src="/explainerImages/community.jpeg" alt="Neighbors checking their phones together on a city sidewalk, connected by the mesh network">
+        <img src="/explainerImages/community.jpeg" alt="Neighbors checking their phones together connected by the mesh network">
       </div>
     </div>
   </div>
@@ -1319,134 +1313,119 @@
 <section id="how-to-join">
   <div class="wrap">
     <h2 class="section-title centered">How to join — 5 steps</h2>
-    <p class="section-lede centered" style="margin: 8px auto 0; text-align: center;">
-      From browsing to trained and equipped. Here is the whole path.
-    </p>
-
     <ol class="funnel-list">
       <li class="funnel-step">
         <div class="funnel-num">1</div>
         <div class="funnel-body">
-          <h3>Try the web app — free</h3>
-          <p>Open the demo. Watch the alarm scene play out. No signup, no email required.</p>
-          <a class="btn btn-primary" href="https://theraptors.netlify.app">Open web app →</a>
+          <h3>Try the free web simulator</h3>
+          <p>No signup required—test the map and alert flow first.</p>
+          <a class="btn btn-primary" href="https://theraptors.netlify.app">Open simulator →</a>
         </div>
       </li>
-
       <li class="funnel-step">
         <div class="funnel-num">2</div>
         <div class="funnel-body">
-          <h3>Buy a loadout (Use your 15% quiz credit)</h3>
-          <p>Hand-assembled. Tested before shipping. Ships in 3–6 weeks. Pre-sale funds the first production run.</p>
+          <h3>Get your loadout (from $99)</h3>
+          <p>Hand-assembled &amp; tested (ships in 3–6 weeks). Apply <strong>RAPTOR15</strong> for 15% off after all 3 quiz answers.</p>
           <div class="cta-row">
             <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com">Shop loadouts →</a>
-            <a class="btn btn-ghost" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate instead →</a>
+            <a class="btn btn-ghost" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate →</a>
           </div>
         </div>
       </li>
-
       <li class="funnel-step">
         <div class="funnel-num">3</div>
         <div class="funnel-body">
-          <h3>Book your intake call</h3>
-          <p>A vetted admin calls you to walk through setup, ask matching questions, and prepare your gear. Takes 20 minutes.</p>
-          <a class="btn btn-primary" href="https://calendly.com/stephensutherlandmd/30min">Pick a time →</a>
+          <h3>20-minute intake call</h3>
+          <p>Walk through setup, team matching, and gear prep.</p>
+          <a class="btn btn-primary" href="https://calendly.com/stephensutherlandmd/30min">Book call →</a>
         </div>
       </li>
-
       <li class="funnel-step">
         <div class="funnel-num">4</div>
         <div class="funnel-body">
           <h3>Receive your gear</h3>
-          <p>Tested. Charged. Ready to pair with your phone and your team.</p>
-          <p class="funnel-note">Nothing to do here — just check your mail.</p>
+          <p>Tested, charged, and ready to pair with your team.</p>
+          <p class="funnel-note">Watch for delivery.</p>
         </div>
       </li>
-
       <li class="funnel-step">
         <div class="funnel-num">5</div>
         <div class="funnel-body">
           <h3>Join a training day</h3>
-          <p>Practice with your team. Learn basic response, alarm drills, and coordination with your vetted neighbors.</p>
-          <a class="btn btn-primary" href="https://calendly.com/stephensutherlandmd/training">See upcoming dates →</a>
+          <p>Practice response drills and mesh coordination with your group.</p>
+          <a class="btn btn-primary" href="https://calendly.com/stephensutherlandmd/training">Training dates →</a>
         </div>
       </li>
     </ol>
   </div>
 </section>
 
-<!-- ═══════════════ READY TO GET STARTED (FIXED HEADING CONTRAST) ═══════════════ -->
+<!-- ═══════════════ READY TO GET STARTED ═══════════════ -->
 <section id="get-started">
   <div class="wrap">
     <div class="card-soft">
-      <h2 class="section-title" style="color:#FFFFFF; margin-bottom:6px;">Ready to Get Started?</h2>
-      <h3 style="color:var(--map-road); font-size:1.35rem; margin:0 0 16px;">Get your team equipped &amp; trained</h3>
-
-      <p class="section-lede"><b>Option #1: DONATE:</b><br>
-        Your donation helps a community that can't afford it get equipped free or heavily discounted. Every dollar funds hardware, assembly, and training. We are equipping Jackson, Mississippi and beyond.
-      </p>
-
-      <p style="margin:0 0 14px;"><b>Option #2: Buy it for yourself or your group.</b><br>
-        <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener" style="color:var(--teal); font-weight:700;">Loadouts 1 &amp; 2 to start. 3 &amp; 4 to grow.</a> Hand-assembled and tested before shipping (3 to 6 weeks). You also receive 3 free ebooks the instant you order:
-      </p>
-
+      <h2 class="section-title" style="color:#FFFFFF; margin-bottom:4px;">Ready to Get Started?</h2>
+      <h3 style="color:var(--map-road); font-size:1.25rem; margin:0 0 12px;">Equip your team &amp; support community rollouts</h3>
+      <p style="margin:0 0 10px;"><b>Donate:</b> Helps fund hardware and training for communities that need it most (including Jackson, MS and beyond).</p>
+      <p style="margin:0 0 12px;"><b>Order Loadouts:</b> <a href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener" style="color:var(--teal); font-weight:700;">Start with Loadouts 1 &amp; 2 ($99), expand with 3 &amp; 4.</a> Includes 3 bonus ebooks upon purchase:</p>
       <div class="chips" style="margin-bottom:0;">
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/?section=-YSbtfHFcrbDB-Y6gzmOHA%3D%3D" target="_blank" rel="noopener">My Novel — Sparkles (Action Thriller)</a>
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/endlynchigsnow?layout=profile" target="_blank" rel="noopener">Ebook — How to End Modern-Day Lynchings</a>
-        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/SafeFarmerProtocols?layout=profile" target="_blank" rel="noopener">Ebook — The Safe Farmer Protocol</a>
+        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/?section=-YSbtfHFcrbDB-Y6gzmOHA%3D%3D" target="_blank" rel="noopener">Novel — Sparkles</a>
+        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/endlynchigsnow?layout=profile" target="_blank" rel="noopener">Ebook — Ending Modern-Day Lynchings</a>
+        <a class="chip navy-bg" href="https://sparklesnovel.gumroad.com/l/SafeFarmerProtocols?layout=profile" target="_blank" rel="noopener">Ebook — Safe Farmer Protocol</a>
       </div>
     </div>
 
     <div class="price-grid">
       <a href="https://sparklesnovel.gumroad.com/l/personalAlarm?layout=profile" class="price-card">
-        <h4>Personal Alarm &amp; Off-Grid Beacon Tag</h4>
+        <h4>Personal Alarm &amp; Beacon Tag</h4>
         <div class="amt">$109 or $222</div>
-        <p>Wearable silent &amp; loud personal alarm with off-grid GPS mesh beacon.</p>
+        <p>Wearable alarm with off-grid GPS mesh beacon.</p>
       </a>
       <a href="https://sparklesnovel.gumroad.com/l/teamwork?layout=profile" class="price-card">
         <h4>Raptor's Key Mesh Dongle</h4>
         <div class="amt">From $99</div>
-        <p>Turns your Android phone into a full command center. Add the Google Pixel GrapheneOS-hardened phone option on the product page.</p>
+        <p>Turns your Android phone into a command center (optional Pixel GrapheneOS).</p>
       </a>
       <a href="https://sparklesnovel.gumroad.com/l/radar?layout=profile" class="price-card">
         <h4>Raptor's Radar</h4>
         <div class="amt">$39 – $93 – $204</div>
-        <p>Sees through walls and darkness from 30+ feet away.</p>
+        <p>Detects presence through walls and darkness from 30+ ft away.</p>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ 5. VIDEO 2 OUTRO PANEL ═══════════════ -->
-<section style="padding-top: 12px;">
+<!-- ═══════════════ VIDEO 2 OUTRO PANEL ═══════════════ -->
+<section style="padding-top: 8px;">
   <div class="wrap">
     <div class="video-panel">
       <div class="video-frame-wrap">
         <video src="/placeholder.mp4" controls playsinline preload="metadata"></video>
       </div>
       <div class="video-copy">
-        <span class="layer-tag">Next Step · Video 2</span>
-        <h2>Let's Crush the Statistics of Violence Once and For All</h2>
-        <p id="outro-credit-summary">You've seen how the off-grid mesh network, radar awareness, and vetted community response protect your circle. Answer all 3 questions above to unlock your <strong>15 Credits (15% Off)</strong>, then grab your team's loadout.</p>
+        <span class="layer-tag">Video 2 · Outro</span>
+        <h2>Join a Founding Team</h2>
+        <p id="outro-credit-summary">Try the free simulator or gear up with a $99 loadout. Answer all 3 quiz questions above to unlock <strong>15% off (RAPTOR15)</strong>.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Order Your Loadout (15% Off) →</a>
-          <a class="btn btn-ghost" href="https://theraptors.netlify.app">Try Free Web Simulator</a>
+          <a class="btn btn-primary" href="https://sparklesnovel.gumroad.com" target="_blank" rel="noopener">Get Loadout (15% Off) →</a>
+          <a class="btn btn-ghost" href="https://theraptors.netlify.app">Free Simulator</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section style="padding-top: 16px;">
+<section style="padding-top: 12px;">
   <div class="wrap">
     <div class="final-cta">
-      <h2>A community safety system, built by the community</h2>
-      <p>We're equipping groups of 10 or more neighbors at a time, starting in the neighborhoods that need it most and can afford it least. Help us put prevention in reach before it's needed.</p>
+      <h2>Community defense, owned by the community</h2>
+      <p>Equipping groups of 10+ neighbors and putting prevention in reach before a crisis hits.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate on GoFundMe</a>
-        <a class="btn btn-ghost" href="https://theraptors.netlify.app">See The Web App</a>
+        <a class="btn btn-ghost" href="https://theraptors.netlify.app">Open Web App</a>
       </div>
-      <p style="margin:16px auto 0; font-size:0.82rem; color:#C9D4DA;">SIMULATION MODE IS FREE — Hardware loadouts above unlock live off-grid mesh mode.</p>
+      <p style="margin:14px auto 0; font-size:0.8rem; color:#C9D4DA;">Simulation mode is free — hardware unlocks live off-grid mesh mode.</p>
     </div>
   </div>
 </section>
@@ -1456,28 +1435,50 @@
     <div><strong>The Raptor's Call</strong> — a Go Sovereign Tech project</div>
     <div>Pre-launch — hardware ships as funding allows.</div>
     <div class="Contact">
-      <a href="#" class="email-link" data-u="DrSutherland" data-d="proton.me">Email us</a><br>
+      <a href="#" class="email-link" data-u="DrSutherland" data-d="proton.me">Email us</a> ·
       <a href="#" class="phone-link" data-p1="240" data-p2="424" data-p3="0163">Call us</a>
     </div>
   </div>
 </footer>
 
 <div class="sticky-cta">
-  <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate — Help Equip Someone</a>
-  <a class="btn btn-road" href="#get-started">Get Your Own (15% Quiz Credit)</a>
+  <a class="btn btn-primary" href="https://www.gofundme.com/f/the-raptors-network-for-safer-neighborhoods">Donate</a>
+  <a class="btn btn-road" href="#get-started">Get Loadout (15% Off)</a>
 </div>
 
 <script>
   (function () {
-    // Assemble contact info after load
     document.querySelectorAll('.email-link').forEach(function (el) {
-      const addr = el.dataset.u + '@' + el.dataset.d;
-      el.href = 'mailto:' + addr;
+      el.href = 'mailto:' + el.dataset.u + '@' + el.dataset.d;
     });
     document.querySelectorAll('.phone-link').forEach(function (el) {
-      const num = el.dataset.p1 + '-' + el.dataset.p2 + '-' + el.dataset.p3;
       el.href = 'tel:' + el.dataset.p1 + el.dataset.p2 + el.dataset.p3;
     });
+
+    // Toggleable intro drawer
+    const introBtn = document.getElementById('toggle-intro-btn');
+    const introDrawer = document.getElementById('intro-drawer');
+    if (introBtn && introDrawer) {
+      introBtn.addEventListener('click', function () {
+        const isOpen = introDrawer.classList.toggle('open');
+        introBtn.setAttribute('aria-expanded', String(isOpen));
+        introBtn.textContent = isOpen ? '− Hide 15% Quiz & Intro Notes' : '+ Read 15% Quiz & Intro Notes';
+      });
+    }
+
+    // Toggleable extra statistics
+    const statsBtn = document.getElementById('toggle-stats-btn');
+    const extraStats = document.querySelectorAll('.stat.extra-stat');
+    if (statsBtn) {
+      statsBtn.addEventListener('click', function () {
+        const showing = extraStats[0] && extraStats[0].classList.contains('show');
+        extraStats.forEach(function (card) {
+          card.classList.toggle('show', !showing);
+        });
+        statsBtn.setAttribute('aria-expanded', String(!showing));
+        statsBtn.textContent = !showing ? '− Show Top 3 Statistics' : '+ Show All 9 Statistics';
+      });
+    }
 
     // 3-Question Credit & 15% Discount Logic
     const solved = { 1: false, 2: false, 3: false };
@@ -1494,7 +1495,7 @@
 
       if (count === 3) {
         unlockBox.classList.add('show');
-        outroSummary.innerHTML = 'You earned all <strong>15 Credits (15% Off)</strong>! Use code <strong>RAPTOR15</strong> at checkout on Gumroad to gear up your team and help crush the statistics of violence.';
+        outroSummary.innerHTML = 'You earned <strong>15 Credits (15% Off)</strong>! Use code <strong>RAPTOR15</strong> at checkout on Gumroad.';
       }
     }
 
@@ -1511,7 +1512,7 @@
           if (!isValid) {
             btn.classList.add('wrong');
             feedbackEl.className = 'quiz-feedback show retry';
-            feedbackEl.textContent = 'Not quite — check the highlighted clue in the section above and try again to earn your 5 credits.';
+            feedbackEl.textContent = 'Check the highlighted clue in the section above and try again.';
             return;
           }
 
@@ -1524,22 +1525,19 @@
           });
 
           solved[qNum] = true;
-          statusEl.textContent = 'Earned +5 Credits (5% Off)!';
+          statusEl.textContent = '+5 Credits (5% Off) earned';
           feedbackEl.className = 'quiz-feedback show ok';
 
           const totalEarned = Object.values(solved).filter(Boolean).length * 5;
-          if (totalEarned === 15) {
-            feedbackEl.textContent = 'Correct! You now have all 15 Credits (= 15% Off) unlocked below.';
-          } else {
-            feedbackEl.textContent = 'Correct! +5 Credits added (' + totalEarned + ' / 15 Credits earned so far).';
-          }
+          feedbackEl.textContent = totalEarned === 15
+            ? 'All 15 Credits (15% Off) unlocked below!'
+            : '+5 Credits earned (' + totalEarned + ' / 15 Credits).';
 
           updateCredits();
         });
       });
     });
 
-    // Copy coupon code helper
     const copyBtn = document.getElementById('copy-code-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', function () {
